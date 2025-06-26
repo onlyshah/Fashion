@@ -1,0 +1,164 @@
+<div class="search-page">
+  <!-- Enhanced Search Header -->
+  <div class="search-header">
+    <div class="container">
+      <app-advanced-search
+        [placeholder]="'Search for fashion, brands, and more...'"
+        [showFilters]="true"
+        [enableVoiceSearch]="true"
+        [autoFocus]="true"
+        (searchPerformed)="onSearchPerformed($event)"
+        (suggestionSelected)="onSuggestionSelected($event)"
+        (filtersChanged)="onFiltersChanged($event)">
+      </app-advanced-search>
+    </div>
+  </div>
+
+  <!-- Search Content -->
+  <div class="search-content">
+    <div class="container">
+      <!-- Loading -->
+      <div *ngIf="isLoading" class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Searching...</p>
+      </div>
+
+      <!-- Search Results -->
+      <div *ngIf="hasSearched && !isLoading" class="search-results">
+        <div class="results-header">
+          <h2>Search Results</h2>
+          <span class="results-count">{{ searchResults.length }} products found</span>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-section">
+          <div class="filter-group">
+            <label>Category:</label>
+            <select [(ngModel)]="selectedCategory" (change)="applyFilters()">
+              <option value="">All Categories</option>
+              <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Price Range:</label>
+            <select [(ngModel)]="selectedPriceRange" (change)="applyFilters()">
+              <option value="">All Prices</option>
+              <option value="0-1000">Under ₹1,000</option>
+              <option value="1000-2500">₹1,000 - ₹2,500</option>
+              <option value="2500-5000">₹2,500 - ₹5,000</option>
+              <option value="5000-10000">₹5,000 - ₹10,000</option>
+              <option value="10000+">Above ₹10,000</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Sort by:</label>
+            <select [(ngModel)]="sortBy" (change)="applyFilters()">
+              <option value="relevance">Relevance</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="newest">Newest First</option>
+              <option value="rating">Highest Rated</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- No Results -->
+        <div *ngIf="searchResults.length === 0" class="no-results">
+          <i class="fas fa-search"></i>
+          <h3>No products found</h3>
+          <p>Try searching with different keywords or browse our categories.</p>
+          <div class="suggested-searches">
+            <h4>Popular searches:</h4>
+            <div class="search-tags">
+              <span *ngFor="let tag of popularSearches" class="search-tag" (click)="searchFor(tag)">
+                {{ tag }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results Grid -->
+        <div *ngIf="searchResults.length > 0" class="results-grid">
+          <div *ngFor="let product of searchResults" class="product-card" (click)="viewProduct(product._id)">
+            <div class="product-image">
+              <img [src]="product.images?.[0] || '/assets/images/placeholder-product.jpg'" [alt]="product.name">
+              <div class="product-badge" *ngIf="product.discountPrice">
+                <span>{{ getDiscountPercentage(product) }}% OFF</span>
+              </div>
+              <div class="product-actions">
+                <button class="action-btn wishlist-btn" (click)="toggleWishlist(product._id); $event.stopPropagation()">
+                  <i [class]="isInWishlist(product._id) ? 'fas fa-heart' : 'far fa-heart'"></i>
+                </button>
+              </div>
+            </div>
+            <div class="product-info">
+              <h3>{{ product.name }}</h3>
+              <p class="brand">{{ product.brand }}</p>
+              <div class="price-container">
+                <span class="current-price">₹{{ product.discountPrice || product.price | number:'1.0-0' }}</span>
+                <span *ngIf="product.discountPrice" class="original-price">₹{{ product.price | number:'1.0-0' }}</span>
+              </div>
+              <div class="rating" *ngIf="product.rating">
+                <div class="stars">
+                  <i *ngFor="let star of [1,2,3,4,5]; let i = index" 
+                     class="fas fa-star" 
+                     [class.filled]="i < product.rating.average"></i>
+                </div>
+                <span class="rating-count">({{ product.rating.count }})</span>
+              </div>
+              <div class="product-buttons">
+                <button class="btn-cart" (click)="addToCart(product._id); $event.stopPropagation()">
+                  <i class="fas fa-shopping-cart"></i>
+                  Add to Cart
+                </button>
+                <button class="btn-buy" (click)="buyNow(product._id); $event.stopPropagation()">
+                  Buy Now
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Default Content (when not searching) -->
+      <div *ngIf="!hasSearched && !isLoading" class="default-content">
+        <!-- Recent Searches -->
+        <div *ngIf="recentSearches.length > 0" class="section">
+          <h3>Recent Searches</h3>
+          <div class="search-chips">
+            <span *ngFor="let search of recentSearches" class="search-chip" (click)="searchFor(search)">
+              <i class="fas fa-clock"></i>
+              {{ search }}
+              <i class="fas fa-times" (click)="removeRecentSearch(search); $event.stopPropagation()"></i>
+            </span>
+          </div>
+        </div>
+
+        <!-- Popular Searches -->
+        <div class="section">
+          <h3>Popular Searches</h3>
+          <div class="search-chips">
+            <span *ngFor="let search of popularSearches" class="search-chip popular" (click)="searchFor(search)">
+              <i class="fas fa-fire"></i>
+              {{ search }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Categories -->
+        <div class="section">
+          <h3>Browse Categories</h3>
+          <div class="categories-grid">
+            <div *ngFor="let category of categoryList" class="category-card" (click)="browseCategory(category.name)">
+              <div class="category-icon">
+                <i [class]="category.icon"></i>
+              </div>
+              <h4>{{ category.name }}</h4>
+              <p>{{ category.count }} items</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

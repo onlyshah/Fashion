@@ -1,0 +1,150 @@
+<div class="social-media-platform">
+  <!-- Navigation Header -->
+  <header class="platform-header">
+    <div class="header-content">
+      <div class="logo-section">
+        <h1 class="platform-logo" (click)="goHome()">
+          <i class="fas fa-shopping-bag"></i>
+          DFashion
+        </h1>
+      </div>
+      
+      <div class="search-section">
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input type="text" 
+                 placeholder="Search products, brands, or users..."
+                 [(ngModel)]="searchQuery"
+                 (keyup.enter)="search()">
+        </div>
+      </div>
+      
+      <div class="nav-actions">
+        <button class="nav-btn" (click)="goHome()" [class.active]="currentView === 'home'">
+          <i class="fas fa-home"></i>
+          <span>Home</span>
+        </button>
+        
+        <button class="nav-btn" (click)="goShop()" [class.active]="currentView === 'shop'">
+          <i class="fas fa-store"></i>
+          <span>Shop</span>
+        </button>
+        
+        <button class="nav-btn" (click)="goWishlist()" [class.active]="currentView === 'wishlist'">
+          <i class="fas fa-heart"></i>
+          <span>Wishlist</span>
+          <span class="badge" *ngIf="wishlistCount > 0">{{ wishlistCount }}</span>
+        </button>
+        
+        <button class="nav-btn" (click)="goCart()" [class.active]="currentView === 'cart'">
+          <i class="fas fa-shopping-cart"></i>
+          <span>Cart</span>
+          <span class="badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
+        </button>
+        
+        <div class="user-menu" *ngIf="currentUser; else loginButton">
+          <img [src]="currentUser.avatar || '/assets/images/default-avatar.png'" 
+               [alt]="currentUser.fullName" 
+               class="user-avatar"
+               (click)="toggleUserMenu()">
+          
+          <div class="user-dropdown" *ngIf="showUserMenu">
+            <div class="dropdown-item" (click)="goProfile()">
+              <i class="fas fa-user"></i>
+              Profile
+            </div>
+            <div class="dropdown-item" (click)="goSettings()">
+              <i class="fas fa-cog"></i>
+              Settings
+            </div>
+            <div class="dropdown-item" (click)="logout()">
+              <i class="fas fa-sign-out-alt"></i>
+              Logout
+            </div>
+          </div>
+        </div>
+        
+        <ng-template #loginButton>
+          <button class="btn-login" (click)="goLogin()">
+            Login
+          </button>
+        </ng-template>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="platform-content">
+    <!-- Social Feed (Default View) -->
+    <app-social-feed *ngIf="currentView === 'feed'"></app-social-feed>
+    
+    <!-- Other views will be routed components -->
+    <router-outlet *ngIf="currentView !== 'feed'"></router-outlet>
+  </main>
+
+  <!-- Mobile Bottom Navigation -->
+  <nav class="mobile-nav">
+    <button class="mobile-nav-btn" (click)="goHome()" [class.active]="currentView === 'home'">
+      <i class="fas fa-home"></i>
+      <span>Home</span>
+    </button>
+    
+    <button class="mobile-nav-btn" (click)="goShop()" [class.active]="currentView === 'shop'">
+      <i class="fas fa-store"></i>
+      <span>Shop</span>
+    </button>
+    
+    <button class="mobile-nav-btn" (click)="showCreateMenu()" class="create-btn">
+      <i class="fas fa-plus"></i>
+      <span>Create</span>
+    </button>
+    
+    <button class="mobile-nav-btn" (click)="goWishlist()" [class.active]="currentView === 'wishlist'">
+      <i class="fas fa-heart"></i>
+      <span>Wishlist</span>
+      <span class="mobile-badge" *ngIf="wishlistCount > 0">{{ wishlistCount }}</span>
+    </button>
+    
+    <button class="mobile-nav-btn" (click)="goCart()" [class.active]="currentView === 'cart'">
+      <i class="fas fa-shopping-cart"></i>
+      <span>Cart</span>
+      <span class="mobile-badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
+    </button>
+  </nav>
+
+  <!-- Create Menu Modal -->
+  <div class="create-modal" *ngIf="showCreateModal" (click)="closeCreateMenu()">
+    <div class="create-content" (click)="$event.stopPropagation()">
+      <h3>Create Content</h3>
+      
+      <div class="create-options">
+        <button class="create-option" (click)="createPost()">
+          <i class="fas fa-camera"></i>
+          <span>Create Post</span>
+          <p>Share photos with products</p>
+        </button>
+        
+        <button class="create-option" (click)="createStory()">
+          <i class="fas fa-plus-circle"></i>
+          <span>Create Story</span>
+          <p>Share temporary content</p>
+        </button>
+        
+        <button class="create-option" (click)="goLive()">
+          <i class="fas fa-video"></i>
+          <span>Go Live</span>
+          <p>Live shopping session</p>
+        </button>
+      </div>
+      
+      <button class="btn-close-create" (click)="closeCreateMenu()">
+        Cancel
+      </button>
+    </div>
+  </div>
+
+  <!-- Floating Action Button (Desktop) -->
+  <button class="fab-create" (click)="showCreateMenu()" *ngIf="!isMobile">
+    <i class="fas fa-plus"></i>
+  </button>
+</div>

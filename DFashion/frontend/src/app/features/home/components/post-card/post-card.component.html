@@ -1,0 +1,253 @@
+<article class="post">
+  <!-- Post Header -->
+  <div class="post-header">
+    <div class="user-info">
+      <img
+        [src]="getUserAvatarUrl(post.user.avatar)"
+        [alt]="post.user.fullName"
+        class="user-avatar"
+        (error)="handleImageError($event, 'user')"
+      >
+      <div class="user-details">
+        <h4>{{ post.user.username }}</h4>
+        <span>{{ getTimeAgo(post.createdAt) }}</span>
+      </div>
+    </div>
+    <button class="more-options">
+      <i class="fas fa-ellipsis-h"></i>
+    </button>
+  </div>
+
+  <!-- Post Media -->
+  <div class="post-media" [class.video-container]="currentMedia.type === 'video'">
+    <!-- Loading Placeholder -->
+    <div *ngIf="!currentMedia" class="media-loading">
+      <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Image Media -->
+    <img
+      *ngIf="currentMedia?.type === 'image'"
+      [src]="currentMedia.url"
+      [alt]="currentMedia.alt"
+      class="post-image"
+      (error)="handleImageError($event)"
+      (load)="onMediaLoadComplete()"
+      (dblclick)="onDoubleTap()"
+      (click)="toggleProductTags()"
+    >
+
+    <!-- Video Media -->
+    <video
+      *ngIf="currentMedia?.type === 'video'"
+      #videoPlayer
+      class="post-video"
+      [src]="currentMedia.url"
+      [poster]="currentMedia.thumbnailUrl"
+      [muted]="true"
+      [loop]="true"
+      playsinline
+      (click)="toggleVideoPlay()"
+      (dblclick)="onDoubleTap()"
+      (loadeddata)="onMediaLoadComplete()"
+      (error)="handleVideoError($event)"
+    ></video>
+
+    <!-- Video Controls Overlay -->
+    <div *ngIf="currentMedia?.type === 'video'" class="video-controls" [class.visible]="showVideoControls">
+      <button class="play-pause-btn" (click)="toggleVideoPlay()" [class.playing]="isVideoPlaying">
+        <i [class]="isVideoPlaying ? 'fas fa-pause' : 'fas fa-play'"></i>
+      </button>
+      <div class="video-info" *ngIf="currentMedia.duration">
+        <span class="video-duration">{{ formatDuration(currentMedia.duration) }}</span>
+      </div>
+      <div class="video-progress" *ngIf="videoDuration > 0">
+        <div class="progress-bar" [style.width.%]="videoProgress"></div>
+      </div>
+    </div>
+
+    <!-- Media Navigation (for multiple media) -->
+    <div *ngIf="mediaItems.length > 1" class="media-navigation">
+      <button
+        class="nav-btn prev-btn"
+        (click)="previousMedia()"
+        [disabled]="currentMediaIndex === 0"
+        [attr.aria-label]="'Previous media'"
+      >
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <button
+        class="nav-btn next-btn"
+        (click)="nextMedia()"
+        [disabled]="currentMediaIndex === mediaItems.length - 1"
+        [attr.aria-label]="'Next media'"
+      >
+        <i class="fas fa-chevron-right"></i>
+      </button>
+
+      <!-- Media Indicators -->
+      <div class="media-indicators">
+        <span
+          *ngFor="let media of mediaItems; let i = index"
+          class="indicator"
+          [class.active]="i === currentMediaIndex"
+          [class.video]="media.type === 'video'"
+          (click)="goToMedia(i)"
+          [attr.aria-label]="'Go to media ' + (i + 1)"
+        >
+          <i *ngIf="media.type === 'video'" class="fas fa-play-circle"></i>
+        </span>
+      </div>
+    </div>
+
+    <!-- Double Tap Heart Animation -->
+    <div class="heart-animation" [class.animate]="showHeartAnimation">
+      <i class="fas fa-heart"></i>
+    </div>
+
+    <!-- Product Tags (Instagram-style - hidden by default) -->
+    <div class="product-tags"
+         [class.show-tags]="showProductTags"
+         *ngIf="post.products && post.products.length > 0">
+      <div
+        *ngFor="let productTag of post.products"
+        class="product-tag"
+        [style.top.%]="productTag.position.y || 50"
+        [style.left.%]="productTag.position.x || 50"
+        (click)="viewProduct(productTag.product._id); $event.stopPropagation()"
+      >
+        <div class="tag-dot">
+          <div class="tag-pulse"></div>
+        </div>
+        <div class="product-info">
+          <img
+            [src]="getProductImageUrl(productTag.product.images[0].url || '')"
+            [alt]="productTag.product.name"
+            (error)="handleImageError($event, 'product')"
+          >
+          <div class="product-details">
+            <h5>{{ productTag.product.name }}</h5>
+            <p>₹{{ productTag.product.price | number }}</p>
+            <div class="product-quick-actions">
+              <button class="quick-btn buy-btn" (click)="onBuyNow(productTag.product._id)" title="Buy Now">
+                <i class="fas fa-bolt"></i>
+              </button>
+              <button class="quick-btn cart-btn" (click)="addToCart(productTag.product._id)" title="Add to Cart">
+                <i class="fas fa-cart-plus"></i>
+              </button>
+              <button class="quick-btn wishlist-btn" (click)="addToWishlist(productTag.product._id)" title="Add to Wishlist">
+                <i class="fas fa-heart"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shopping indicator (Instagram-style) -->
+    <div class="shopping-indicator" *ngIf="post.products && post.products.length > 0 && !showProductTags">
+      <i class="fas fa-shopping-bag"></i>
+      <span>Tap to view products</span>
+    </div>
+
+    <!-- Middle Point Navigation Button -->
+    <div class="middle-navigation" *ngIf="post.products && post.products.length > 0">
+      <button class="middle-nav-btn" (click)="viewProduct(post.products[0].product._id); $event.stopPropagation()">
+        <i class="fas fa-shopping-bag"></i>
+        <span>Shop Now</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Post Actions -->
+  <div class="post-actions">
+    <div class="action-buttons">
+      <button
+        class="action-btn like-btn"
+        [class.liked]="isLiked"
+        (click)="toggleLike()"
+      >
+        <i [class]="isLiked ? 'fas fa-heart' : 'far fa-heart'"></i>
+      </button>
+      <button class="action-btn" (click)="toggleComments()">
+        <i class="far fa-comment"></i>
+      </button>
+      <button class="action-btn" (click)="sharePost()">
+        <i class="far fa-share"></i>
+      </button>
+    </div>
+    <button class="save-btn" [class.saved]="isSaved" (click)="toggleSave()">
+      <i [class]="isSaved ? 'fas fa-bookmark' : 'far fa-bookmark'"></i>
+    </button>
+  </div>
+
+  <!-- E-commerce Actions -->
+  <div class="ecommerce-actions" *ngIf="post.products.length > 0">
+    <div class="products-showcase">
+      <div *ngFor="let productTag of post.products" class="product-showcase">
+        <img [src]="productTag.product.images[0].url" [alt]="productTag.product.name" class="product-thumb">
+        <div class="product-info-inline">
+          <h5>{{ productTag.product.name }}</h5>
+          <p class="price">₹{{ productTag.product.price | number }}</p>
+          <div class="product-actions">
+            <button class="btn-wishlist" (click)="addToWishlist(productTag.product._id)" [class.active]="isInWishlist(productTag.product._id)">
+              <i [class]="isInWishlist(productTag.product._id) ? 'fas fa-heart' : 'far fa-heart'"></i>
+            </button>
+            <button class="btn-cart" (click)="addToCart(productTag.product._id)">
+              <i class="fas fa-shopping-cart"></i>
+              Add to Cart
+            </button>
+            <button class="btn-buy-now" (click)="buyNow(productTag.product._id)">
+              Buy Now
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Post Stats -->
+  <div class="post-stats">
+    <p><strong>{{ likesCount }} likes</strong></p>
+  </div>
+
+  <!-- Post Caption -->
+  <div class="post-caption">
+    <p>
+      <strong>{{ post.user.username }}</strong>
+      <span [innerHTML]="formatCaption(post.caption)"></span>
+    </p>
+  </div>
+
+  <!-- Post Comments -->
+  <div class="post-comments">
+    <p class="view-comments" *ngIf="post.comments.length > 0">
+      View all {{ post.comments.length }} comments
+    </p>
+
+    <!-- Recent Comments -->
+    <div *ngFor="let comment of getRecentComments()" class="comment">
+      <p>
+        <strong>{{ comment.user.username }}</strong>
+        {{ comment.text }}
+      </p>
+    </div>
+
+    <!-- Add Comment -->
+    <div class="add-comment">
+      <input
+        type="text"
+        placeholder="Add a comment..."
+        [(ngModel)]="newComment"
+        (keyup.enter)="addComment()"
+      >
+      <button
+        *ngIf="newComment.trim()"
+        (click)="addComment()"
+        class="post-comment-btn"
+      >
+        Post
+      </button>
+    </div>
+  </div>
+</article>

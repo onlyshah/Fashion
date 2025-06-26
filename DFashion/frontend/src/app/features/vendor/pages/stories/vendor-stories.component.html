@@ -1,0 +1,70 @@
+<div class="vendor-stories-container">
+  <div class="header">
+    <h1>My Stories</h1>
+    <a routerLink="/vendor/stories/create" class="btn-primary">
+      <i class="fas fa-plus"></i> Create Story
+    </a>
+  </div>
+
+  <!-- Stories Grid -->
+  <div class="stories-grid" *ngIf="stories.length > 0">
+    <div class="story-card" *ngFor="let story of stories">
+      <div class="story-media">
+        <img *ngIf="story.media.type === 'image'" [src]="story.media.url" [alt]="story.caption">
+        <video *ngIf="story.media.type === 'video'" [src]="story.media.url" muted></video>
+        <div class="story-type">
+          <i [class]="story.media.type === 'video' ? 'fas fa-play' : 'fas fa-image'"></i>
+        </div>
+        <div class="story-duration">{{ getTimeRemaining(story.createdAt) }}</div>
+      </div>
+      
+      <div class="story-content">
+        <p class="story-caption" *ngIf="story.caption">{{ story.caption | slice:0:80 }}{{ story.caption.length > 80 ? '...' : '' }}</p>
+        
+        <div class="story-stats">
+          <span><i class="fas fa-eye"></i> {{ story.views || 0 }}</span>
+          <span><i class="fas fa-reply"></i> {{ story.replies || 0 }}</span>
+          <span><i class="fas fa-shopping-bag"></i> {{ story.productClicks || 0 }}</span>
+        </div>
+
+        <div class="story-products" *ngIf="story.taggedProducts && story.taggedProducts.length > 0">
+          <h4>Tagged Products:</h4>
+          <div class="tagged-products">
+            <span class="product-tag" *ngFor="let product of story.taggedProducts">
+              {{ product.name }}
+            </span>
+          </div>
+        </div>
+
+        <div class="story-meta">
+          <span class="story-date">{{ story.createdAt | date:'short' }}</span>
+          <span class="story-status" [class]="getStoryStatus(story.createdAt)">
+            {{ getStoryStatus(story.createdAt) }}
+          </span>
+        </div>
+      </div>
+
+      <div class="story-actions">
+        <button class="btn-view" (click)="viewStory(story)">
+          <i class="fas fa-eye"></i> View
+        </button>
+        <button class="btn-analytics" (click)="viewAnalytics(story)">
+          <i class="fas fa-chart-bar"></i> Analytics
+        </button>
+        <button class="btn-delete" (click)="deleteStory(story)">
+          <i class="fas fa-trash"></i> Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="stories.length === 0">
+    <div class="empty-content">
+      <i class="fas fa-play-circle"></i>
+      <h2>No stories yet</h2>
+      <p>Create engaging 24-hour stories to showcase your products</p>
+      <a routerLink="/vendor/stories/create" class="btn-primary">Create Your First Story</a>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,120 @@
+<header class="header">
+  <div class="container">
+    <div class="header-content">
+      <!-- Logo -->
+      <div class="logo">
+        <a routerLink="/home">
+          <h1 class="gradient-text">DFashion</h1>
+        </a>
+      </div>
+
+      <!-- Global Search Bar -->
+      <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input
+          type="text"
+          placeholder="Search products, brands, categories..."
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearch()"
+          (input)="onSearchInput()"
+          (focus)="onSearchFocus()"
+          (blur)="onSearchBlur()"
+        >
+        <!-- Search Suggestions Dropdown -->
+        <div class="search-suggestions" *ngIf="showSuggestions && searchSuggestions.length > 0">
+          <div
+            *ngFor="let suggestion of searchSuggestions"
+            class="suggestion-item"
+            (click)="selectSuggestion(suggestion)">
+            <i class="fas" [ngClass]="getSuggestionIcon(suggestion.type)"></i>
+            <span class="suggestion-text">{{ suggestion.text }}</span>
+            <span class="suggestion-type">{{ suggestion.type }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="nav-menu">
+        <a routerLink="/home" routerLinkActive="active" class="nav-item">
+          <i class="fas fa-home"></i>
+          <span>Home</span>
+        </a>
+        <a routerLink="/explore" routerLinkActive="active" class="nav-item">
+          <i class="fas fa-compass"></i>
+          <span>Explore</span>
+        </a>
+        <a routerLink="/shop" routerLinkActive="active" class="nav-item">
+          <i class="fas fa-shopping-bag"></i>
+          <span>Shop</span>
+        </a>
+        <!-- Wishlist Icon with Count -->
+        <a routerLink="/wishlist" routerLinkActive="active" class="nav-item wishlist-item">
+          <i class="fas fa-heart"></i>
+          <span>Wishlist</span>
+          <span class="wishlist-badge" *ngIf="wishlistItemCount > 0">{{ wishlistItemCount }}</span>
+          <span class="wishlist-badge zero" *ngIf="currentUser && wishlistItemCount === 0">0</span>
+        </a>
+
+        <!-- Cart Icon with Count and Total Amount -->
+        <a routerLink="/cart" routerLinkActive="active" class="nav-item cart-item">
+          <i class="fas fa-shopping-cart"></i>
+          <span>Cart</span>
+          <span class="cart-badge" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
+          <span class="cart-badge zero" *ngIf="currentUser && cartItemCount === 0">0</span>
+
+          <!-- Cart total amount display -->
+          <div class="cart-total-display" *ngIf="currentUser && cartTotalAmount > 0">
+            <span class="cart-total-text">{{ getFormattedCartTotal() }}</span>
+          </div>
+        </a>
+
+        <!-- Total Count Display (Cart + Wishlist Combined) -->
+        <div class="total-count-item" *ngIf="currentUser">
+          <i class="fas fa-shopping-bag"></i>
+          <span>Total</span>
+          <span class="total-count-badge" *ngIf="getTotalItemCount() > 0">{{ getTotalItemCount() }}</span>
+          <span class="total-count-badge zero" *ngIf="getTotalItemCount() === 0">0</span>
+        </div>
+
+        <!-- User Menu for logged in users -->
+        <div *ngIf="currentUser" class="user-menu" (click)="toggleUserMenu()">
+          <img [src]="currentUser.avatar" [alt]="currentUser.fullName" class="user-avatar">
+          <span class="username">{{ currentUser.username }}</span>
+          <i class="fas fa-chevron-down"></i>
+          
+          <!-- Dropdown Menu -->
+          <div class="dropdown-menu" [class.show]="showUserMenu">
+            <a routerLink="/profile" class="dropdown-item">
+              <i class="fas fa-user"></i>
+              Profile
+            </a>
+            <a routerLink="/settings" class="dropdown-item">
+              <i class="fas fa-cog"></i>
+              Settings
+            </a>
+            <div class="dropdown-divider"></div>
+            <a *ngIf="currentUser.role === 'vendor'" routerLink="/vendor/dashboard" class="dropdown-item">
+              <i class="fas fa-store"></i>
+              Vendor Dashboard
+            </a>
+            <a *ngIf="currentUser.role === 'admin'" routerLink="/admin" class="dropdown-item">
+              <i class="fas fa-shield-alt"></i>
+              Admin Panel
+            </a>
+            <div class="dropdown-divider" *ngIf="currentUser.role !== 'customer'"></div>
+            <button (click)="logout()" class="dropdown-item logout">
+              <i class="fas fa-sign-out-alt"></i>
+              Logout
+            </button>
+          </div>
+        </div>
+
+        <!-- Login/Register for guest users -->
+        <div *ngIf="!currentUser" class="auth-buttons">
+          <a routerLink="/auth/login" class="btn btn-outline">Login</a>
+          <a routerLink="/auth/register" class="btn btn-primary">Sign Up</a>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>

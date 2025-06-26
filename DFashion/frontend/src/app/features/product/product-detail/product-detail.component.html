@@ -1,0 +1,148 @@
+<div class="product-detail-container" *ngIf="product">
+  <!-- Product Images -->
+  <div class="product-images">
+    <div class="main-image">
+      <img [src]="selectedImage.url" [alt]="selectedImage.alt || product.name" class="main-product-image">
+      <button 
+        class="wishlist-btn" 
+        [class.active]="isInWishlist"
+        (click)="toggleWishlist()"
+      >
+        <i [class]="isInWishlist ? 'fas fa-heart' : 'far fa-heart'"></i>
+      </button>
+    </div>
+    <div class="image-thumbnails">
+      <img 
+        *ngFor="let image of product.images" 
+        [src]="image.url" 
+        [alt]="image.alt || product.name"
+        class="thumbnail"
+        [class.active]="selectedImage.url === image.url"
+        (click)="selectImage(image)"
+      >
+    </div>
+  </div>
+
+  <!-- Product Info -->
+  <div class="product-info">
+    <div class="product-header">
+      <h1>{{ product.name }}</h1>
+      <div class="brand">{{ product.brand }}</div>
+      <div class="rating">
+        <div class="stars">
+          <i *ngFor="let star of getStars()" [class]="star"></i>
+        </div>
+        <span class="rating-text">({{ product.rating.count }} reviews)</span>
+      </div>
+    </div>
+
+    <div class="pricing">
+      <div class="current-price">₹{{ product.price | number }}</div>
+      <div class="original-price" *ngIf="product.originalPrice">₹{{ product.originalPrice | number }}</div>
+      <div class="discount" *ngIf="product.discount > 0">{{ product.discount }}% OFF</div>
+    </div>
+
+    <!-- Size Selection -->
+    <div class="size-selection" *ngIf="product.sizes.length > 0">
+      <h3>Size</h3>
+      <div class="size-options">
+        <button 
+          *ngFor="let size of product.sizes" 
+          class="size-btn"
+          [class.active]="selectedSize === size.size"
+          [class.out-of-stock]="size.stock === 0"
+          [disabled]="size.stock === 0"
+          (click)="selectSize(size.size)"
+        >
+          {{ size.size }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Color Selection -->
+    <div class="color-selection" *ngIf="product.colors.length > 0">
+      <h3>Color</h3>
+      <div class="color-options">
+        <button 
+          *ngFor="let color of product.colors" 
+          class="color-btn"
+          [class.active]="selectedColor === color.name"
+          [style.background-color]="color.code"
+          [title]="color.name"
+          (click)="selectColor(color.name)"
+        >
+        </button>
+      </div>
+    </div>
+
+    <!-- Quantity -->
+    <div class="quantity-selection">
+      <h3>Quantity</h3>
+      <div class="quantity-controls">
+        <button class="qty-btn" (click)="decreaseQuantity()" [disabled]="quantity <= 1">-</button>
+        <span class="quantity">{{ quantity }}</span>
+        <button class="qty-btn" (click)="increaseQuantity()" [disabled]="quantity >= maxQuantity">+</button>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button 
+        class="btn-add-to-cart" 
+        (click)="addToCart()"
+        [disabled]="!canAddToCart()"
+      >
+        <i class="fas fa-shopping-cart"></i>
+        Add to Cart
+      </button>
+      <button 
+        class="btn-buy-now" 
+        (click)="buyNow()"
+        [disabled]="!canAddToCart()"
+      >
+        Buy Now
+      </button>
+    </div>
+
+    <!-- Product Details -->
+    <div class="product-details">
+      <div class="detail-section">
+        <h3>Description</h3>
+        <p>{{ product.description }}</p>
+      </div>
+
+      <div class="detail-section" *ngIf="product.features.length > 0">
+        <h3>Features</h3>
+        <ul>
+          <li *ngFor="let feature of product.features">{{ feature }}</li>
+        </ul>
+      </div>
+
+      <div class="detail-section" *ngIf="product.material">
+        <h3>Material</h3>
+        <p>{{ product.material }}</p>
+      </div>
+
+      <div class="detail-section" *ngIf="product.careInstructions">
+        <h3>Care Instructions</h3>
+        <p>{{ product.careInstructions }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div class="loading-container" *ngIf="isLoading">
+  <div class="spinner"></div>
+  <p>Loading product details...</p>
+</div>
+
+<!-- Error State -->
+<div class="error-container" *ngIf="error">
+  <div class="error-message">
+    <i class="fas fa-exclamation-triangle"></i>
+    <h3>Product Not Found</h3>
+    <p>{{ error }}</p>
+    <button class="btn-back" (click)="goBack()">Go Back</button>
+  </div>
+</div>

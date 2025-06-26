@@ -1,0 +1,139 @@
+<div class="story-create-container">
+  <!-- Header -->
+  <div class="create-header">
+    <button class="btn-back" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <h2>Create Story</h2>
+    <button class="btn-share" 
+            [disabled]="!selectedMedia || uploading"
+            (click)="shareStory()">
+      {{ uploading ? 'Sharing...' : 'Share' }}
+    </button>
+  </div>
+
+  <!-- Media Selection -->
+  <div class="media-selection" *ngIf="!selectedMedia">
+    <div class="selection-options">
+      <div class="option-card" (click)="selectFromGallery()">
+        <i class="fas fa-images"></i>
+        <span>Gallery</span>
+      </div>
+      
+      <div class="option-card" (click)="takePhoto()">
+        <i class="fas fa-camera"></i>
+        <span>Camera</span>
+      </div>
+      
+      <div class="option-card" (click)="recordVideo()">
+        <i class="fas fa-video"></i>
+        <span>Video</span>
+      </div>
+    </div>
+
+    <!-- File Input -->
+    <input type="file" 
+           #fileInput 
+           accept="image/*,video/*" 
+           (change)="onFileSelected($event)"
+           style="display: none;">
+  </div>
+
+  <!-- Media Preview -->
+  <div class="media-preview" *ngIf="selectedMedia">
+    <!-- Image Preview -->
+    <div class="preview-container" *ngIf="mediaType === 'image'">
+      <img [src]="mediaPreview" alt="Story preview" class="preview-media">
+    </div>
+
+    <!-- Video Preview -->
+    <div class="preview-container" *ngIf="mediaType === 'video'">
+      <video [src]="mediaPreview" 
+             controls 
+             class="preview-media"
+             #videoPreview>
+      </video>
+    </div>
+
+    <!-- Story Tools -->
+    <div class="story-tools">
+      <!-- Text Tool -->
+      <div class="tool-section">
+        <button class="tool-btn"
+                [class.active]="activeTools === 'text'"
+                (click)="toggleTool('text')">
+          <i class="fas fa-font"></i>
+        </button>
+      </div>
+
+      <!-- Product Tag Tool -->
+      <div class="tool-section">
+        <button class="tool-btn"
+                [class.active]="activeTools === 'product'"
+                (click)="toggleTool('product')">
+          <i class="fas fa-shopping-bag"></i>
+        </button>
+      </div>
+
+      <!-- Sticker Tool -->
+      <div class="tool-section">
+        <button class="tool-btn"
+                [class.active]="activeTools === 'sticker'"
+                (click)="toggleTool('sticker')">
+          <i class="fas fa-smile"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Caption Input -->
+    <div class="caption-section">
+      <textarea [(ngModel)]="caption" 
+                placeholder="Write a caption..."
+                class="caption-input"
+                maxlength="500"></textarea>
+      <span class="char-count">{{ caption.length }}/500</span>
+    </div>
+
+    <!-- Product Selection Modal -->
+    <div class="product-modal" *ngIf="showProductModal" (click)="closeProductModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Tag Products</h3>
+          <button class="btn-close" (click)="closeProductModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="product-search">
+          <input type="text" 
+                 [(ngModel)]="productSearchQuery"
+                 (input)="searchProducts()"
+                 placeholder="Search products..."
+                 class="search-input">
+        </div>
+        
+        <div class="products-list">
+          <div class="product-item" 
+               *ngFor="let product of searchResults"
+               (click)="selectProduct(product)">
+            <img [src]="product.images[0]?.url" 
+                 [alt]="product.name" 
+                 class="product-image">
+            <div class="product-info">
+              <span class="product-name">{{ product.name }}</span>
+              <span class="product-price">₹{{ product.price }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-overlay" *ngIf="uploading">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <p>Sharing your story...</p>
+    </div>
+  </div>
+</div>

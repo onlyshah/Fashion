@@ -1,0 +1,145 @@
+<div class="featured-brands-container">
+  <!-- Header -->
+  <div class="section-header">
+    <div class="header-content">
+      <h2 class="section-title">
+        <ion-icon name="diamond" class="title-icon"></ion-icon>
+        Featured Brands
+      </h2>
+      <p class="section-subtitle">Top brands with amazing collections</p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-grid">
+      <div *ngFor="let item of [1,2,3,4]" class="loading-brand-card">
+        <div class="loading-header">
+          <div class="loading-brand-name"></div>
+          <div class="loading-stats"></div>
+        </div>
+        <div class="loading-products">
+          <div *ngFor="let prod of [1,2,3]" class="loading-product"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="error-container">
+    <ion-icon name="alert-circle" class="error-icon"></ion-icon>
+    <p class="error-message">{{ error }}</p>
+    <button class="retry-btn" (click)="onRetry()">
+      <ion-icon name="refresh"></ion-icon>
+      Try Again
+    </button>
+  </div>
+
+  <!-- Brands Grid -->
+  <div *ngIf="!isLoading && !error && featuredBrands.length > 0" class="brands-grid">
+    <div 
+      *ngFor="let brand of featuredBrands; trackBy: trackByBrandName" 
+      class="brand-card"
+      (click)="onBrandClick(brand)"
+    >
+      <!-- Brand Header -->
+      <div class="brand-header">
+        <div class="brand-info">
+          <h3 class="brand-name">{{ brand.brand }}</h3>
+          <div class="brand-stats">
+            <div class="stat-item">
+              <ion-icon name="bag-outline"></ion-icon>
+              <span>{{ brand.productCount }} Products</span>
+            </div>
+            <div class="stat-item">
+              <ion-icon name="star"></ion-icon>
+              <span>{{ brand.avgRating }}/5</span>
+            </div>
+            <div class="stat-item">
+              <ion-icon name="eye-outline"></ion-icon>
+              <span>{{ formatNumber(brand.totalViews) }} Views</span>
+            </div>
+          </div>
+        </div>
+        <div class="brand-badge">
+          <ion-icon name="diamond"></ion-icon>
+          Featured
+        </div>
+      </div>
+
+      <!-- Top Products -->
+      <div class="top-products">
+        <h4 class="products-title">Top Products</h4>
+        <div class="products-list">
+          <div 
+            *ngFor="let product of brand.topProducts; trackBy: trackByProductId" 
+            class="product-item"
+            (click)="onProductClick(product, $event)"
+          >
+            <div class="product-image-container">
+              <img 
+                [src]="product.images[0].url"
+                [alt]="product.images[0].alt || product.name"
+                class="product-image"
+                loading="lazy"
+              />
+              
+              <!-- Action Buttons -->
+              <div class="product-actions">
+                <button
+                  class="action-btn like-btn"
+                  [class.liked]="isProductLiked(product._id)"
+                  (click)="onLikeProduct(product, $event)"
+                  [attr.aria-label]="'Like ' + product.name"
+                >
+                  <ion-icon [name]="isProductLiked(product._id) ? 'heart' : 'heart-outline'"></ion-icon>
+                </button>
+                <button 
+                  class="action-btn share-btn" 
+                  (click)="onShareProduct(product, $event)"
+                  [attr.aria-label]="'Share ' + product.name"
+                >
+                  <ion-icon name="share-outline"></ion-icon>
+                </button>
+              </div>
+            </div>
+
+            <div class="product-details">
+              <h5 class="product-name">{{ product.name }}</h5>
+              <div class="product-price">
+                <span class="current-price">{{ formatPrice(product.price) }}</span>
+                <span *ngIf="product.originalPrice && product.originalPrice > product.price" 
+                      class="original-price">{{ formatPrice(product.originalPrice) }}</span>
+              </div>
+              <div class="product-rating">
+                <div class="stars">
+                  <ion-icon 
+                    *ngFor="let star of [1,2,3,4,5]" 
+                    [name]="star <= product.rating.average ? 'star' : 'star-outline'"
+                    [class.filled]="star <= product.rating.average"
+                  ></ion-icon>
+                </div>
+                <span class="rating-count">({{ product.rating.count }})</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- View More Button -->
+      <div class="view-more-section">
+        <button class="view-more-btn">
+          <span>View All {{ brand.brand }} Products</span>
+          <ion-icon name="chevron-forward"></ion-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && !error && featuredBrands.length === 0" class="empty-container">
+    <ion-icon name="diamond-outline" class="empty-icon"></ion-icon>
+    <h3 class="empty-title">No Featured Brands</h3>
+    <p class="empty-message">Check back later for featured brand collections</p>
+  </div>
+</div>

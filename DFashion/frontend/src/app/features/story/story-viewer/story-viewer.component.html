@@ -1,0 +1,179 @@
+<div class="story-viewer" *ngIf="currentStory" (click)="onStoryClick($event)">
+  <!-- Progress Bars -->
+  <div class="progress-container">
+    <div 
+      *ngFor="let story of userStories; let i = index" 
+      class="progress-bar"
+    >
+      <div 
+        class="progress-fill"
+        [style.width.%]="getProgressWidth(i)"
+        [class.active]="i === currentStoryIndex"
+        [class.completed]="i < currentStoryIndex"
+      ></div>
+    </div>
+  </div>
+
+  <!-- Story Header -->
+  <div class="story-header">
+    <div class="user-info">
+      <img [src]="currentStory.user.avatar" [alt]="currentStory.user.fullName" class="user-avatar">
+      <div class="user-details">
+        <span class="username">{{ currentStory.user.username }}</span>
+        <span class="time-ago">{{ getTimeAgo(currentStory.createdAt) }}</span>
+      </div>
+    </div>
+    <div class="story-actions">
+      <button class="action-btn" (click)="pauseStory()" *ngIf="!isPaused">
+        <i class="fas fa-pause"></i>
+      </button>
+      <button class="action-btn" (click)="resumeStory()" *ngIf="isPaused">
+        <i class="fas fa-play"></i>
+      </button>
+      <button class="action-btn" (click)="closeStory()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Story Content -->
+  <div class="story-content">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="story-loading">
+      <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Image Story -->
+    <img
+      *ngIf="currentMediaItem?.type === 'image' && !isLoading"
+      [src]="currentMediaItem?.url || ''"
+      [alt]="currentMediaItem?.alt || currentStory.caption || ''"
+      class="story-media"
+      (load)="onMediaLoaded()"
+      (error)="handleImageError($event)"
+      (click)="onStoryTap($event)"
+    >
+
+    <!-- Video Story -->
+    <video
+      *ngIf="currentMediaItem?.type === 'video' && !isLoading"
+      [src]="currentMediaItem?.url || ''"
+      [poster]="currentMediaItem?.thumbnailUrl || ''"
+      class="story-media"
+      autoplay
+      muted
+      playsinline
+      (loadeddata)="onMediaLoaded()"
+      (ended)="nextStory()"
+      (error)="handleVideoError($event)"
+      (click)="onStoryTap($event)"
+      #videoElement
+    ></video>
+
+    <!-- Video Duration Indicator -->
+    <div *ngIf="currentMediaItem?.type === 'video' && currentMediaItem?.duration" class="video-duration">
+      {{ formatDuration(currentMediaItem?.duration || 0) }}
+    </div>
+
+    <!-- Video Controls for Stories -->
+    <div *ngIf="currentMediaItem?.type === 'video'" class="video-story-controls">
+      <button class="video-play-btn" (click)="toggleStoryVideo()" [class.playing]="isStoryVideoPlaying">
+        <i [class]="isStoryVideoPlaying ? 'fas fa-pause' : 'fas fa-play'"></i>
+      </button>
+    </div>
+
+    <!-- Story Caption -->
+    <div class="story-caption" *ngIf="currentStory.caption">
+      <p>{{ currentStory.caption }}</p>
+    </div>
+
+    <!-- Product Tags -->
+    <div class="product-tags" *ngIf="currentStory.products.length > 0">
+      <div 
+        *ngFor="let productTag of currentStory.products" 
+        class="product-tag"
+        [style.top.%]="productTag.position.y"
+        [style.left.%]="productTag.position.x"
+        (click)="showProductDetails(productTag)"
+      >
+        <div class="tag-dot"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Areas -->
+  <div class="nav-area nav-left" (click)="previousStory()"></div>
+  <div class="nav-area nav-right" (click)="nextStory()"></div>
+
+  <!-- Story Action Buttons -->
+  <div class="story-action-buttons" *ngIf="currentStory.products.length > 0">
+    <button class="action-button buy-now-btn" (click)="buyNowFromStory()" [attr.data-tooltip]="'Buy Now'">
+      <i class="fas fa-shopping-bag"></i>
+      <span>Buy Now</span>
+    </button>
+    <button class="action-button wishlist-btn" (click)="addToWishlistFromStory()" [attr.data-tooltip]="'Add to Wishlist'">
+      <i class="fas fa-heart"></i>
+      <span>Wishlist</span>
+    </button>
+    <button class="action-button cart-btn" (click)="addToCartFromStory()" [attr.data-tooltip]="'Add to Cart'">
+      <i class="fas fa-shopping-cart"></i>
+      <span>Add to Cart</span>
+    </button>
+  </div>
+
+  <!-- Story Footer -->
+  <div class="story-footer">
+    <div class="story-input">
+      <input
+        type="text"
+        placeholder="Send message"
+        [(ngModel)]="messageText"
+        (keyup.enter)="sendMessage()"
+        class="message-input"
+      >
+      <button class="send-btn" (click)="sendMessage()" *ngIf="messageText.trim()">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+    <div class="story-reactions">
+      <button class="reaction-btn" (click)="likeStory()">
+        <i class="far fa-heart"></i>
+      </button>
+      <button class="reaction-btn" (click)="shareStory()">
+        <i class="far fa-share"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Product Modal -->
+<div class="product-modal" *ngIf="selectedProduct" (click)="closeProductModal()">
+  <div class="product-modal-content" (click)="$event.stopPropagation()">
+    <div class="product-header">
+      <img [src]="selectedProduct.product.images[0].url" [alt]="selectedProduct.product.name" class="product-image">
+      <div class="product-info">
+        <h3>{{ selectedProduct.product.name }}</h3>
+        <p class="product-price">₹{{ selectedProduct.product.price | number }}</p>
+        <p class="product-brand">{{ selectedProduct.product.brand }}</p>
+      </div>
+    </div>
+    <div class="product-actions">
+      <button class="btn-wishlist" (click)="addToWishlist(selectedProduct.product._id)">
+        <i class="far fa-heart"></i>
+        Wishlist
+      </button>
+      <button class="btn-cart" (click)="addToCart(selectedProduct.product._id)">
+        <i class="fas fa-shopping-cart"></i>
+        Add to Cart
+      </button>
+      <button class="btn-buy-now" (click)="buyNow(selectedProduct.product._id)">
+        Buy Now
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div class="loading-container" *ngIf="isLoading">
+  <div class="spinner"></div>
+</div>

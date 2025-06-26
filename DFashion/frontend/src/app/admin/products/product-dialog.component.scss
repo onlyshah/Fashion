@@ -1,0 +1,59 @@
+.product-form {
+  min-width: 600px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.form-section {
+  margin-bottom: 2rem;
+  
+  h3 {
+    margin: 0 0 1rem 0;
+    color: #333;
+    font-weight: 500;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 0.5rem;
+  }
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+.half-width {
+  flex: 1;
+}
+
+.save-spinner {
+  margin-right: 0.5rem;
+}
+
+mat-slide-toggle {
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .product-form {
+    min-width: auto;
+    width: 100%;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .half-width {
+    width: 100%;
+  }
+}

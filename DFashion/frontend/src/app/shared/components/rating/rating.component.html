@@ -1,0 +1,15 @@
+<div class="rating-container">
+  <div class="stars">
+    <ion-icon 
+      *ngFor="let star of stars; let i = index"
+      [name]="getStarIcon(i)"
+      [color]="getStarColor(i)"
+      (click)="onStarClick(i)"
+      [class.interactive]="interactive">
+    </ion-icon>
+  </div>
+  <span *ngIf="showValue" class="rating-value">
+    {{ value.toFixed(1) }}
+    <span *ngIf="showCount && count > 0" class="rating-count">({{ count }})</span>
+  </span>
+</div>

@@ -1,0 +1,99 @@
+<div class="shopping-actions" [class.compact]="compact">
+  <!-- Buy Now Button -->
+  <button 
+    class="action-btn buy-btn"
+    [class.loading]="buyLoading"
+    [disabled]="!product.isActive || product.stock === 0 || buyLoading"
+    (click)="onBuyNow()"
+    [attr.aria-label]="'Buy ' + product.name"
+  >
+    <i class="fas fa-shopping-bag" *ngIf="!buyLoading"></i>
+    <i class="fas fa-spinner fa-spin" *ngIf="buyLoading"></i>
+    <span *ngIf="!compact">{{ product.stock === 0 ? 'Out of Stock' : 'Buy Now' }}</span>
+  </button>
+
+  <!-- Add to Cart Button -->
+  <button 
+    class="action-btn cart-btn"
+    [class.loading]="cartLoading"
+    [class.added]="isInCart"
+    [disabled]="!product.isActive || product.stock === 0 || cartLoading"
+    (click)="onAddToCart()"
+    [attr.aria-label]="isInCart ? 'Remove from cart' : 'Add to cart'"
+  >
+    <i class="fas fa-shopping-cart" *ngIf="!cartLoading && !isInCart"></i>
+    <i class="fas fa-check" *ngIf="!cartLoading && isInCart"></i>
+    <i class="fas fa-spinner fa-spin" *ngIf="cartLoading"></i>
+    <span *ngIf="!compact">{{ isInCart ? 'In Cart' : 'Add to Cart' }}</span>
+  </button>
+
+  <!-- Wishlist Button -->
+  <button 
+    class="action-btn wishlist-btn"
+    [class.loading]="wishlistLoading"
+    [class.added]="isInWishlist"
+    [disabled]="wishlistLoading"
+    (click)="onToggleWishlist()"
+    [attr.aria-label]="isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'"
+  >
+    <i class="fas fa-heart" *ngIf="!wishlistLoading && isInWishlist"></i>
+    <i class="far fa-heart" *ngIf="!wishlistLoading && !isInWishlist"></i>
+    <i class="fas fa-spinner fa-spin" *ngIf="wishlistLoading"></i>
+    <span *ngIf="!compact">{{ isInWishlist ? 'Saved' : 'Save' }}</span>
+  </button>
+
+  <!-- Price Display -->
+  <div class="price-display" *ngIf="showPrice">
+    <span class="current-price">₹{{ product.price | number:'1.0-0' }}</span>
+    <span class="original-price" *ngIf="product.originalPrice && product.originalPrice > product.price">
+      ₹{{ product.originalPrice | number:'1.0-0' }}
+    </span>
+    <span class="discount" *ngIf="discountPercentage > 0">
+      {{ discountPercentage }}% OFF
+    </span>
+  </div>
+
+  <!-- Total Count Display (Cart + Wishlist for logged-in user) -->
+  <div class="count-display">
+    <div class="count-summary" *ngIf="authService.isAuthenticated">
+      <div class="total-count">
+        <i class="fas fa-shopping-bag"></i>
+        <span class="count-label">Total Items (Cart + Wishlist):</span>
+        <span class="count-value" [class.has-items]="hasItems()">
+          {{ getTotalCount() }}
+        </span>
+      </div>
+
+      <!-- Cart Total Price Display (when cart has 4+ products) -->
+      <div class="cart-total-price" *ngIf="shouldShowCartTotalPrice()">
+        <div class="total-price-display">
+          <i class="fas fa-dollar-sign"></i>
+          <span class="price-label">Cart Total (4+ items):</span>
+          <span class="price-value">{{ getFormattedCartTotal() }}</span>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="!hasItems()">
+        <i class="fas fa-shopping-bag"></i>
+        <span class="empty-message">No items in cart or wishlist</span>
+      </div>
+
+      <!-- User info for debugging -->
+      <div class="user-info" style="font-size: 10px; color: #666; margin-top: 4px;">
+        User: {{ authService.currentUserValue?.username || 'Unknown' }} |
+        Total Count: {{ getTotalCount() }} |
+        Show Price: {{ shouldShowCartTotalPrice() }}
+      </div>
+    </div>
+
+    <!-- Guest User Message -->
+    <div class="guest-message" *ngIf="!authService.isAuthenticated">
+      <i class="fas fa-info-circle"></i>
+      <span>Login to see your total items count</span>
+      <div class="guest-count">
+        <span class="count-value">0</span>
+        <span class="count-label">items</span>
+      </div>
+    </div>
+  </div>
+</div>

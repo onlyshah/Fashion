@@ -1,0 +1,184 @@
+<!-- Instagram-style Feed -->
+<div class="instagram-feed">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div *ngFor="let item of [1,2,3]" class="post-skeleton">
+      <div class="skeleton-header">
+        <div class="skeleton-avatar"></div>
+        <div class="skeleton-user-info">
+          <div class="skeleton-username"></div>
+          <div class="skeleton-time"></div>
+        </div>
+      </div>
+      <div class="skeleton-image"></div>
+      <div class="skeleton-actions"></div>
+    </div>
+  </div>
+
+  <!-- Posts and Reels -->
+  <div *ngIf="!loading" class="feed-posts">
+    <article *ngFor="let post of posts; trackBy: trackByPostId" class="instagram-post">
+
+      <!-- Post Header -->
+      <header class="post-header">
+        <div class="user-info">
+          <div class="user-avatar-container">
+            <img [src]="post.user?.avatar || 'assets/images/default-avatar.png'"
+                 [alt]="post.user?.fullName || 'User'"
+                 class="user-avatar">
+          </div>
+          <div class="user-details">
+            <h3 class="username">{{ post.user?.username || 'Unknown User' }}</h3>
+            <span class="post-location" *ngIf="post.location">{{ post.location }}</span>
+          </div>
+        </div>
+        <button class="post-options">
+          <i class="fas fa-ellipsis-h"></i>
+        </button>
+      </header>
+
+      <!-- Post Media -->
+      <div class="post-media-container">
+        <!-- Image Post -->
+        <div *ngIf="post.mediaType === 'image'" class="post-image-container">
+          <img [src]="post.mediaUrl" [alt]="post.content" class="post-image">
+        </div>
+
+        <!-- Video/Reel Post -->
+        <div *ngIf="post.mediaType === 'video'" class="post-video-container">
+          <video [src]="post.mediaUrl" class="post-video"
+                 [muted]="true"
+                 [loop]="true"
+                 (click)="toggleVideoPlay($event)">
+          </video>
+          <div class="video-overlay">
+            <button class="play-pause-btn" (click)="toggleVideoPlay($event)">
+              <i class="fas fa-play"></i>
+            </button>
+          </div>
+          <!-- Reel indicator -->
+          <div class="reel-indicator" *ngIf="post.isReel">
+            <i class="fas fa-video"></i>
+            <span>Reel</span>
+          </div>
+        </div>
+
+        <!-- Product Tags Overlay -->
+        <div class="product-tags-overlay" *ngIf="post.products && post.products.length > 0">
+          <button *ngFor="let product of post.products"
+                  class="product-tag-btn"
+                  (click)="showProductDetails(product)">
+            <i class="fas fa-shopping-bag"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Post Actions -->
+      <div class="post-actions">
+        <div class="primary-actions">
+          <button class="action-btn like-btn"
+                  [class.liked]="post.isLiked"
+                  (click)="toggleLike(post)">
+            <i [class]="post.isLiked ? 'fas fa-heart' : 'far fa-heart'"></i>
+          </button>
+
+          <button class="action-btn comment-btn" (click)="focusCommentInput(post)">
+            <i class="far fa-comment"></i>
+          </button>
+
+          <button class="action-btn share-btn" (click)="sharePost(post)">
+            <i class="far fa-paper-plane"></i>
+          </button>
+        </div>
+
+        <button class="action-btn save-btn"
+                [class.saved]="post.isSaved"
+                (click)="toggleSave(post)">
+          <i [class]="post.isSaved ? 'fas fa-bookmark' : 'far fa-bookmark'"></i>
+        </button>
+      </div>
+
+      <!-- Likes Count -->
+      <div class="likes-section" *ngIf="post.likes > 0">
+        <span class="likes-count">{{ formatLikesCount(post.likes) }}</span>
+      </div>
+
+      <!-- Post Caption -->
+      <div class="post-caption">
+        <span class="username">{{ post.user?.username || 'Unknown User' }}</span>
+        <span class="caption-text">{{ post.content }}</span>
+        <div class="hashtags" *ngIf="post.hashtags && post.hashtags.length > 0">
+          <span *ngFor="let hashtag of post.hashtags" class="hashtag">#{{ hashtag }}</span>
+        </div>
+      </div>
+
+      <!-- View Comments -->
+      <div class="comments-preview" *ngIf="post.comments > 0">
+        <button class="view-comments-btn" (click)="toggleComments(post)">
+          View all {{ post.comments }} comments
+        </button>
+      </div>
+
+      <!-- Post Time -->
+      <div class="post-time">
+        {{ getTimeAgo(post.createdAt) }}
+      </div>
+
+      <!-- Add Comment -->
+      <div class="add-comment-section">
+        <input type="text"
+               placeholder="Add a comment..."
+               class="comment-input"
+               [(ngModel)]="newComment"
+               (keyup.enter)="addComment(post)"
+               #commentInput>
+        <button class="post-comment-btn"
+                (click)="addComment(post)"
+                [disabled]="!newComment || !newComment.trim()">
+          Post
+        </button>
+      </div>
+
+      <!-- E-commerce Actions for Fashion Posts -->
+      <div class="ecommerce-section" *ngIf="post.products && post.products.length > 0">
+        <div class="product-showcase">
+          <div *ngFor="let product of post.products.slice(0, 3)" class="featured-product">
+            <img [src]="product.image" [alt]="product.name" class="product-thumbnail">
+            <div class="product-details">
+              <span class="product-name">{{ product.name }}</span>
+              <span class="product-price">{{ formatPrice(product.price) }}</span>
+            </div>
+            <div class="product-actions">
+              <button class="shop-btn" (click)="viewProduct(product)">Shop</button>
+              <button class="cart-btn" (click)="addToCart(product)">
+                <i class="fas fa-shopping-cart"></i>
+              </button>
+              <button class="wishlist-btn" (click)="addToWishlist(product)">
+                <i class="fas fa-heart"></i>
+              </button>
+              <button class="buy-btn" (click)="buyNow(product)">
+                <i class="fas fa-bolt"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <!-- Load More -->
+  <div *ngIf="hasMore && !loading" class="load-more">
+    <button (click)="loadMorePosts()" class="load-more-btn">
+      Load More Posts
+    </button>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && posts.length === 0" class="empty-feed">
+    <div class="empty-content">
+      <i class="fas fa-camera"></i>
+      <h3>Welcome to DFashion</h3>
+      <p>Follow fashion influencers to see their latest posts and discover trending styles!</p>
+    </div>
+  </div>
+</div>

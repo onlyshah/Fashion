@@ -1,0 +1,181 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Create Post</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="saveDraft()" fill="clear">
+        <ion-icon name="bookmark"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <form [formGroup]="postForm" (ngSubmit)="onSubmit()">
+    
+    <!-- Media Section -->
+    <div class="section">
+      <div class="section-header">
+        <h3>Media</h3>
+        <ion-button fill="clear" size="small" (click)="presentMediaActionSheet()">
+          <ion-icon name="add" slot="start"></ion-icon>
+          Add Media
+        </ion-button>
+      </div>
+
+      <!-- Media Preview -->
+      <div class="media-grid" *ngIf="selectedMedia.length > 0">
+        <div class="media-item" *ngFor="let media of selectedMedia; let i = index">
+          <img [src]="media.preview" [alt]="'Media ' + (i + 1)">
+          <ion-button 
+            fill="clear" 
+            size="small" 
+            class="remove-btn"
+            (click)="removeMedia(i)"
+          >
+            <ion-icon name="close-circle" color="danger"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+
+      <!-- Add Media Button -->
+      <div class="add-media-placeholder" *ngIf="selectedMedia.length === 0" (click)="presentMediaActionSheet()">
+        <ion-icon name="camera" color="medium"></ion-icon>
+        <p>Tap to add photos or videos</p>
+      </div>
+    </div>
+
+    <!-- Caption Section -->
+    <div class="section">
+      <div class="section-header">
+        <h3>Caption</h3>
+        <span class="char-count">{{ postForm.get('caption')?.value?.length || 0 }}/2000</span>
+      </div>
+      <ion-textarea
+        formControlName="caption"
+        placeholder="Write a caption for your post..."
+        rows="4"
+        maxlength="2000"
+        class="caption-input"
+      ></ion-textarea>
+    </div>
+
+    <!-- Product Tags Section -->
+    <div class="section">
+      <div class="section-header">
+        <h3>Tag Products</h3>
+      </div>
+      
+      <ion-searchbar
+        placeholder="Search your products..."
+        (ionInput)="searchProducts($event)"
+        debounce="300"
+      ></ion-searchbar>
+
+      <!-- Search Results -->
+      <ion-list *ngIf="searchResults.length > 0">
+        <ion-item 
+          button 
+          *ngFor="let product of searchResults"
+          (click)="addProductTag(product)"
+        >
+          <ion-thumbnail slot="start">
+            <img [src]="product.images[0]?.url" [alt]="product.name">
+          </ion-thumbnail>
+          <ion-label>
+            <h3>{{ product.name }}</h3>
+            <p>₹{{ product.price | number:'1.0-0' }}</p>
+          </ion-label>
+          <ion-button fill="clear" slot="end">
+            <ion-icon name="add" color="primary"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+
+      <!-- Tagged Products -->
+      <div class="tagged-products" *ngIf="taggedProducts.length > 0">
+        <h4>Tagged Products:</h4>
+        <div class="tagged-list">
+          <ion-chip 
+            *ngFor="let product of taggedProducts; let i = index"
+            color="primary"
+            (click)="removeProductTag(i)"
+          >
+            <ion-avatar>
+              <img [src]="product.images[0]?.url" [alt]="product.name">
+            </ion-avatar>
+            <ion-label>{{ product.name }}</ion-label>
+            <ion-icon name="close"></ion-icon>
+          </ion-chip>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hashtags Section -->
+    <div class="section">
+      <div class="section-header">
+        <h3>Hashtags</h3>
+      </div>
+      
+      <ion-input
+        placeholder="Add hashtags (e.g., #fashion #style)"
+        (keyup.enter)="addHashtag($event)"
+        class="hashtag-input"
+      ></ion-input>
+
+      <div class="hashtags" *ngIf="hashtags.length > 0">
+        <ion-chip 
+          *ngFor="let tag of hashtags; let i = index"
+          color="secondary"
+          (click)="removeHashtag(i)"
+        >
+          <ion-label>#{{ tag }}</ion-label>
+          <ion-icon name="close"></ion-icon>
+        </ion-chip>
+      </div>
+    </div>
+
+    <!-- Settings Section -->
+    <div class="section">
+      <div class="section-header">
+        <h3>Post Settings</h3>
+      </div>
+      
+      <ion-list>
+        <ion-item>
+          <ion-checkbox formControlName="allowComments" slot="start"></ion-checkbox>
+          <ion-label>
+            <h3>Allow Comments</h3>
+            <p>Let people comment on your post</p>
+          </ion-label>
+        </ion-item>
+        
+        <ion-item>
+          <ion-checkbox formControlName="allowSharing" slot="start"></ion-checkbox>
+          <ion-label>
+            <h3>Allow Sharing</h3>
+            <p>Let people share your post</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </div>
+
+  </form>
+
+  <!-- Floating Action Button -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button 
+      color="primary" 
+      (click)="onSubmit()"
+      [disabled]="!postForm.valid || selectedMedia.length === 0 || isUploading"
+    >
+      <ion-icon name="checkmark" *ngIf="!isUploading"></ion-icon>
+      <ion-spinner name="crescent" *ngIf="isUploading"></ion-spinner>
+    </ion-fab-button>
+  </ion-fab>
+
+</ion-content>

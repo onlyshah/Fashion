@@ -1,0 +1,184 @@
+<div class="stories-viewer" *ngIf="currentStory" #storyContainer>
+  <!-- Progress Bars (Instagram-style) -->
+  <div class="progress-container">
+    <div 
+      *ngFor="let story of stories; let i = index" 
+      class="progress-bar"
+      [class.active]="i === currentIndex"
+      [class.completed]="i < currentIndex">
+      <div 
+        class="progress-fill"
+        [style.width.%]="i === currentIndex ? progress : (i < currentIndex ? 100 : 0)">
+      </div>
+    </div>
+  </div>
+
+  <!-- Story Header -->
+  <div class="story-header">
+    <div class="user-info" (click)="viewProfile(currentStory.user)">
+      <ion-avatar class="user-avatar">
+        <img [src]="currentStory.user.avatar || '/assets/images/default-avatar.png'" 
+             [alt]="currentStory.user.fullName">
+      </ion-avatar>
+      <div class="user-details">
+        <span class="username">{{ currentStory.user.username }}</span>
+        <span class="timestamp">{{ getTimeAgo(currentStory.createdAt) }}</span>
+      </div>
+    </div>
+    
+    <div class="story-controls">
+      <ion-button fill="clear" size="small" (click)="togglePlayPause()">
+        <ion-icon [name]="isPlaying ? 'pause' : 'play'" color="light"></ion-icon>
+      </ion-button>
+      <ion-button fill="clear" size="small" (click)="toggleMute()" *ngIf="currentStory.media.type === 'video'">
+        <ion-icon [name]="isMuted ? 'volume-mute' : 'volume-high'" color="light"></ion-icon>
+      </ion-button>
+      <ion-button fill="clear" size="small" (click)="closeStories()">
+        <ion-icon name="close" color="light"></ion-icon>
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Story Content -->
+  <div class="story-content">
+    <!-- Image Story -->
+    <div *ngIf="currentStory.media.type === 'image'" class="story-media">
+      <img [src]="currentStory.media.url" 
+           [alt]="currentStory.caption"
+           class="story-image">
+    </div>
+
+    <!-- Video Story -->
+    <div *ngIf="currentStory.media.type === 'video'" class="story-media">
+      <video #storyVideo
+             [src]="currentStory.media.url"
+             [muted]="isMuted"
+             [autoplay]="isPlaying"
+             class="story-video"
+             (ended)="nextStory()"
+             (loadedmetadata)="resumeStory()">
+      </video>
+    </div>
+
+    <!-- Product Tags (Instagram-style) -->
+    <div class="product-tags" *ngIf="currentStory.products && currentStory.products.length > 0">
+      <div 
+        *ngFor="let productTag of currentStory.products"
+        class="product-tag"
+        [style.left.%]="productTag.position.x"
+        [style.top.%]="productTag.position.y"
+        (click)="selectProduct(productTag.product)">
+        <div class="product-dot">
+          <div class="product-pulse"></div>
+        </div>
+        <div class="product-preview" *ngIf="showProducts">
+          <img [src]="productTag.product.images[0].url" [alt]="productTag.product.name">
+          <div class="product-info">
+            <span class="product-name">{{ productTag.product.name }}</span>
+            <span class="product-price">₹{{ productTag.product.price | number }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Story Caption -->
+    <div class="story-caption" *ngIf="currentStory.caption">
+      <p>{{ currentStory.caption }}</p>
+    </div>
+  </div>
+
+  <!-- Story Footer -->
+  <div class="story-footer">
+    <div class="story-actions">
+      <ion-button fill="clear" size="small" (click)="shareStory()">
+        <ion-icon name="share-outline" color="light"></ion-icon>
+      </ion-button>
+      <ion-button fill="clear" size="small" (click)="toggleProducts()" 
+                  *ngIf="currentStory.products && currentStory.products.length > 0">
+        <ion-icon name="bag-outline" color="light"></ion-icon>
+        <ion-badge color="primary">{{ currentStory.products.length }}</ion-badge>
+      </ion-button>
+    </div>
+
+    <!-- Navigation Hints -->
+    <div class="navigation-hints">
+      <div class="nav-hint left" *ngIf="currentIndex > 0">
+        <ion-icon name="chevron-back"></ion-icon>
+      </div>
+      <div class="nav-hint right" *ngIf="currentIndex < stories.length - 1">
+        <ion-icon name="chevron-forward"></ion-icon>
+      </div>
+    </div>
+  </div>
+
+  <!-- Touch Areas for Navigation -->
+  <div class="touch-areas">
+    <div class="touch-area left" (click)="previousStory()"></div>
+    <div class="touch-area center" (click)="togglePlayPause()"></div>
+    <div class="touch-area right" (click)="nextStory()"></div>
+  </div>
+</div>
+
+<!-- Product Modal (Instagram-style) -->
+<ion-modal [isOpen]="!!selectedProduct" (didDismiss)="closeProductModal()">
+  <ng-template>
+    <div class="product-modal" *ngIf="selectedProduct">
+      <div class="modal-header">
+        <h3>Product Details</h3>
+        <ion-button fill="clear" (click)="closeProductModal()">
+          <ion-icon name="close"></ion-icon>
+        </ion-button>
+      </div>
+      
+      <div class="modal-content">
+        <div class="product-image">
+          <img [src]="selectedProduct.images[0].url" [alt]="selectedProduct.name">
+        </div>
+        
+        <div class="product-details">
+          <h4>{{ selectedProduct.name }}</h4>
+          <p class="brand">{{ selectedProduct.brand }}</p>
+          
+          <div class="price-section">
+            <span class="current-price">₹{{ selectedProduct.price | number }}</span>
+            <span class="original-price" *ngIf="selectedProduct.originalPrice">
+              ₹{{ selectedProduct.originalPrice | number }}
+            </span>
+            <span class="discount" *ngIf="selectedProduct.originalPrice">
+              {{ ((selectedProduct.originalPrice - selectedProduct.price) / selectedProduct.originalPrice * 100) | number:'1.0-0' }}% OFF
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-actions">
+        <ion-button expand="block" (click)="addToCart(selectedProduct)" color="primary">
+          <ion-icon name="bag" slot="start"></ion-icon>
+          Add to Cart
+        </ion-button>
+        <ion-button expand="block" fill="outline" (click)="addToWishlist(selectedProduct)">
+          <ion-icon name="heart" slot="start"></ion-icon>
+          Add to Wishlist
+        </ion-button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<!-- Empty State -->
+<div class="empty-stories" *ngIf="!currentStory && stories.length === 0">
+  <div class="empty-content">
+    <ion-icon name="camera-outline" color="medium"></ion-icon>
+    <h3>No Stories Available</h3>
+    <p>Check back later for new stories</p>
+    <ion-button expand="block" (click)="closeStories()">
+      Go Back
+    </ion-button>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div class="loading-stories" *ngIf="!currentStory && stories.length === 0">
+  <ion-spinner name="crescent"></ion-spinner>
+  <p>Loading stories...</p>
+</div>

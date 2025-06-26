@@ -1,0 +1,193 @@
+<div class="notifications-page">
+  <div class="page-header">
+    <h1>Notifications</h1>
+    <div class="header-actions">
+      <button mat-button [matMenuTriggerFor]="settingsMenu">
+        <mat-icon>settings</mat-icon>
+        Settings
+      </button>
+      <button 
+        mat-raised-button 
+        color="primary"
+        *ngIf="unreadCount > 0"
+        (click)="markAllAsRead()"
+      >
+        Mark All Read ({{ unreadCount }})
+      </button>
+    </div>
+  </div>
+
+  <mat-card class="notifications-card">
+    <mat-card-content>
+      <mat-tab-group (selectedTabChange)="onTabChange($event)">
+        <mat-tab label="All">
+          <div class="tab-content">
+            <div class="filter-chips">
+              <mat-chip-listbox>
+                <mat-chip-option 
+                  *ngFor="let category of categories"
+                  [selected]="selectedCategory === category.value"
+                  (click)="filterByCategory(category.value)"
+                >
+                  <mat-icon>{{ category.icon }}</mat-icon>
+                  {{ category.label }}
+                </mat-chip-option>
+              </mat-chip-listbox>
+            </div>
+            <div class="notifications-list">
+              <div *ngIf="loading" class="loading-container">
+                <mat-spinner></mat-spinner>
+                <p>Loading notifications...</p>
+              </div>
+
+              <div *ngIf="!loading && notifications.length === 0" class="empty-state">
+                <mat-icon>notifications_none</mat-icon>
+                <h3>No notifications</h3>
+                <p>You're all caught up! Check back later for new updates.</p>
+              </div>
+
+              <div 
+                *ngFor="let notification of notifications; trackBy: trackByNotificationId"
+                class="notification-item"
+                [class.unread]="!notification.isRead"
+                [class.urgent]="notification.priority === 'urgent'"
+                [class.high]="notification.priority === 'high'"
+                (click)="handleNotificationClick(notification)"
+              >
+                <div class="notification-icon">
+                  <mat-icon [style.color]="getNotificationColor(notification.priority)">
+                    {{ getNotificationIcon(notification.type) }}
+                  </mat-icon>
+                </div>
+
+                <div class="notification-content">
+                  <div class="notification-header">
+                    <h4>{{ notification.title }}</h4>
+                    <div class="notification-meta">
+                      <span class="time">{{ notification.timeAgo }}</span>
+                      <mat-chip class="category-chip">{{ notification.category }}</mat-chip>
+                      <mat-chip 
+                        *ngIf="notification.priority === 'urgent' || notification.priority === 'high'"
+                        class="priority-chip"
+                        [class.urgent]="notification.priority === 'urgent'"
+                        [class.high]="notification.priority === 'high'"
+                      >
+                        {{ notification.priority }}
+                      </mat-chip>
+                    </div>
+                  </div>
+                  <p class="notification-message">{{ notification.message }}</p>
+                  <div class="notification-sender" *ngIf="notification.sender">
+                    <span>From: {{ notification.sender.fullName }}</span>
+                  </div>
+                </div>
+
+                <div class="notification-actions">
+                  <button 
+                    mat-icon-button 
+                    *ngIf="!notification.isRead"
+                    (click)="markAsRead(notification._id, $event)"
+                    matTooltip="Mark as read"
+                  >
+                    <mat-icon>done</mat-icon>
+                  </button>
+                  <button 
+                    mat-icon-button 
+                    [matMenuTriggerFor]="notificationMenu"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <mat-icon>more_vert</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <mat-paginator
+              *ngIf="!loading && notifications.length > 0"
+              [length]="totalNotifications"
+              [pageSize]="pageSize"
+              [pageIndex]="currentPage - 1"
+              [pageSizeOptions]="[10, 20, 50]"
+              (page)="onPageChange($event)"
+              showFirstLastButtons
+            >
+            </mat-paginator>
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Unread" [disabled]="unreadCount === 0">
+          <div class="tab-content">
+            <!-- Same structure but filtered for unread -->
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Orders">
+          <div class="tab-content">
+            <!-- Order notifications only -->
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Social">
+          <div class="tab-content">
+            <!-- Social notifications only -->
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Settings Menu -->
+  <mat-menu #settingsMenu="matMenu">
+    <div class="settings-menu" (click)="$event.stopPropagation()">
+      <h4>Notification Preferences</h4>
+      <mat-divider></mat-divider>
+      
+      <div class="preference-item">
+        <span>Email Notifications</span>
+        <mat-slide-toggle 
+          [(ngModel)]="preferences.email"
+          (change)="updatePreferences()"
+        ></mat-slide-toggle>
+      </div>
+      
+      <div class="preference-item">
+        <span>Push Notifications</span>
+        <mat-slide-toggle 
+          [(ngModel)]="preferences.push"
+          (change)="updatePreferences()"
+        ></mat-slide-toggle>
+      </div>
+      
+      <div class="preference-item">
+        <span>In-App Notifications</span>
+        <mat-slide-toggle 
+          [(ngModel)]="preferences.inApp"
+          (change)="updatePreferences()"
+        ></mat-slide-toggle>
+      </div>
+
+      <mat-divider></mat-divider>
+      <h5>Categories</h5>
+      
+      <div class="preference-item" *ngFor="let category of Object.keys(preferences.categories)">
+        <span>{{ category | titlecase }}</span>
+        <mat-slide-toggle 
+          [(ngModel)]="preferences.categories[category]"
+          (change)="updatePreferences()"
+        ></mat-slide-toggle>
+      </div>
+    </div>
+  </mat-menu>
+
+  <!-- Notification Actions Menu -->
+  <mat-menu #notificationMenu="matMenu">
+    <button mat-menu-item (click)="archiveNotification()">
+      <mat-icon>archive</mat-icon>
+      Archive
+    </button>
+    <button mat-menu-item (click)="deleteNotification()">
+      <mat-icon>delete</mat-icon>
+      Delete
+    </button>
+  </mat-menu>
+</div>

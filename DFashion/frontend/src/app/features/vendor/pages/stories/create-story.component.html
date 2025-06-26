@@ -1,0 +1,176 @@
+<div class="create-story-container">
+  <div class="header">
+    <h1>Create New Story</h1>
+    <p>Share a 24-hour story with your products</p>
+  </div>
+
+  <form [formGroup]="storyForm" (ngSubmit)="onSubmit()" class="story-form">
+    <!-- Media Upload -->
+    <div class="form-section">
+      <h3>Story Media</h3>
+      <div class="media-upload">
+        <div class="upload-area" (click)="fileInput.click()" [class.has-media]="selectedMedia">
+          <input #fileInput type="file" accept="image/*,video/*" (change)="onFileSelect($event)" style="display: none;">
+          
+          <div class="upload-content" *ngIf="!selectedMedia">
+            <i class="fas fa-camera"></i>
+            <p>Upload Image or Video</p>
+            <span>Stories disappear after 24 hours</span>
+          </div>
+
+          <div class="media-preview" *ngIf="selectedMedia">
+            <img *ngIf="selectedMedia.type.startsWith('image')" [src]="selectedMedia.preview" alt="Story preview">
+            <video *ngIf="selectedMedia.type.startsWith('video')" [src]="selectedMedia.preview" controls></video>
+            <button type="button" class="change-media" (click)="removeMedia()">
+              <i class="fas fa-edit"></i> Change Media
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Caption -->
+    <div class="form-section">
+      <h3>Caption (Optional)</h3>
+      <textarea 
+        formControlName="caption" 
+        placeholder="Add a caption to your story..."
+        rows="3"
+        maxlength="500"
+      ></textarea>
+      <div class="char-count">{{ storyForm.get('caption')?.value?.length || 0 }}/500</div>
+    </div>
+
+    <!-- Product Tags -->
+    <div class="form-section">
+      <h3>Tag Products</h3>
+      <div class="product-search">
+        <input
+          type="text"
+          placeholder="Search your products to tag..."
+          (input)="searchProducts($event)"
+          class="search-input"
+        >
+
+        <div class="product-results" *ngIf="searchResults.length > 0">
+          <div
+            class="product-item"
+            *ngFor="let product of searchResults"
+            (click)="addProductTag(product)"
+          >
+            <img [src]="product.images[0]?.url" [alt]="product.name">
+            <div class="product-info">
+              <h4>{{ product.name }}</h4>
+              <p>₹{{ product.price | number:'1.0-0' }}</p>
+            </div>
+            <div class="product-actions">
+              <button type="button" class="btn-tag">Tag</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tagged-products" *ngIf="taggedProducts.length > 0">
+        <h4>Tagged Products:</h4>
+        <div class="tagged-list">
+          <div class="tagged-item" *ngFor="let product of taggedProducts; let i = index">
+            <img [src]="product.images[0]?.url" [alt]="product.name">
+            <div class="product-details">
+              <span class="product-name">{{ product.name }}</span>
+              <span class="product-price">₹{{ product.price | number:'1.0-0' }}</span>
+            </div>
+            <div class="product-buttons">
+              <span class="buy-btn">Buy Now</span>
+              <span class="cart-btn">Add to Cart</span>
+              <span class="wishlist-btn">♡ Wishlist</span>
+            </div>
+            <button type="button" class="remove-tag" (click)="removeProductTag(i)">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Story Settings -->
+    <div class="form-section">
+      <h3>Story Settings</h3>
+      <div class="settings-grid">
+        <label class="setting-item">
+          <input type="checkbox" formControlName="allowReplies">
+          <span>Allow replies</span>
+        </label>
+        <label class="setting-item">
+          <input type="checkbox" formControlName="showViewers">
+          <span>Show viewers</span>
+        </label>
+        <label class="setting-item">
+          <input type="checkbox" formControlName="highlightProducts">
+          <span>Highlight products</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Story Duration -->
+    <div class="form-section">
+      <h3>Duration</h3>
+      <div class="duration-options">
+        <label class="duration-option">
+          <input type="radio" name="duration" value="24" formControlName="duration">
+          <span>24 Hours (Default)</span>
+        </label>
+        <label class="duration-option">
+          <input type="radio" name="duration" value="12" formControlName="duration">
+          <span>12 Hours</span>
+        </label>
+        <label class="duration-option">
+          <input type="radio" name="duration" value="6" formControlName="duration">
+          <span>6 Hours</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Submit Buttons -->
+    <div class="form-actions">
+      <button type="button" class="btn-secondary" (click)="saveDraft()">Save as Draft</button>
+      <button type="submit" class="btn-primary" [disabled]="!storyForm.valid || !selectedMedia || uploading">
+        <span *ngIf="uploading">Publishing...</span>
+        <span *ngIf="!uploading">Publish Story</span>
+      </button>
+    </div>
+  </form>
+
+  <!-- Story Preview -->
+  <div class="story-preview" *ngIf="selectedMedia">
+    <h3>Preview</h3>
+    <div class="preview-container">
+      <div class="story-frame">
+        <img *ngIf="selectedMedia.type.startsWith('image')" [src]="selectedMedia.preview" alt="Story preview">
+        <video *ngIf="selectedMedia.type.startsWith('video')" [src]="selectedMedia.preview" muted></video>
+        
+        <div class="story-overlay">
+          <div class="story-caption" *ngIf="storyForm.get('caption')?.value">
+            {{ storyForm.get('caption')?.value }}
+          </div>
+          
+          <div class="story-products" *ngIf="taggedProducts.length > 0">
+            <div class="product-tag" *ngFor="let product of taggedProducts">
+              <div class="product-info-popup">
+                <img [src]="product.images[0]?.url" [alt]="product.name">
+                <div class="product-details">
+                  <h4>{{ product.name }}</h4>
+                  <p>₹{{ product.price | number:'1.0-0' }}</p>
+                  <div class="product-actions">
+                    <button class="btn-buy">Buy Now</button>
+                    <button class="btn-cart">Cart</button>
+                    <button class="btn-wishlist">♡</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

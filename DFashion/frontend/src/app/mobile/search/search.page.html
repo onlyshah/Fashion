@@ -1,0 +1,116 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Search</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Search Bar -->
+  <div class="search-container">
+    <ion-searchbar
+      #searchbar
+      [(ngModel)]="searchQuery"
+      (ionInput)="onSearchInput($event)"
+      (ionSearch)="onSearchSubmit()"
+      placeholder="Search for fashion, brands, and more..."
+      show-clear-button="focus"
+      debounce="300">
+    </ion-searchbar>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Searching...</p>
+  </div>
+
+  <!-- Search Results -->
+  <div *ngIf="hasSearched && !isLoading" class="search-results">
+    <div class="results-header">
+      <h3>Search Results ({{ searchResults.length }})</h3>
+    </div>
+
+    <!-- No Results -->
+    <div *ngIf="searchResults.length === 0" class="no-results">
+      <ion-icon name="search-outline"></ion-icon>
+      <h3>No products found</h3>
+      <p>Try searching with different keywords or browse our categories below.</p>
+    </div>
+
+    <!-- Results Grid -->
+    <div *ngIf="searchResults.length > 0" class="results-grid">
+      <div *ngFor="let product of searchResults" class="product-card" (click)="onProductClick(product)">
+        <div class="product-image">
+          <img [src]="product.images?.[0] || '/assets/images/placeholder-product.jpg'" [alt]="product.name">
+          <div class="product-badge" *ngIf="product.discountPrice">
+            <span>{{ ((product.price - product.discountPrice) / product.price * 100) | number:'1.0-0' }}% OFF</span>
+          </div>
+        </div>
+        <div class="product-info">
+          <h4>{{ product.name }}</h4>
+          <p class="brand">{{ product.brand }}</p>
+          <div class="price-container">
+            <span class="current-price">₹{{ product.discountPrice || product.price | number:'1.0-0' }}</span>
+            <span *ngIf="product.discountPrice" class="original-price">₹{{ product.price | number:'1.0-0' }}</span>
+          </div>
+          <div class="rating" *ngIf="product.rating">
+            <ion-icon name="star" *ngFor="let star of [1,2,3,4,5]; let i = index" 
+                      [color]="i < product.rating.average ? 'warning' : 'medium'"></ion-icon>
+            <span>({{ product.rating.count }})</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Default Content (when not searching) -->
+  <div *ngIf="!hasSearched && !isLoading" class="default-content">
+    <!-- Recent Searches -->
+    <div *ngIf="recentSearches.length > 0" class="section">
+      <div class="section-header">
+        <h3>Recent Searches</h3>
+        <ion-button fill="clear" size="small" (click)="clearRecentSearches()">Clear All</ion-button>
+      </div>
+      <div class="search-chips">
+        <ion-chip *ngFor="let search of recentSearches" (click)="onRecentSearchClick(search)">
+          <ion-icon name="time-outline"></ion-icon>
+          <ion-label>{{ search }}</ion-label>
+          <ion-icon name="close" (click)="removeRecentSearch(search); $event.stopPropagation()"></ion-icon>
+        </ion-chip>
+      </div>
+    </div>
+
+    <!-- Popular Searches -->
+    <div class="section">
+      <div class="section-header">
+        <h3>Popular Searches</h3>
+      </div>
+      <div class="search-chips">
+        <ion-chip *ngFor="let search of popularSearches" (click)="onPopularSearchClick(search)">
+          <ion-icon name="trending-up-outline"></ion-icon>
+          <ion-label>{{ search }}</ion-label>
+        </ion-chip>
+      </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="section">
+      <div class="section-header">
+        <h3>Browse Categories</h3>
+      </div>
+      <div class="categories-grid">
+        <div *ngFor="let category of categories" class="category-card" (click)="onCategoryClick(category)">
+          <div class="category-icon" [style.background-color]="'var(--ion-color-' + category.color + ')'">
+            <ion-icon [name]="category.icon"></ion-icon>
+          </div>
+          <span>{{ category.name }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>

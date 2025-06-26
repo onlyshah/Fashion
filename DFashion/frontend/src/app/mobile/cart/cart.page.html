@@ -1,0 +1,236 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Shopping Cart</ion-title>
+    <ion-buttons slot="end" *ngIf="cartItems.length > 0">
+      <ion-button fill="clear" (click)="toggleSelectAll()" [title]="allItemsSelected() ? 'Deselect All' : 'Select All'">
+        <ion-icon [name]="allItemsSelected() ? 'checkbox' : 'square-outline'"></ion-icon>
+      </ion-button>
+      <ion-button fill="clear" (click)="bulkRemoveItems()" [disabled]="selectedItems.length === 0">
+        <ion-icon name="trash"></ion-icon>
+        <ion-badge color="danger" *ngIf="selectedItems.length > 0">{{ selectedItems.length }}</ion-badge>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading cart...</p>
+  </div>
+
+  <!-- Empty Cart -->
+  <div class="empty-cart" *ngIf="!isLoading && cartItems.length === 0">
+    <div class="empty-content">
+      <ion-icon name="bag-outline" color="medium"></ion-icon>
+      <h2>Your cart is empty</h2>
+      <p>Add some products to get started</p>
+      <ion-button expand="block" (click)="continueShopping()">
+        Continue Shopping
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Selection Status -->
+  <ion-card *ngIf="!isLoading && cartItems.length > 0" class="selection-status-card">
+    <ion-card-content>
+      <div class="selection-info">
+        <div class="selection-row">
+          <span class="selection-label">Selected Items:</span>
+          <span class="selection-value">{{ selectedItems.length }} of {{ cartItems.length }} items</span>
+        </div>
+        <div class="selection-row">
+          <span class="selection-label">Selected Quantity:</span>
+          <span class="selection-value">{{ getSelectedItemsCount() }} items</span>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Cart Items -->
+  <div *ngIf="!isLoading && cartItems.length > 0">
+    <!-- Items List -->
+    <ion-list>
+      <ion-item-sliding *ngFor="let item of cartItems; trackBy: trackByItemId">
+        <ion-item [class.selected-item]="isItemSelected(item._id)">
+          <ion-checkbox
+            slot="start"
+            [checked]="isItemSelected(item._id)"
+            (ionChange)="toggleItemSelection(item._id)"
+            color="primary">
+          </ion-checkbox>
+
+          <ion-thumbnail slot="start">
+            <img [src]="getImageUrl(item.product.images[0])" [alt]="item.product.name">
+          </ion-thumbnail>
+          
+          <ion-label>
+            <h2>{{ item.product.name }}</h2>
+            <p>{{ item.product.brand }}</p>
+            
+            <!-- Variants -->
+            <div class="item-variants" *ngIf="item.size || item.color">
+              <ion-chip outline *ngIf="item.size">
+                <ion-label>Size: {{ item.size }}</ion-label>
+              </ion-chip>
+              <ion-chip outline *ngIf="item.color">
+                <ion-label>Color: {{ item.color }}</ion-label>
+              </ion-chip>
+            </div>
+            
+            <!-- Enhanced Price Display -->
+            <div class="item-price">
+              <span class="current-price">₹{{ item.product.price | number:'1.0-0' }}</span>
+              <span class="original-price" *ngIf="item.product.originalPrice && item.product.originalPrice > item.product.price">
+                ₹{{ item.product.originalPrice | number:'1.0-0' }}
+              </span>
+              <ion-chip color="success" *ngIf="item.product.originalPrice && item.product.originalPrice > item.product.price">
+                {{ getDiscountPercentage(item.product.originalPrice, item.product.price) }}% OFF
+              </ion-chip>
+            </div>
+
+            <!-- Item Total Display -->
+            <div class="item-total-info">
+              <span class="item-total-label">Item Total: <strong>₹{{ getItemTotal(item) | number:'1.0-0' }}</strong></span>
+              <span class="item-savings" *ngIf="getItemSavings(item) > 0">
+                You save: ₹{{ getItemSavings(item) | number:'1.0-0' }}
+              </span>
+            </div>
+            
+            <!-- Quantity Controls -->
+            <div class="quantity-controls">
+              <ion-button 
+                fill="clear" 
+                size="small" 
+                (click)="updateQuantity(item._id, item.quantity - 1)"
+                [disabled]="item.quantity <= 1"
+              >
+                <ion-icon name="remove"></ion-icon>
+              </ion-button>
+              <span class="quantity">{{ item.quantity }}</span>
+              <ion-button 
+                fill="clear" 
+                size="small" 
+                (click)="updateQuantity(item._id, item.quantity + 1)"
+              >
+                <ion-icon name="add"></ion-icon>
+              </ion-button>
+            </div>
+          </ion-label>
+          
+          <div slot="end" class="item-total">
+            <span class="total-price">₹{{ (item.product.price * item.quantity) | number:'1.0-0' }}</span>
+          </div>
+        </ion-item>
+        
+        <ion-item-options side="end">
+          <ion-item-option color="danger" (click)="removeItem(item)">
+            <ion-icon name="trash" slot="icon-only"></ion-icon>
+          </ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
+
+    <!-- Selected Items Total (Prominent Display) -->
+    <ion-card *ngIf="selectedItems.length > 0" class="selected-total-card">
+      <ion-card-content>
+        <div class="selected-total-display">
+          <ion-icon name="bag" color="primary"></ion-icon>
+          <div class="total-details">
+            <div class="total-label">Selected Items Total</div>
+            <div class="total-amount">₹{{ getSelectedItemsTotal() | number:'1.0-0' }}</div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- No Selection Message -->
+    <ion-card *ngIf="selectedItems.length === 0" class="no-selection-card">
+      <ion-card-content>
+        <div class="no-selection-content">
+          <ion-icon name="information-circle" color="warning"></ion-icon>
+          <p>Select items to see total amount</p>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Cart Summary -->
+    <div class="cart-summary" *ngIf="selectedItems.length > 0">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Order Summary</ion-card-title>
+        </ion-card-header>
+
+        <ion-card-content>
+          <div class="summary-row">
+            <span>Subtotal ({{ getSelectedItemsCount() }} items)</span>
+            <span>₹{{ getSelectedItemsTotal() | number:'1.0-0' }}</span>
+          </div>
+
+          <div class="summary-row" *ngIf="getSelectedItemsSavings() > 0">
+            <span>You Save</span>
+            <span class="discount">₹{{ getSelectedItemsSavings() | number:'1.0-0' }}</span>
+          </div>
+
+          <div class="summary-row">
+            <span>Shipping</span>
+            <span class="free-shipping">FREE</span>
+          </div>
+
+          <div class="summary-row">
+            <span>Tax (18% GST)</span>
+            <span>Included</span>
+          </div>
+
+          <ion-item lines="none" class="total-row">
+            <ion-label>
+              <h2><strong>Final Total</strong></h2>
+            </ion-label>
+            <ion-label slot="end">
+              <h2><strong>₹{{ getSelectedItemsTotal() | number:'1.0-0' }}</strong></h2>
+            </ion-label>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- All Items Reference -->
+    <ion-card *ngIf="selectedItems.length !== cartItems.length && cartItems.length > 0" class="all-items-reference">
+      <ion-card-header>
+        <ion-card-subtitle>All Cart Items Reference</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="summary-row">
+          <span>Total Items in Cart:</span>
+          <span>{{ getCartBreakdown().totalItems }} unique ({{ getCartBreakdown().totalQuantity }} items)</span>
+        </div>
+        <div class="summary-row">
+          <span>Total Cart Value:</span>
+          <span>₹{{ getCartBreakdown().finalTotal | number:'1.0-0' }}</span>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <ion-button
+        expand="block"
+        size="large"
+        [disabled]="selectedItems.length === 0"
+        (click)="proceedToCheckout()"
+        color="primary">
+        <ion-icon name="card" slot="start"></ion-icon>
+        Checkout Selected ({{ selectedItems.length }})
+      </ion-button>
+      <ion-button expand="block" fill="outline" (click)="continueShopping()">
+        <ion-icon name="arrow-back" slot="start"></ion-icon>
+        Continue Shopping
+      </ion-button>
+    </div>
+  </div>
+</ion-content>

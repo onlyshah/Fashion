@@ -1,0 +1,143 @@
+<div class="shop-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading shop data...</p>
+  </div>
+
+  <!-- Shop Content -->
+  <div *ngIf="!loading" class="shop-content">
+    <!-- Global Search Bar -->
+    <div class="search-section">
+      <div class="search-bar">
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery" 
+          placeholder="Search products, brands, categories..."
+          (keyup.enter)="search()"
+          class="search-input">
+        <button (click)="search()" class="search-btn">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Shop by Category Section -->
+    <section class="category-section">
+      <h2 class="section-title">Shop by Category</h2>
+      <div class="categories-grid">
+        <div 
+          *ngFor="let category of categories" 
+          class="category-card"
+          (click)="navigateToCategory(category)">
+          <div class="category-icon">{{ category.icon }}</div>
+          <h3 class="category-name">{{ category.name }}</h3>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured Brands Section -->
+    <section class="featured-brands-section">
+      <h2 class="section-title">Featured Brands</h2>
+      <div class="brands-slider">
+        <div *ngFor="let brand of featuredBrands" class="brand-card">
+          <img [src]="brand.logo" [alt]="brand.name" class="brand-logo">
+          <h3 class="brand-name">{{ brand.name }}</h3>
+          <span *ngIf="brand.isPopular" class="popular-badge">Popular</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Trending Now Section -->
+    <section class="trending-section">
+      <h2 class="section-title">Trending Now</h2>
+      <div class="products-grid">
+        <div *ngFor="let product of trendingProducts" class="product-card" (click)="viewProduct(product)">
+          <div class="product-image-container">
+            <img [src]="getProductImage(product)" [alt]="product.name" class="product-image">
+            <div *ngIf="getDiscountPercentage(product) > 0" class="discount-badge">
+              {{ getDiscountPercentage(product) }}% OFF
+            </div>
+            <div class="product-actions">
+              <button (click)="likeProduct(product, $event)" class="action-btn like-btn" 
+                      [class.liked]="product.isLiked">
+                <i class="fas fa-heart"></i>
+                <span *ngIf="product.likesCount">{{ product.likesCount }}</span>
+              </button>
+              <button (click)="shareProduct(product, $event)" class="action-btn share-btn">
+                <i class="fas fa-share"></i>
+                <span *ngIf="product.sharesCount">{{ product.sharesCount }}</span>
+              </button>
+              <button (click)="commentOnProduct(product, $event)" class="action-btn comment-btn">
+                <i class="fas fa-comment"></i>
+                <span *ngIf="product.commentsCount">{{ product.commentsCount }}</span>
+              </button>
+            </div>
+          </div>
+          <div class="product-info">
+            <h3 class="product-name">{{ product.name }}</h3>
+            <p class="product-brand">{{ product.brand }}</p>
+            <div class="product-pricing">
+              <span class="current-price">₹{{ product.price }}</span>
+              <span *ngIf="product.originalPrice && product.originalPrice > product.price" 
+                    class="original-price">₹{{ product.originalPrice }}</span>
+            </div>
+            <div class="product-buttons">
+              <button (click)="addToWishlist(product, $event)" class="btn-wishlist">
+                <i class="fas fa-heart"></i> Wishlist
+              </button>
+              <button (click)="addToCart(product, $event)" class="btn-cart">
+                <i class="fas fa-shopping-cart"></i> Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- New Arrivals Section -->
+    <section class="new-arrivals-section">
+      <h2 class="section-title">New Arrivals</h2>
+      <div class="products-grid">
+        <div *ngFor="let product of newArrivals" class="product-card" (click)="viewProduct(product)">
+          <div class="product-image-container">
+            <img [src]="getProductImage(product)" [alt]="product.name" class="product-image">
+            <div class="new-badge">NEW</div>
+            <div class="product-actions">
+              <button (click)="likeProduct(product, $event)" class="action-btn like-btn" 
+                      [class.liked]="product.isLiked">
+                <i class="fas fa-heart"></i>
+                <span *ngIf="product.likesCount">{{ product.likesCount }}</span>
+              </button>
+              <button (click)="shareProduct(product, $event)" class="action-btn share-btn">
+                <i class="fas fa-share"></i>
+                <span *ngIf="product.sharesCount">{{ product.sharesCount }}</span>
+              </button>
+              <button (click)="commentOnProduct(product, $event)" class="action-btn comment-btn">
+                <i class="fas fa-comment"></i>
+                <span *ngIf="product.commentsCount">{{ product.commentsCount }}</span>
+              </button>
+            </div>
+          </div>
+          <div class="product-info">
+            <h3 class="product-name">{{ product.name }}</h3>
+            <p class="product-brand">{{ product.brand }}</p>
+            <div class="product-pricing">
+              <span class="current-price">₹{{ product.price }}</span>
+              <span *ngIf="product.originalPrice && product.originalPrice > product.price" 
+                    class="original-price">₹{{ product.originalPrice }}</span>
+            </div>
+            <div class="product-buttons">
+              <button (click)="addToWishlist(product, $event)" class="btn-wishlist">
+                <i class="fas fa-heart"></i> Wishlist
+              </button>
+              <button (click)="addToCart(product, $event)" class="btn-cart">
+                <i class="fas fa-shopping-cart"></i> Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

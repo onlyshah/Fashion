@@ -1,0 +1,244 @@
+.welcome-section {
+  background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-secondary));
+  color: white;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+
+  .welcome-content {
+    flex: 1;
+
+    h2 {
+      margin: 0 0 5px 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 0;
+      opacity: 0.9;
+      font-size: 1rem;
+    }
+  }
+
+  .welcome-avatar {
+    ion-avatar {
+      width: 60px;
+      height: 60px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+    }
+  }
+}
+
+.stats-section {
+  padding: 0 16px;
+  margin-bottom: 20px;
+
+  .stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 80px;
+
+    .stat-icon {
+      ion-icon {
+        font-size: 2rem;
+      }
+    }
+
+    .stat-content {
+      flex: 1;
+
+      h3 {
+        margin: 0 0 4px 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--ion-color-dark);
+      }
+
+      p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: var(--ion-color-medium);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+    }
+  }
+}
+
+.section {
+  margin-bottom: 24px;
+
+  .section-header {
+    padding: 0 16px 12px 16px;
+
+    h3 {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+    }
+  }
+}
+
+.action-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  .action-icon {
+    margin-bottom: 8px;
+
+    ion-icon {
+      font-size: 2rem;
+    }
+  }
+
+  .action-content {
+    h4 {
+      margin: 0 0 4px 0;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.75rem;
+      color: var(--ion-color-medium);
+      line-height: 1.2;
+    }
+  }
+}
+
+ion-list {
+  background: white;
+  border-radius: 12px;
+  margin: 0 16px;
+  overflow: hidden;
+
+  ion-item {
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --min-height: 60px;
+
+    ion-label {
+      h3 {
+        font-weight: 500;
+        color: var(--ion-color-dark);
+        margin-bottom: 4px;
+      }
+
+      p {
+        color: var(--ion-color-medium);
+        font-size: 0.85rem;
+      }
+
+      .activity-time {
+        font-size: 0.75rem;
+        color: var(--ion-color-light);
+        margin-top: 2px;
+      }
+    }
+
+    ion-badge {
+      --background: var(--ion-color-primary);
+      --color: white;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+  }
+}
+
+// Floating Action Button
+ion-fab {
+  ion-fab-button {
+    --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  ion-fab-list {
+    ion-fab-button {
+      --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      width: 48px;
+      height: 48px;
+
+      ion-icon {
+        font-size: 1.2rem;
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 576px) {
+  .welcome-section {
+    padding: 16px;
+
+    .welcome-content {
+      h2 {
+        font-size: 1.3rem;
+      }
+
+      p {
+        font-size: 0.9rem;
+      }
+    }
+
+    .welcome-avatar {
+      ion-avatar {
+        width: 50px;
+        height: 50px;
+      }
+    }
+  }
+
+  .stat-card {
+    padding: 12px !important;
+    height: 70px !important;
+
+    .stat-content {
+      h3 {
+        font-size: 1.3rem !important;
+      }
+
+      p {
+        font-size: 0.8rem !important;
+      }
+    }
+  }
+
+  .action-card {
+    height: 90px !important;
+    padding: 12px !important;
+
+    .action-content {
+      h4 {
+        font-size: 0.85rem !important;
+      }
+
+      p {
+        font-size: 0.7rem !important;
+      }
+    }
+  }
+}

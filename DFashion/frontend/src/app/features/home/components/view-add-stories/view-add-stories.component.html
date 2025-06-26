@@ -1,0 +1,194 @@
+<!-- Instagram-style Stories Bar -->
+<div class="stories-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoadingStories" class="stories-loading">
+    <div *ngFor="let item of [1,2,3,4,5]" class="story-skeleton">
+      <div class="skeleton-avatar"></div>
+      <div class="skeleton-name"></div>
+    </div>
+  </div>
+
+  <!-- Stories Section -->
+  <div class="stories-section" *ngIf="!isLoadingStories">
+    <!-- Add Story Button (Static - Outside Slider) -->
+    <div class="add-story-static">
+      <div class="story-item add-story-item" (click)="openAddStoryModal()">
+        <div class="story-avatar-container">
+          <div class="add-story-avatar">
+            <div class="add-story-icon">
+              <i class="fas fa-plus"></i>
+            </div>
+            <div class="current-user-avatar" [style.background-image]="'url(' + getCurrentUserAvatar() + ')'"></div>
+          </div>
+        </div>
+        <div class="story-username">Add Story</div>
+      </div>
+    </div>
+
+    <!-- Stories Slider Container -->
+    <div class="stories-slider-wrapper">
+      <!-- Owl Carousel Stories Slider -->
+      <div class="stories-slider-container">
+        <owl-carousel-o
+          [options]="customOptions"
+          (initialized)="onInitialized($event)"
+          (changed)="onSlideChanged($event)">
+
+          <!-- User Stories -->
+          <ng-container *ngFor="let story of stories; let i = index">
+            <ng-template carouselSlide>
+              <div class="story-slide" (click)="openStories(i)">
+                <div class="story-avatar-container">
+                  <div class="story-avatar"
+                       [style.background-image]="'url(' + story.user.avatar + ')'">
+                  </div>
+                  <div class="story-ring"
+                       [class.viewed]="story.isViewed">
+                  </div>
+                </div>
+                <div class="story-username">{{ story.user.username }}</div>
+              </div>
+            </ng-template>
+          </ng-container>
+        </owl-carousel-o>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Stories Viewer Modal -->
+<div class="stories-wrapper" [class.is-open]="isOpen" *ngIf="isOpen">
+  <div class="stories" #storiesContainer>
+    
+    <!-- Story Progress Bars -->
+    <div class="story-progress">
+      <div 
+        *ngFor="let story of stories; let i = index" 
+        class="story-progress__bar"
+        [class.active]="i === currentIndex"
+        [class.completed]="i < currentIndex">
+        <div class="story-progress__fill"></div>
+      </div>
+    </div>
+
+    <!-- Current Story -->
+    <div class="story" 
+         [attr.data-story-id]="currentIndex"
+         (click)="onStoryClick($event)"
+         (touchstart)="onTouchStart($event)"
+         (touchmove)="onTouchMove($event)"
+         (touchend)="onTouchEnd($event)">
+      
+      <!-- Story Header -->
+      <div class="story__top">
+        <div class="story__details">
+          <div class="story__avatar" [style.background-image]="'url(' + getCurrentStory().user.avatar + ')'"></div>
+          <div class="story__user">{{ getCurrentStory().user.fullName }}</div>
+          <div class="story__time">{{ getTimeAgo(getCurrentStory().createdAt) }}</div>
+          <div class="story__views">{{ formatNumber(getCurrentStory().views) }} views</div>
+        </div>
+        <button class="story__close" (click)="closeStories()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Story Content -->
+      <div class="story__content">
+        <!-- Video Story -->
+        <video
+          *ngIf="getCurrentStory().mediaType === 'video'"
+          class="story__video"
+          [src]="getCurrentStory().mediaUrl"
+          autoplay
+          muted
+          loop
+          playsinline>
+        </video>
+
+        <!-- Image Story -->
+        <div
+          *ngIf="getCurrentStory().mediaType === 'image'"
+          class="story__image"
+          [style.background-image]="'url(' + getCurrentStory().mediaUrl + ')'">
+        </div>
+
+        <!-- Story Caption -->
+        <div *ngIf="getCurrentStory().caption" class="story__caption">
+          {{ getCurrentStory().caption }}
+        </div>
+
+        <!-- Product Tags -->
+        <div *ngIf="hasProducts()" class="story__product-tags">
+          <div
+            *ngFor="let product of getStoryProducts()"
+            class="product-tag"
+            (click)="viewProduct(product._id)">
+            <div class="product-tag-icon">🛍️</div>
+            <div class="product-tag-info">
+              <div class="product-tag-name">{{ product.name }}</div>
+              <div class="product-tag-price">{{ formatPrice(product.price) }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Middle Point Navigation Button -->
+        <div class="middle-navigation" *ngIf="hasProducts()">
+          <button class="middle-nav-btn" (click)="viewProduct(getStoryProducts()[0]._id)">
+            <i class="fas fa-shopping-bag"></i>
+            <span>Shop Now</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Story Bottom Actions -->
+      <div class="story__bottom">
+        <div class="story__actions">
+          <button class="story__action-btn like-btn">
+            <i class="fas fa-heart"></i>
+          </button>
+          <button class="story__action-btn comment-btn">
+            <i class="fas fa-comment"></i>
+          </button>
+          <button class="story__action-btn share-btn">
+            <i class="fas fa-share"></i>
+          </button>
+        </div>
+        
+        <!-- E-commerce Actions -->
+        <div class="story__ecommerce-actions" *ngIf="hasProducts()">
+          <button class="ecommerce-btn buy-now-btn" (click)="buyNow()">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Buy Now</span>
+          </button>
+          <button class="ecommerce-btn wishlist-btn" (click)="addToWishlist()">
+            <i class="fas fa-heart"></i>
+            <span>Wishlist</span>
+          </button>
+          <button class="ecommerce-btn cart-btn" (click)="addToCart()">
+            <i class="fas fa-plus"></i>
+            <span>Add to Cart</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation Areas (Invisible) -->
+      <div class="story__nav-area story__nav-prev"></div>
+      <div class="story__nav-area story__nav-next"></div>
+    </div>
+  </div>
+
+  <!-- Feed Cover (Background) -->
+  <div class="feed__cover" #feedCover [class.is-hidden]="isOpen"></div>
+</div>
+
+<!-- Mobile-specific touch indicators -->
+<div class="touch-indicators" *ngIf="isOpen">
+  <div class="touch-indicator left">
+    <i class="fas fa-chevron-left"></i>
+    <span>Tap to go back</span>
+  </div>
+  <div class="touch-indicator right">
+    <span>Tap to continue</span>
+    <i class="fas fa-chevron-right"></i>
+  </div>
+</div>

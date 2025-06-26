@@ -1,0 +1,119 @@
+<div class="stories-grid-container">
+  <!-- Grid Header -->
+  <div class="grid-header">
+    <h3>All Stories</h3>
+    <div class="view-options">
+      <button class="view-btn" 
+              [class.active]="viewMode === 'grid'"
+              (click)="setViewMode('grid')">
+        <i class="fas fa-th"></i>
+      </button>
+      <button class="view-btn" 
+              [class.active]="viewMode === 'list'"
+              (click)="setViewMode('list')">
+        <i class="fas fa-list"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Stories Grid -->
+  <div class="stories-grid" 
+       [class.grid-view]="viewMode === 'grid'"
+       [class.list-view]="viewMode === 'list'">
+    
+    <div class="story-group" 
+         *ngFor="let group of storyGroups"
+         (click)="openStoryGroup(group)">
+      
+      <!-- Grid View -->
+      <div class="grid-item" *ngIf="viewMode === 'grid'">
+        <div class="story-preview">
+          <img [src]="getPreviewImage(group)" 
+               [alt]="group.user.fullName"
+               class="preview-image">
+          
+          <!-- Story Ring -->
+          <div class="story-ring" *ngIf="group.hasUnviewed"></div>
+          
+          <!-- Story Count -->
+          <div class="story-count" *ngIf="group.totalStories > 1">
+            {{ group.totalStories }}
+          </div>
+          
+          <!-- Video Indicator -->
+          <div class="video-indicator" *ngIf="hasVideo(group)">
+            <i class="fas fa-play"></i>
+          </div>
+        </div>
+        
+        <div class="user-info">
+          <img [src]="group.user.avatar || 'assets/images/default-avatar.svg'" 
+               [alt]="group.user.fullName"
+               class="user-avatar">
+          <div class="user-details">
+            <span class="username">{{ group.user.username }}</span>
+            <span class="story-time">{{ getLatestTime(group) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- List View -->
+      <div class="list-item" *ngIf="viewMode === 'list'">
+        <div class="user-section">
+          <div class="user-avatar-container">
+            <img [src]="group.user.avatar || 'assets/images/default-avatar.svg'" 
+                 [alt]="group.user.fullName"
+                 class="user-avatar">
+            <div class="story-ring" *ngIf="group.hasUnviewed"></div>
+          </div>
+          
+          <div class="user-details">
+            <span class="username">{{ group.user.fullName }}</span>
+            <span class="story-info">
+              {{ group.totalStories }} {{ group.totalStories === 1 ? 'story' : 'stories' }} • 
+              {{ getLatestTime(group) }}
+            </span>
+          </div>
+        </div>
+        
+        <div class="stories-preview">
+          <div class="preview-item" 
+               *ngFor="let story of group.stories.slice(0, 3)"
+               [class.viewed]="story.isViewed">
+            <img [src]="getStoryThumbnail(story)" 
+                 [alt]="'Story'"
+                 class="preview-thumbnail">
+            <div class="video-indicator" *ngIf="story.media.type === 'video'">
+              <i class="fas fa-play"></i>
+            </div>
+          </div>
+          
+          <div class="more-indicator" *ngIf="group.totalStories > 3">
+            +{{ group.totalStories - 3 }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-grid" *ngIf="loading">
+    <div class="loading-item" *ngFor="let item of [1,2,3,4,5,6]">
+      <div class="skeleton-preview"></div>
+      <div class="skeleton-user">
+        <div class="skeleton-avatar"></div>
+        <div class="skeleton-text">
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line short"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!loading && storyGroups.length === 0">
+    <i class="fas fa-camera-retro"></i>
+    <h4>No Stories Available</h4>
+    <p>Check back later for new stories from users and vendors!</p>
+  </div>
+</div>

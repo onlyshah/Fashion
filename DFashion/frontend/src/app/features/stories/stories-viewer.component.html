@@ -1,0 +1,339 @@
+<div class="stories-viewer" *ngIf="currentStory"
+     (click)="handleStoryClick($event)"
+     (keydown)="handleKeyDown($event)"
+     tabindex="0">
+
+  <!-- Progress Bars -->
+  <div class="progress-container">
+    <div class="progress-bar"
+         *ngFor="let story of stories; let i = index"
+         [class.active]="i === currentIndex"
+         [class.completed]="i < currentIndex">
+      <div class="progress-fill"
+           [style.width.%]="getProgressWidth(i)"
+           [style.animation-duration.s]="getStoryDuration(story)"></div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="story-header">
+    <div class="user-info">
+      <img [src]="currentStory.user.avatar || '/assets/images/default-avatar.png'"
+           [alt]="currentStory.user.fullName" class="user-avatar">
+      <div class="user-details">
+        <span class="username">{{ currentStory.user.username }}</span>
+        <span class="timestamp">{{ getTimeAgo(currentStory.createdAt) }}</span>
+      </div>
+    </div>
+
+    <div class="story-controls">
+      <button class="btn-sound"
+              *ngIf="currentStory.media.type === 'video'"
+              (click)="toggleSound()"
+              [class.muted]="isMuted">
+        <i class="fas" [class.fa-volume-up]="!isMuted" [class.fa-volume-mute]="isMuted"></i>
+      </button>
+      <button class="btn-pause" (click)="togglePause()" [class.paused]="isPaused">
+        <i class="fas" [class.fa-pause]="!isPaused" [class.fa-play]="isPaused"></i>
+      </button>
+      <button class="btn-close" (click)="closeStories()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Story Content -->
+  <div class="story-content"
+       (touchstart)="onTouchStart($event)"
+       (touchend)="onTouchEnd($event)"
+       (mousedown)="onMouseDown($event)"
+       (mouseup)="onMouseUp($event)">
+
+    <!-- Navigation Areas -->
+    <div class="nav-area nav-prev" (click)="previousStory()"></div>
+    <div class="nav-area nav-next" (click)="nextStory()"></div>
+
+    <!-- Image Story -->
+    <img *ngIf="currentStory.media.type === 'image'"
+         [src]="currentStory.media.url"
+         [alt]="currentStory.caption"
+         class="story-media"
+         (load)="onMediaLoaded()"
+         #storyMedia>
+
+    <!-- Video Story -->
+    <video *ngIf="currentStory.media.type === 'video'"
+           [src]="currentStory.media.url"
+           class="story-media"
+           [poster]="currentStory.media.thumbnail"
+           [muted]="isMuted"
+           [autoplay]="!isPaused"
+           [loop]="false"
+           #storyVideo
+           (loadeddata)="onMediaLoaded()"
+           (ended)="nextStory()">
+    </video>
+
+    <!-- Product Tags (Instagram-style) -->
+    <div class="product-tags"
+         [class.show-tags]="showProductTags"
+         *ngIf="currentStory.products && currentStory.products.length > 0">
+      <div class="product-tag"
+           *ngFor="let productTag of currentStory.products"
+           [style.left.%]="productTag.position.x"
+           [style.top.%]="productTag.position.y">
+        <div class="product-dot" (click)="showProductModal(productTag.product); $event.stopPropagation()">
+          <div class="product-pulse"></div>
+        </div>
+        <div class="product-info">
+          <span class="product-name">{{ productTag.product.name }}</span>
+          <span class="product-price">₹{{ productTag.product.price | number:'1.0-0' }}</span>
+          <div class="product-actions">
+            <button class="view-product-btn" (click)="viewProduct(productTag.product._id); $event.stopPropagation()">
+              <i class="fas fa-eye"></i> View
+            </button>
+            <button class="shop-now-btn" (click)="showProductModal(productTag.product); $event.stopPropagation()">
+              <i class="fas fa-shopping-bag"></i> Shop
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Middle Point Navigation Button -->
+    <div class="middle-navigation" *ngIf="currentStory.products && currentStory.products.length > 0">
+      <button class="middle-nav-btn" (click)="viewProduct(currentStory.products[0].product._id)">
+        <i class="fas fa-shopping-bag"></i>
+        <span>Shop Now</span>
+      </button>
+    </div>
+
+    <!-- Shopping indicator -->
+    <div class="shopping-indicator"
+         *ngIf="currentStory.products && currentStory.products.length > 0 && !showProductTags"
+         (click)="toggleProductTags(); $event.stopPropagation()">
+      <i class="fas fa-shopping-bag"></i>
+      <span>Tap to view products</span>
+    </div>
+
+    <!-- Caption -->
+    <div class="story-caption" *ngIf="currentStory.caption">
+      {{ currentStory.caption }}
+    </div>
+  </div>
+
+  <!-- Story Navigation Slider (for many stories) -->
+  <div class="story-navigation" *ngIf="stories.length > 5">
+    <div class="nav-slider-container">
+      <button class="nav-slider-btn prev"
+              (click)="scrollStoriesLeft()"
+              [disabled]="!canScrollLeft">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+
+      <div class="story-thumbnails" #storyThumbnails>
+        <div class="story-thumbnail"
+             *ngFor="let story of stories; let i = index"
+             [class.active]="i === currentIndex"
+             [class.viewed]="i < currentIndex"
+             (click)="jumpToStoryIndex(i)">
+          <img [src]="getStoryThumbnail(story)"
+               [alt]="story.user.username"
+               class="thumbnail-image">
+          <div class="thumbnail-overlay">
+            <img [src]="story.user.avatar || '/assets/images/default-avatar.png'"
+                 [alt]="story.user.fullName"
+                 class="user-thumbnail-avatar">
+          </div>
+          <div class="thumbnail-progress"
+               [style.width.%]="getThumbnailProgress(i)"></div>
+        </div>
+      </div>
+
+      <button class="nav-slider-btn next"
+              (click)="scrollStoriesRight()"
+              [disabled]="!canScrollRight">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Story Content -->
+  <div class="story-content">
+    <!-- Image Story -->
+    <img *ngIf="currentStory.media.type === 'image'" 
+         [src]="currentStory.media.url" 
+         [alt]="currentStory.caption"
+         class="story-media"
+         #storyMedia>
+
+    <!-- Video Story -->
+    <video *ngIf="currentStory.media.type === 'video'"
+           [src]="currentStory.media.url"
+           class="story-media"
+           [poster]="currentStory.media.thumbnail"
+           [muted]="isMuted"
+           [autoplay]="true"
+           [loop]="false"
+           #storyVideo
+           (ended)="nextStory()">
+    </video>
+
+    <!-- Product Tags -->
+    <div class="product-tags">
+      <div class="product-tag" 
+           *ngFor="let productTag of currentStory.products"
+           [style.left.%]="productTag.position.x"
+           [style.top.%]="productTag.position.y"
+           (click)="showProductModal(productTag.product)">
+        <div class="product-tag-icon">
+          <i class="fas fa-shopping-bag"></i>
+        </div>
+        <div class="product-tag-info">
+          <span class="product-name">{{ productTag.product.name }}</span>
+          <span class="product-price">₹{{ productTag.product.price | number:'1.0-0' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Caption -->
+    <div class="story-caption" *ngIf="currentStory.caption">
+      {{ currentStory.caption }}
+    </div>
+  </div>
+
+  <!-- Navigation Areas -->
+  <div class="nav-area nav-prev" (click)="previousStory()"></div>
+  <div class="nav-area nav-next" (click)="nextStory()"></div>
+
+  <!-- Bottom Actions -->
+  <div class="story-actions">
+    <!-- E-commerce Actions -->
+    <div class="ecommerce-actions" *ngIf="currentStory.products && currentStory.products.length > 0">
+      <button class="action-btn buy-now"
+              (click)="buyNow()"
+              title="Buy Now"
+              [attr.aria-label]="'Buy Now - ' + getProductName()">
+        <i class="fas fa-bolt"></i>
+        <span class="btn-text">Buy Now</span>
+        <span class="tooltip">Buy Now</span>
+      </button>
+      <button class="action-btn add-cart"
+              (click)="addToCart()"
+              title="Add to Cart"
+              [attr.aria-label]="'Add to Cart - ' + getProductName()">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="btn-text">Add to Cart</span>
+        <span class="tooltip">Add to Cart</span>
+      </button>
+      <button class="action-btn wishlist"
+              (click)="addToWishlist()"
+              title="Add to Wishlist"
+              [attr.aria-label]="'Add to Wishlist - ' + getProductName()">
+        <i class="fas fa-heart"></i>
+        <span class="btn-text">Wishlist</span>
+        <span class="tooltip">Add to Wishlist</span>
+      </button>
+    </div>
+
+    <!-- Social Actions -->
+    <div class="social-actions">
+      <button class="social-btn like"
+              [class.liked]="isLiked"
+              (click)="toggleLike()"
+              title="Like Story"
+              aria-label="Like this story">
+        <i class="fas fa-heart"></i>
+        <span class="tooltip">{{ isLiked ? 'Unlike' : 'Like' }}</span>
+      </button>
+      <button class="social-btn comment"
+              (click)="openComments()"
+              title="Comment on Story"
+              aria-label="Comment on this story">
+        <i class="fas fa-comment"></i>
+        <span class="tooltip">Comment</span>
+      </button>
+      <button class="social-btn share"
+              (click)="shareStory()"
+              title="Share Story"
+              aria-label="Share this story">
+        <i class="fas fa-share"></i>
+        <span class="tooltip">Share</span>
+      </button>
+      <button class="social-btn sound"
+              (click)="toggleSound()"
+              *ngIf="currentStory.media.type === 'video'"
+              title="Toggle Sound"
+              aria-label="Toggle sound on/off">
+        <i class="fas" [class.fa-volume-up]="!isMuted" [class.fa-volume-mute]="isMuted"></i>
+        <span class="tooltip">{{ isMuted ? 'Unmute' : 'Mute' }}</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Product Modal -->
+<div class="product-modal" *ngIf="selectedProduct" (click)="closeProductModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ selectedProduct.name }}</h3>
+      <button class="btn-close" (click)="closeProductModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <img [src]="selectedProduct.images[0]?.url" [alt]="selectedProduct.name" class="product-image">
+      
+      <div class="product-details">
+        <p class="brand">{{ selectedProduct.brand }}</p>
+        <div class="price">
+          <span class="current-price">₹{{ selectedProduct.price | number:'1.0-0' }}</span>
+          <span class="original-price" *ngIf="selectedProduct.originalPrice">
+            ₹{{ selectedProduct.originalPrice | number:'1.0-0' }}
+          </span>
+        </div>
+      </div>
+      
+      <div class="modal-actions">
+        <button class="btn-primary" (click)="buyProductNow()">Buy Now</button>
+        <button class="btn-secondary" (click)="addProductToCart()">Add to Cart</button>
+        <button class="btn-outline" (click)="addProductToWishlist()">Add to Wishlist</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Comments Modal -->
+<div class="comments-modal" *ngIf="showCommentsModal" (click)="closeComments()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Comments</h3>
+      <button class="btn-close" (click)="closeComments()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="comments-list">
+      <div class="comment" *ngFor="let comment of comments">
+        <img [src]="comment.user.avatar || '/assets/images/default-avatar.png'" 
+             [alt]="comment.user.fullName" class="comment-avatar">
+        <div class="comment-content">
+          <span class="comment-username">{{ comment.user.username }}</span>
+          <p class="comment-text">{{ comment.text }}</p>
+          <span class="comment-time">{{ getTimeAgo(comment.commentedAt) }}</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="comment-input">
+      <input type="text" 
+             [(ngModel)]="newComment" 
+             placeholder="Add a comment..."
+             (keyup.enter)="addComment()">
+      <button (click)="addComment()" [disabled]="!newComment.trim()">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+  </div>
+</div>

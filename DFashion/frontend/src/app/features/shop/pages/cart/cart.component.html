@@ -1,0 +1,194 @@
+<div class="cart-page">
+  <div class="cart-header">
+    <div class="header-main">
+      <h1>Shopping Cart</h1>
+      <p *ngIf="cartItems.length > 0">{{ getTotalItems() }} items ({{ cartItems.length }} unique)</p>
+    </div>
+    <div class="header-actions" *ngIf="cartItems.length > 0">
+      <button class="select-all-btn"
+              [class.selected]="allItemsSelected()"
+              (click)="toggleSelectAll()">
+        <i class="fas fa-check"></i>
+        {{ allItemsSelected() ? 'Deselect All' : 'Select All' }}
+      </button>
+      <button class="bulk-remove-btn"
+              [disabled]="selectedItems.length === 0"
+              (click)="bulkRemoveItems()">
+        <i class="fas fa-trash"></i>
+        Remove Selected ({{ selectedItems.length }})
+      </button>
+      <button class="refresh-btn" (click)="refreshCart()" title="Refresh cart">
+        <i class="fas fa-sync-alt"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="cart-content" *ngIf="cartItems.length > 0">
+    <div class="cart-items">
+      <div *ngFor="let item of cartItems" class="cart-item" [class.selected]="selectedItems.includes(item._id)">
+        <div class="item-checkbox">
+          <input type="checkbox"
+                 [checked]="selectedItems.includes(item._id)"
+                 (change)="toggleItemSelection(item._id)"
+                 [id]="'item-' + item._id">
+          <label [for]="'item-' + item._id"></label>
+        </div>
+        <div class="item-image">
+          <img [src]="item.product.images[0].url" [alt]="item.product.name">
+        </div>
+        <div class="item-details">
+          <h3>{{ item.product.name }}</h3>
+          <p class="brand">{{ item.product.brand }}</p>
+          <div class="item-options" *ngIf="item.size || item.color">
+            <span *ngIf="item.size" class="option-tag">Size: {{ item.size }}</span>
+            <span *ngIf="item.color" class="option-tag">Color: {{ item.color }}</span>
+          </div>
+
+          <!-- Enhanced Price Display -->
+          <div class="item-price-section">
+            <div class="unit-price">
+              <span class="price-label">Unit Price:</span>
+              <span class="current-price">₹{{ item.product.price | number }}</span>
+              <span class="original-price" *ngIf="item.product.originalPrice && item.product.originalPrice > item.product.price">
+                ₹{{ item.product.originalPrice | number }}
+              </span>
+              <span class="discount-badge" *ngIf="item.product.originalPrice && item.product.originalPrice > item.product.price">
+                {{ getDiscountPercentage(item.product.originalPrice, item.product.price) }}% OFF
+              </span>
+            </div>
+
+            <!-- Quantity and Item Total Display -->
+            <div class="quantity-price-info">
+              <span class="quantity-info">Quantity: {{ item.quantity }}</span>
+              <span class="item-total-label">Item Total: <strong>₹{{ (item.product.price * item.quantity) | number }}</strong></span>
+            </div>
+          </div>
+        </div>
+        <div class="item-quantity-controls">
+          <div class="quantity-label">Quantity:</div>
+          <div class="quantity-controls">
+            <button class="qty-btn decrease" (click)="decreaseQuantity(item)" [disabled]="item.quantity <= 1">
+              <i class="fas fa-minus"></i>
+            </button>
+            <span class="quantity-display">{{ item.quantity }}</span>
+            <button class="qty-btn increase" (click)="increaseQuantity(item)">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+        </div>
+        <div class="item-total-section">
+          <div class="total-label">Total:</div>
+          <div class="total-amount">₹{{ (item.product.price * item.quantity) | number }}</div>
+          <div class="savings" *ngIf="item.product.originalPrice && item.product.originalPrice > item.product.price">
+            You save: ₹{{ ((item.product.originalPrice - item.product.price) * item.quantity) | number }}
+          </div>
+        </div>
+        <button class="remove-btn" (click)="removeItem(item)">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="cart-summary">
+      <div class="summary-card">
+        <h3>Order Summary</h3>
+
+        <!-- Selection Status -->
+        <div class="selection-status" *ngIf="cartItems.length > 0">
+          <div class="status-item">
+            <span class="status-label">Selected Items:</span>
+            <span class="status-value">{{ selectedItems.length }} of {{ cartItems.length }} items</span>
+          </div>
+          <div class="status-item">
+            <span class="status-label">Selected Quantity:</span>
+            <span class="status-value">{{ getSelectedItemsCount() }} items</span>
+          </div>
+        </div>
+
+        <!-- Selected Items Total Amount Display (Prominent) -->
+        <div class="cart-total-highlight" *ngIf="selectedItems.length > 0">
+          <div class="total-amount-display">
+            <i class="fas fa-shopping-cart"></i>
+            <div class="amount-details">
+              <span class="amount-label">Selected Items Total</span>
+              <span class="amount-value">₹{{ getSelectedItemsTotal() | number }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Selection Message -->
+        <div class="no-selection-message" *ngIf="selectedItems.length === 0">
+          <i class="fas fa-info-circle"></i>
+          <p>Select items to see total amount</p>
+        </div>
+
+        <!-- Detailed Summary for Selected Items -->
+        <div class="summary-details" *ngIf="selectedItems.length > 0">
+          <div class="summary-row">
+            <span>Subtotal ({{ getSelectedItemsCount() }} items)</span>
+            <span>₹{{ getSelectedItemsTotal() | number }}</span>
+          </div>
+          <div class="summary-row" *ngIf="getSelectedItemsSavings() > 0">
+            <span>You Save</span>
+            <span class="savings">₹{{ getSelectedItemsSavings() | number }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Shipping</span>
+            <span class="free-shipping">FREE</span>
+          </div>
+          <div class="summary-row">
+            <span>Tax (18% GST)</span>
+            <span>Included</span>
+          </div>
+          <hr>
+          <div class="summary-row total">
+            <span><strong>Final Total</strong></span>
+            <span><strong>₹{{ getSelectedItemsTotal() | number }}</strong></span>
+          </div>
+        </div>
+
+        <!-- All Items Summary (for reference) -->
+        <div class="all-items-summary" *ngIf="selectedItems.length !== cartItems.length && cartItems.length > 0">
+          <hr>
+          <h4>All Cart Items</h4>
+          <div class="summary-row">
+            <span>Total Items in Cart:</span>
+            <span>{{ getCartBreakdown().totalItems }} unique ({{ getCartBreakdown().totalQuantity }} items)</span>
+          </div>
+          <div class="summary-row">
+            <span>Total Cart Value:</span>
+            <span>₹{{ getCartBreakdown().finalTotal | number }}</span>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button class="checkout-btn"
+                  [disabled]="selectedItems.length === 0"
+                  (click)="proceedToCheckout()"
+                  [title]="selectedItems.length === 0 ? 'Select items to checkout' : 'Proceed to checkout with selected items'">
+            <i class="fas fa-credit-card"></i>
+            Checkout Selected ({{ selectedItems.length }})
+          </button>
+          <button class="continue-shopping-btn" (click)="continueShopping()">
+            <i class="fas fa-arrow-left"></i>
+            Continue Shopping
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-cart" *ngIf="cartItems.length === 0 && !isLoading">
+    <i class="fas fa-shopping-cart"></i>
+    <h3>Your cart is empty</h3>
+    <p>Add some products to get started</p>
+    <button class="shop-now-btn" (click)="continueShopping()">
+      Shop Now
+    </button>
+  </div>
+
+  <div class="loading-container" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading cart...</p>
+  </div>
+</div>

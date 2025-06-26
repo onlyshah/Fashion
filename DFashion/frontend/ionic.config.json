@@ -1,0 +1,8 @@
+{
+  "name": "dfashion-frontend",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular",
+  "id": "dfashion-mobile"
+}

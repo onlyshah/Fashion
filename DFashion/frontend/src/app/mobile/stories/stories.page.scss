@@ -1,0 +1,435 @@
+// Instagram-style Mobile Stories
+.stories-viewer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+// Progress Bars (Instagram-style)
+.progress-container {
+  position: absolute;
+  top: 10px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  gap: 2px;
+  z-index: 10;
+  
+  .progress-bar {
+    flex: 1;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 1px;
+    overflow: hidden;
+    
+    .progress-fill {
+      height: 100%;
+      background: #fff;
+      border-radius: 1px;
+      transition: width 0.1s linear;
+    }
+    
+    &.completed .progress-fill {
+      width: 100% !important;
+    }
+  }
+}
+
+// Story Header
+.story-header {
+  position: absolute;
+  top: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  z-index: 10;
+  background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 100%);
+  
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border: 2px solid #fff;
+      
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+    
+    .user-details {
+      display: flex;
+      flex-direction: column;
+      
+      .username {
+        color: #fff;
+        font-weight: 600;
+        font-size: 14px;
+      }
+      
+      .timestamp {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 12px;
+      }
+    }
+  }
+  
+  .story-controls {
+    display: flex;
+    gap: 4px;
+    
+    ion-button {
+      --padding-start: 8px;
+      --padding-end: 8px;
+      height: 32px;
+      width: 32px;
+    }
+  }
+}
+
+// Story Content
+.story-content {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  .story-media {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    .story-image,
+    .story-video {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    
+    .story-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+}
+
+// Product Tags (Instagram-style)
+.product-tags {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  
+  .product-tag {
+    position: absolute;
+    pointer-events: all;
+    cursor: pointer;
+    
+    .product-dot {
+      position: relative;
+      width: 24px;
+      height: 24px;
+      background: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      
+      &::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        background: #000;
+        border-radius: 50%;
+      }
+      
+      .product-pulse {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.6);
+        animation: pulse 2s infinite;
+      }
+    }
+    
+    .product-preview {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 8px;
+      padding: 8px;
+      min-width: 120px;
+      backdrop-filter: blur(10px);
+      
+      img {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 4px;
+        margin-bottom: 4px;
+      }
+      
+      .product-info {
+        .product-name {
+          display: block;
+          color: #fff;
+          font-size: 12px;
+          font-weight: 500;
+          margin-bottom: 2px;
+        }
+        
+        .product-price {
+          display: block;
+          color: var(--ion-color-primary);
+          font-size: 11px;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+// Story Caption
+.story-caption {
+  position: absolute;
+  bottom: 80px;
+  left: 16px;
+  right: 16px;
+  
+  p {
+    color: #fff;
+    font-size: 14px;
+    line-height: 1.4;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    margin: 0;
+  }
+}
+
+// Story Footer
+.story-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  background: linear-gradient(0deg, rgba(0,0,0,0.6) 0%, transparent 100%);
+  
+  .story-actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    
+    ion-button {
+      --padding-start: 12px;
+      --padding-end: 12px;
+      height: 40px;
+      position: relative;
+      
+      ion-badge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        font-size: 10px;
+        min-width: 16px;
+        height: 16px;
+      }
+    }
+  }
+  
+  .navigation-hints {
+    display: flex;
+    justify-content: space-between;
+    opacity: 0.6;
+    
+    .nav-hint {
+      color: #fff;
+      font-size: 20px;
+      animation: fadeInOut 2s infinite;
+    }
+  }
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+}
+
+// Touch Areas for Navigation
+.touch-areas {
+  position: absolute;
+  top: 60px;
+  bottom: 100px;
+  left: 0;
+  right: 0;
+  display: flex;
+  
+  .touch-area {
+    flex: 1;
+    cursor: pointer;
+    
+    &.left {
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+    }
+    
+    &.right {
+      background: linear-gradient(270deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+    }
+    
+    &:active {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+// Product Modal
+.product-modal {
+  padding: 16px;
+  
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    
+    h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+  }
+  
+  .modal-content {
+    margin-bottom: 24px;
+    
+    .product-image {
+      text-align: center;
+      margin-bottom: 16px;
+      
+      img {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 8px;
+      }
+    }
+    
+    .product-details {
+      text-align: center;
+      
+      h4 {
+        margin: 0 0 4px 0;
+        font-size: 16px;
+        font-weight: 600;
+      }
+      
+      .brand {
+        color: var(--ion-color-medium);
+        font-size: 14px;
+        margin-bottom: 12px;
+      }
+      
+      .price-section {
+        .current-price {
+          font-size: 18px;
+          font-weight: 700;
+          color: var(--ion-color-primary);
+          margin-right: 8px;
+        }
+        
+        .original-price {
+          font-size: 14px;
+          text-decoration: line-through;
+          color: var(--ion-color-medium);
+          margin-right: 8px;
+        }
+        
+        .discount {
+          font-size: 12px;
+          color: var(--ion-color-success);
+          font-weight: 600;
+        }
+      }
+    }
+  }
+  
+  .modal-actions {
+    ion-button {
+      margin-bottom: 8px;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+// Empty & Loading States
+.empty-stories,
+.loading-stories {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  padding: 32px;
+  text-align: center;
+  background: #000;
+  color: #fff;
+  
+  ion-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+  }
+  
+  h3 {
+    margin: 0 0 8px 0;
+    font-size: 20px;
+  }
+  
+  p {
+    margin: 0 0 24px 0;
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  ion-spinner {
+    margin-bottom: 16px;
+  }
+}

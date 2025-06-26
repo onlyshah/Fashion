@@ -1,0 +1,53 @@
+<ion-tabs>
+  <!-- Home Tab -->
+  <ion-tab-bar slot="bottom" color="primary">
+    <ion-tab-button tab="home">
+      <ion-icon name="home"></ion-icon>
+      <ion-label>Home</ion-label>
+    </ion-tab-button>
+
+    <!-- Categories Tab -->
+    <ion-tab-button tab="categories">
+      <ion-icon name="grid"></ion-icon>
+      <ion-label>Categories</ion-label>
+    </ion-tab-button>
+
+    <!-- Stories Tab -->
+    <ion-tab-button tab="stories">
+      <ion-icon name="camera"></ion-icon>
+      <ion-label>Stories</ion-label>
+    </ion-tab-button>
+
+    <!-- Posts Tab -->
+    <ion-tab-button tab="posts">
+      <ion-icon name="images"></ion-icon>
+      <ion-label>Posts</ion-label>
+    </ion-tab-button>
+
+    <!-- Wishlist Tab -->
+    <ion-tab-button tab="wishlist" *ngIf="isAuthenticated">
+      <ion-icon name="heart"></ion-icon>
+      <ion-label>Wishlist</ion-label>
+      <ion-badge color="danger" *ngIf="wishlistItemCount > 0">{{ wishlistItemCount }}</ion-badge>
+    </ion-tab-button>
+
+    <!-- Cart Tab -->
+    <ion-tab-button tab="cart" *ngIf="isAuthenticated">
+      <ion-icon name="bag"></ion-icon>
+      <ion-label>Cart</ion-label>
+      <ion-badge color="danger" *ngIf="cartItemCount > 0">{{ cartItemCount }}</ion-badge>
+    </ion-tab-button>
+
+    <!-- Profile Tab -->
+    <ion-tab-button tab="profile">
+      <ion-icon name="person"></ion-icon>
+      <ion-label>Profile</ion-label>
+    </ion-tab-button>
+
+    <!-- Vendor Tab (only for vendors) -->
+    <ion-tab-button tab="vendor" *ngIf="isVendor">
+      <ion-icon name="storefront"></ion-icon>
+      <ion-label>Vendor</ion-label>
+    </ion-tab-button>
+  </ion-tab-bar>
+</ion-tabs>

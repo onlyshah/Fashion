@@ -1,0 +1,228 @@
+<div class="mobile-layout" 
+     [class.menu-open]="isMenuOpen"
+     [class.search-open]="isSearchOpen"
+     [class.keyboard-open]="isKeyboardOpen">
+
+  <!-- Mobile Header -->
+  <header *ngIf="showHeader" class="mobile-header">
+    <div class="header-content">
+      <!-- Menu Button -->
+      <button class="header-btn menu-btn" (click)="toggleMenu()">
+        <i class="fas fa-bars" *ngIf="!isMenuOpen"></i>
+        <i class="fas fa-times" *ngIf="isMenuOpen"></i>
+      </button>
+
+      <!-- Logo -->
+      <div class="header-logo" routerLink="/">
+        <img src="assets/images/logo.png" alt="DFashion" class="logo-image">
+        <span class="logo-text">DFashion</span>
+      </div>
+
+      <!-- Header Actions -->
+      <div class="header-actions">
+        <!-- Search Button -->
+        <button class="header-btn search-btn" (click)="toggleSearch()">
+          <i class="fas fa-search"></i>
+        </button>
+
+        <!-- Cart Button -->
+        <button class="header-btn cart-btn" routerLink="/cart">
+          <i class="fas fa-shopping-cart"></i>
+          <span *ngIf="cartCount > 0" class="badge">{{ formatCount(cartCount) }}</span>
+        </button>
+
+        <!-- Wishlist Button -->
+        <button class="header-btn wishlist-btn" routerLink="/wishlist">
+          <i class="fas fa-heart"></i>
+          <span *ngIf="wishlistCount > 0" class="badge">{{ formatCount(wishlistCount) }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Search Bar -->
+    <div class="mobile-search" [class.active]="isSearchOpen">
+      <div class="search-container">
+        <input 
+          type="text" 
+          class="mobile-search-input"
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearchSubmit()"
+          placeholder="Search for products, brands...">
+        <button class="search-submit-btn" (click)="onSearchSubmit()">
+          <i class="fas fa-search"></i>
+        </button>
+        <button class="search-close-btn" (click)="toggleSearch()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Side Menu -->
+  <div class="mobile-menu" [class.active]="isMenuOpen">
+    <div class="menu-overlay" (click)="closeMenu()"></div>
+    <div class="menu-content">
+      <!-- User Profile Section -->
+      <div class="menu-profile" *ngIf="currentUser">
+        <div class="profile-avatar">
+          <img [src]="currentUser.avatar || 'assets/images/default-avatar.png'" 
+               [alt]="currentUser.fullName">
+        </div>
+        <div class="profile-info">
+          <h3>{{ currentUser.fullName }}</h3>
+          <p>{{ currentUser.email }}</p>
+        </div>
+      </div>
+
+      <!-- Guest Section -->
+      <div class="menu-guest" *ngIf="!currentUser">
+        <div class="guest-avatar">
+          <i class="fas fa-user"></i>
+        </div>
+        <div class="guest-info">
+          <h3>Welcome to DFashion</h3>
+          <p>Sign in for personalized experience</p>
+        </div>
+        <div class="guest-actions">
+          <button class="btn-primary" routerLink="/login" (click)="closeMenu()">Sign In</button>
+          <button class="btn-secondary" routerLink="/register" (click)="closeMenu()">Sign Up</button>
+        </div>
+      </div>
+
+      <!-- Menu Items -->
+      <nav class="menu-nav">
+        <a routerLink="/" (click)="closeMenu()" class="menu-item" [class.active]="isCurrentRoute('/')">
+          <i class="fas fa-home"></i>
+          <span>Home</span>
+        </a>
+        
+        <a routerLink="/categories" (click)="closeMenu()" class="menu-item" [class.active]="isCurrentRoute('/categories')">
+          <i class="fas fa-th-large"></i>
+          <span>Categories</span>
+        </a>
+        
+        <a routerLink="/trending" (click)="closeMenu()" class="menu-item" [class.active]="isCurrentRoute('/trending')">
+          <i class="fas fa-fire"></i>
+          <span>Trending</span>
+        </a>
+        
+        <a routerLink="/brands" (click)="closeMenu()" class="menu-item" [class.active]="isCurrentRoute('/brands')">
+          <i class="fas fa-tags"></i>
+          <span>Brands</span>
+        </a>
+        
+        <a routerLink="/offers" (click)="closeMenu()" class="menu-item" [class.active]="isCurrentRoute('/offers')">
+          <i class="fas fa-percent"></i>
+          <span>Offers</span>
+        </a>
+
+        <!-- Authenticated User Menu Items -->
+        <div *ngIf="currentUser" class="menu-section">
+          <div class="menu-divider"></div>
+          
+          <a routerLink="/profile" (click)="closeMenu()" class="menu-item">
+            <i class="fas fa-user"></i>
+            <span>My Profile</span>
+          </a>
+          
+          <a routerLink="/orders" (click)="closeMenu()" class="menu-item">
+            <i class="fas fa-box"></i>
+            <span>My Orders</span>
+          </a>
+          
+          <a routerLink="/wishlist" (click)="closeMenu()" class="menu-item">
+            <i class="fas fa-heart"></i>
+            <span>Wishlist</span>
+            <span *ngIf="wishlistCount > 0" class="menu-badge">{{ formatCount(wishlistCount) }}</span>
+          </a>
+          
+          <a routerLink="/cart" (click)="closeMenu()" class="menu-item">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Cart</span>
+            <span *ngIf="cartCount > 0" class="menu-badge">{{ formatCount(cartCount) }}</span>
+          </a>
+          
+          <a routerLink="/settings" (click)="closeMenu()" class="menu-item">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+          </a>
+          
+          <div class="menu-divider"></div>
+          
+          <button class="menu-item logout-btn" (click)="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+          </button>
+        </div>
+      </nav>
+
+      <!-- App Info -->
+      <div class="menu-footer">
+        <div class="app-info">
+          <p>DFashion v1.0</p>
+          <p>© 2024 All rights reserved</p>
+        </div>
+        <div class="social-links">
+          <a href="#" class="social-link">
+            <i class="fab fa-instagram"></i>
+          </a>
+          <a href="#" class="social-link">
+            <i class="fab fa-facebook"></i>
+          </a>
+          <a href="#" class="social-link">
+            <i class="fab fa-twitter"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="mobile-main">
+    <ng-content></ng-content>
+  </main>
+
+  <!-- Mobile Bottom Navigation -->
+  <nav *ngIf="showBottomNav && !isKeyboardOpen" class="mobile-bottom-nav">
+    <a routerLink="/" class="nav-item" [class.active]="isCurrentRoute('/')">
+      <i class="fas fa-home"></i>
+      <span>Home</span>
+    </a>
+    
+    <a routerLink="/categories" class="nav-item" [class.active]="isCurrentRoute('/categories')">
+      <i class="fas fa-th-large"></i>
+      <span>Shop</span>
+    </a>
+    
+    <a routerLink="/search" class="nav-item search-nav" [class.active]="isCurrentRoute('/search')">
+      <i class="fas fa-search"></i>
+      <span>Search</span>
+    </a>
+    
+    <a routerLink="/wishlist" class="nav-item" [class.active]="isCurrentRoute('/wishlist')">
+      <i class="fas fa-heart"></i>
+      <span>Wishlist</span>
+      <span *ngIf="wishlistCount > 0" class="nav-badge">{{ formatCount(wishlistCount) }}</span>
+    </a>
+    
+    <a routerLink="/profile" class="nav-item" [class.active]="isCurrentRoute('/profile')">
+      <i class="fas fa-user"></i>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+  <!-- Mobile Footer -->
+  <footer *ngIf="showFooter && !showBottomNav" class="mobile-footer">
+    <div class="footer-content">
+      <div class="footer-links">
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+      </div>
+      <div class="footer-copyright">
+        <p>© 2024 DFashion. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+</div>

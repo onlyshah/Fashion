@@ -1,0 +1,338 @@
+.user-management-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  .header-content {
+    h1 {
+      margin: 0 0 0.5rem 0;
+      font-size: 2rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    p {
+      margin: 0;
+      color: #666;
+      font-size: 1rem;
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+}
+
+.filters-card {
+  .filters-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr auto;
+    gap: 1rem;
+    align-items: center;
+
+    .search-field {
+      min-width: 300px;
+    }
+
+    .clear-filters-btn {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+}
+
+.table-card {
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    gap: 1rem;
+
+    p {
+      color: #666;
+      margin: 0;
+    }
+  }
+
+  .table-container {
+    overflow-x: auto;
+
+    table {
+      width: 100%;
+      min-width: 800px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 1rem;
+      }
+
+      .user-details {
+        .user-name {
+          font-weight: 500;
+          color: #333;
+          margin-bottom: 0.25rem;
+        }
+
+        .user-username {
+          color: #666;
+          font-size: 0.85rem;
+        }
+      }
+    }
+
+    .email-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      .verified-icon {
+        color: #4caf50;
+        font-size: 1.2rem;
+        width: 1.2rem;
+        height: 1.2rem;
+      }
+    }
+
+    .role-chip {
+      color: white;
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      min-height: auto;
+      height: auto;
+    }
+
+    .department-text {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+
+      .status-text {
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+    }
+
+    .last-login {
+      color: #666;
+      font-size: 0.85rem;
+    }
+
+    .actions-cell {
+      display: flex;
+      gap: 0.25rem;
+
+      button {
+        width: 36px;
+        height: 36px;
+
+        mat-icon {
+          font-size: 1.2rem;
+          width: 1.2rem;
+          height: 1.2rem;
+        }
+      }
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 3rem;
+      color: #666;
+
+      mat-icon {
+        font-size: 4rem;
+        width: 4rem;
+        height: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+      }
+
+      h3 {
+        margin: 0 0 0.5rem 0;
+        font-weight: 500;
+      }
+
+      p {
+        margin: 0;
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+// Role Colors
+.role-chip {
+  &[style*="rgb(102, 126, 234)"] { // super_admin
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  }
+}
+
+// Responsive Design
+@media (max-width: 1200px) {
+  .filters-card .filters-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+
+    .search-field {
+      min-width: auto;
+    }
+
+    .clear-filters-btn {
+      height: 48px;
+      justify-self: start;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+
+    .header-actions {
+      width: 100%;
+      justify-content: flex-start;
+    }
+  }
+
+  .table-card .table-container {
+    .user-info {
+      .user-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+      }
+
+      .user-details {
+        .user-name {
+          font-size: 0.9rem;
+        }
+
+        .user-username {
+          font-size: 0.8rem;
+        }
+      }
+    }
+
+    .actions-cell {
+      flex-direction: column;
+      gap: 0.125rem;
+
+      button {
+        width: 32px;
+        height: 32px;
+
+        mat-icon {
+          font-size: 1rem;
+          width: 1rem;
+          height: 1rem;
+        }
+      }
+    }
+  }
+}
+
+// Material Overrides
+::ng-deep {
+  .mat-form-field-appearance-outline .mat-form-field-outline {
+    color: #e0e0e0;
+  }
+
+  .mat-form-field-appearance-outline.mat-focused .mat-form-field-outline-thick {
+    color: #667eea;
+  }
+
+  .mat-form-field-label {
+    color: #666;
+  }
+
+  .mat-form-field-appearance-outline.mat-focused .mat-form-field-label {
+    color: #667eea;
+  }
+
+  .mat-table {
+    .mat-header-cell {
+      font-weight: 600;
+      color: #333;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .mat-cell {
+      border-bottom: 1px solid #f8f8f8;
+    }
+
+    .mat-row:hover {
+      background: #f8f9fa;
+    }
+  }
+
+  .mat-paginator {
+    border-top: 1px solid #f0f0f0;
+    margin-top: 1rem;
+  }
+
+  .success-snackbar {
+    background-color: #4caf50 !important;
+    color: white !important;
+  }
+
+  .error-snackbar {
+    background-color: #f44336 !important;
+    color: white !important;
+  }
+}
+
+// Animations
+.user-info, .actions-cell button {
+  transition: all 0.2s ease;
+}
+
+.actions-cell button:hover {
+  transform: scale(1.1);
+}

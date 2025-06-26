@@ -1,0 +1,157 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Vendor Dashboard</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear">
+        <ion-icon name="notifications"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Welcome Section -->
+  <div class="welcome-section">
+    <div class="welcome-content">
+      <h2>Welcome back!</h2>
+      <p>{{ currentUser?.fullName || 'Vendor' }}</p>
+    </div>
+    <div class="welcome-avatar">
+      <ion-avatar>
+        <img [src]="currentUser?.avatar || '/assets/images/default-avatar.png'" [alt]="currentUser?.fullName">
+      </ion-avatar>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-section">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="6">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <ion-icon name="cube" color="primary"></ion-icon>
+            </div>
+            <div class="stat-content">
+              <h3>{{ stats.totalProducts }}</h3>
+              <p>Products</p>
+            </div>
+          </div>
+        </ion-col>
+        <ion-col size="6">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <ion-icon name="bag" color="success"></ion-icon>
+            </div>
+            <div class="stat-content">
+              <h3>{{ stats.totalOrders }}</h3>
+              <p>Orders</p>
+            </div>
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="6">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <ion-icon name="cash" color="warning"></ion-icon>
+            </div>
+            <div class="stat-content">
+              <h3>₹{{ stats.totalRevenue | number:'1.0-0' }}</h3>
+              <p>Revenue</p>
+            </div>
+          </div>
+        </ion-col>
+        <ion-col size="6">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <ion-icon name="images" color="secondary"></ion-icon>
+            </div>
+            <div class="stat-content">
+              <h3>{{ stats.totalPosts + stats.totalStories }}</h3>
+              <p>Content</p>
+            </div>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="section">
+    <div class="section-header">
+      <h3>Quick Actions</h3>
+    </div>
+    <ion-grid>
+      <ion-row>
+        <ion-col size="6" *ngFor="let action of quickActions">
+          <div class="action-card" (click)="onQuickAction(action)">
+            <div class="action-icon">
+              <ion-icon [name]="action.icon" [color]="action.color"></ion-icon>
+            </div>
+            <div class="action-content">
+              <h4>{{ action.title }}</h4>
+              <p>{{ action.subtitle }}</p>
+            </div>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- Menu Items -->
+  <div class="section">
+    <div class="section-header">
+      <h3>Manage</h3>
+    </div>
+    <ion-list>
+      <ion-item button *ngFor="let item of menuItems" (click)="onMenuItem(item)">
+        <ion-icon [name]="item.icon" slot="start" color="medium"></ion-icon>
+        <ion-label>
+          <h3>{{ item.title }}</h3>
+        </ion-label>
+        <ion-badge slot="end" *ngIf="item.count > 0">{{ item.count }}</ion-badge>
+        <ion-icon name="chevron-forward" slot="end" color="medium"></ion-icon>
+      </ion-item>
+    </ion-list>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="section">
+    <div class="section-header">
+      <h3>Recent Activity</h3>
+    </div>
+    <ion-list>
+      <ion-item *ngFor="let activity of recentActivity">
+        <ion-icon [name]="activity.icon" [color]="activity.iconColor" slot="start"></ion-icon>
+        <ion-label>
+          <h3>{{ activity.title }}</h3>
+          <p>{{ activity.subtitle }}</p>
+          <p class="activity-time">{{ activity.time }}</p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </div>
+
+  <!-- Floating Action Button -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="primary">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-list side="top">
+      <ion-fab-button color="secondary" (click)="onQuickAction(quickActions[0])">
+        <ion-icon name="cube"></ion-icon>
+      </ion-fab-button>
+      <ion-fab-button color="tertiary" (click)="onQuickAction(quickActions[1])">
+        <ion-icon name="camera"></ion-icon>
+      </ion-fab-button>
+      <ion-fab-button color="success" (click)="onQuickAction(quickActions[2])">
+        <ion-icon name="videocam"></ion-icon>
+      </ion-fab-button>
+    </ion-fab-list>
+  </ion-fab>
+</ion-content>

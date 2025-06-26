@@ -1,0 +1,232 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Posts</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear">
+        <ion-icon name="search"></ion-icon>
+      </ion-button>
+      <ion-button fill="clear">
+        <ion-icon name="heart-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Posts Feed (Instagram-style) -->
+  <div class="posts-feed">
+    <div *ngFor="let post of posts; trackBy: trackByPostId" class="post-item">
+      
+      <!-- Post Header -->
+      <div class="post-header">
+        <div class="user-info" (click)="viewProfile(post.user)">
+          <ion-avatar class="user-avatar">
+            <img [src]="post.user.avatar || '/assets/images/default-avatar.png'" 
+                 [alt]="post.user.fullName">
+          </ion-avatar>
+          <div class="user-details">
+            <span class="username">{{ post.user.username }}</span>
+            <span class="timestamp">{{ getTimeAgo(post.createdAt) }}</span>
+          </div>
+        </div>
+        
+        <ion-button fill="clear" size="small">
+          <ion-icon name="ellipsis-horizontal"></ion-icon>
+        </ion-button>
+      </div>
+
+      <!-- Post Media -->
+      <div class="post-media" (dblclick)="onDoubleClick(post)" (click)="toggleProductTags(post)">
+        <!-- Image Post -->
+        <div *ngIf="post.media[0].type === 'image'" class="media-container">
+          <img [src]="post.media[0].url"
+               [alt]="post.media[0].alt"
+               class="post-image">
+
+          <!-- Product Tags (Instagram-style - hidden by default) -->
+          <div class="product-tags"
+               *ngIf="post.products && post.products.length > 0"
+               [class.show-tags]="post.showProductTags">
+            <div
+              *ngFor="let productTag of post.products"
+              class="product-tag"
+              [style.left.%]="productTag.position.x || 50"
+              [style.top.%]="productTag.position.y || 50"
+              (click)="viewProduct(productTag.product); $event.stopPropagation()">
+              <div class="product-dot">
+                <div class="product-pulse"></div>
+              </div>
+              <div class="product-info">
+                {{ productTag.product?.name || 'Product' }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Shopping bag icon indicator -->
+          <div class="shopping-indicator" *ngIf="post.products && post.products.length > 0 && !post.showProductTags">
+            <ion-icon name="bag-outline"></ion-icon>
+          </div>
+        </div>
+
+        <!-- Video Post -->
+        <div *ngIf="post.media[0].type === 'video'" class="media-container">
+          <video [src]="post.media[0].url"
+                 [poster]="post.media[0].thumbnail"
+                 controls
+                 class="post-video">
+          </video>
+          
+          <!-- Product Tags for Video -->
+          <div class="product-tags" *ngIf="post.products && post.products.length > 0">
+            <div 
+              *ngFor="let productTag of post.products"
+              class="product-tag"
+              [style.left.%]="productTag.position.x"
+              [style.top.%]="productTag.position.y"
+              (click)="viewProduct(productTag.product)">
+              <div class="product-dot">
+                <div class="product-pulse"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Post Actions (Instagram-style) -->
+      <div class="post-actions">
+        <div class="action-buttons">
+          <ion-button fill="clear" size="small" (click)="toggleLike(post)">
+            <ion-icon [name]="post.isLiked ? 'heart' : 'heart-outline'" 
+                      [color]="post.isLiked ? 'danger' : 'dark'"></ion-icon>
+          </ion-button>
+          <ion-button fill="clear" size="small" (click)="toggleComments(post)">
+            <ion-icon name="chatbubble-outline" color="dark"></ion-icon>
+          </ion-button>
+          <ion-button fill="clear" size="small" (click)="sharePost(post)">
+            <ion-icon name="paper-plane-outline" color="dark"></ion-icon>
+          </ion-button>
+        </div>
+        
+        <ion-button fill="clear" size="small" (click)="toggleSave(post)">
+          <ion-icon [name]="post.isSaved ? 'bookmark' : 'bookmark-outline'" 
+                    [color]="post.isSaved ? 'dark' : 'dark'"></ion-icon>
+        </ion-button>
+      </div>
+
+      <!-- Post Stats -->
+      <div class="post-stats">
+        <div class="likes-count" *ngIf="post.analytics.likes > 0">
+          <strong>{{ formatCount(post.analytics.likes) }} likes</strong>
+        </div>
+        
+        <!-- Post Caption -->
+        <div class="post-caption" *ngIf="post.caption">
+          <span class="username">{{ post.user.username }}</span>
+          <span class="caption-text">{{ post.caption }}</span>
+        </div>
+        
+        <!-- Comments Preview -->
+        <div class="comments-preview" *ngIf="post.analytics.comments > 0">
+          <span class="view-comments" (click)="toggleComments(post)">
+            View all {{ post.analytics.comments }} comments
+          </span>
+        </div>
+      </div>
+
+      <!-- Product Showcase -->
+      <div class="product-showcase" *ngIf="post.products && post.products.length > 0">
+        <div class="showcase-header">
+          <span>Products in this post</span>
+          <ion-icon name="bag-outline"></ion-icon>
+        </div>
+        
+        <div class="products-list">
+          <div *ngFor="let productTag of post.products" 
+               class="product-item"
+               (click)="viewProduct(productTag.product)">
+            <img [src]="productTag.product.images[0].url" 
+                 [alt]="productTag.product.name"
+                 class="product-image">
+            <div class="product-info">
+              <span class="product-name">{{ productTag.product.name }}</span>
+              <span class="product-brand">{{ productTag.product.brand }}</span>
+              <div class="product-price">
+                <span class="current-price">₹{{ productTag.product.price | number }}</span>
+                <span class="original-price" *ngIf="productTag.product.originalPrice">
+                  ₹{{ productTag.product.originalPrice | number }}
+                </span>
+              </div>
+            </div>
+            <div class="product-actions">
+              <ion-button size="small" fill="outline" (click)="addToWishlist(productTag.product); $event.stopPropagation()">
+                <ion-icon name="heart-outline" slot="icon-only"></ion-icon>
+              </ion-button>
+              <ion-button size="small" (click)="addToCart(productTag.product); $event.stopPropagation()">
+                <ion-icon name="bag" slot="icon-only"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comments Section -->
+      <div class="comments-section" *ngIf="post.showComments">
+        <div class="comments-header">
+          <h4>Comments</h4>
+          <ion-button fill="clear" size="small" (click)="toggleComments(post)">
+            <ion-icon name="close"></ion-icon>
+          </ion-button>
+        </div>
+        
+        <!-- Add Comment -->
+        <div class="add-comment">
+          <ion-input placeholder="Add a comment..." fill="outline"></ion-input>
+          <ion-button size="small">Post</ion-button>
+        </div>
+        
+        <!-- Comments List -->
+        <div class="comments-list">
+          <div class="comment-item">
+            <ion-avatar class="comment-avatar">
+              <img src="/assets/images/default-avatar.png" alt="User">
+            </ion-avatar>
+            <div class="comment-content">
+              <span class="comment-username">user123</span>
+              <span class="comment-text">Love this outfit! Where did you get it?</span>
+              <div class="comment-meta">
+                <span class="comment-time">2h</span>
+                <span class="comment-like">Like</span>
+                <span class="comment-reply">Reply</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Infinite Scroll -->
+  <ion-infinite-scroll threshold="100px" (ionInfinite)="loadMorePosts($event)">
+    <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more posts...">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading && posts.length === 0">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading posts...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-posts" *ngIf="!isLoading && posts.length === 0">
+    <div class="empty-content">
+      <ion-icon name="images-outline" color="medium"></ion-icon>
+      <h3>No Posts Available</h3>
+      <p>Check back later for new posts</p>
+    </div>
+  </div>
+</ion-content>

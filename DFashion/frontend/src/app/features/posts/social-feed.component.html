@@ -1,0 +1,219 @@
+<div class="social-feed">
+  <!-- Stories Bar with Carousel -->
+  <div class="stories-bar">
+    <app-view-add-stories
+      [stories]="stories"
+      [showAddStory]="true"
+      addStoryText="Your Story"
+      [currentUser]="currentUser"
+      (storyClick)="onStoryClick($event)"
+      (createStory)="createStory()">
+    </app-view-add-stories>
+  </div>
+
+  <!-- Posts Feed -->
+  <div class="posts-container">
+    <div class="post-card" *ngFor="let post of posts">
+      <!-- Post Header -->
+      <div class="post-header">
+        <div class="user-info">
+          <img [src]="post.user.avatar || '/assets/images/default-avatar.png'"
+               [alt]="post.user.fullName"
+               class="user-avatar"
+               (click)="viewProfile(post.user._id)">
+          <div class="user-details">
+            <div class="username-row">
+              <span class="username" (click)="viewProfile(post.user._id)">{{ post.user.username }}</span>
+              <i class="fas fa-check-circle verified" *ngIf="post.user.isVerified"></i>
+            </div>
+            <span class="post-time">{{ getTimeAgo(post.createdAt) }}</span>
+          </div>
+        </div>
+
+        <div class="post-menu">
+          <button class="btn-menu" (click)="showPostMenu(post)">
+            <i class="fas fa-ellipsis-h"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Post Media -->
+      <div class="post-media" (click)="viewPost(post)" (dblclick)="toggleLike(post)">
+        <div class="media-container" *ngFor="let media of post.media; let i = index">
+          <img *ngIf="media.type === 'image'"
+               [src]="media.url"
+               [alt]="media.alt"
+               class="post-image">
+
+          <video *ngIf="media.type === 'video'"
+                 [src]="media.url"
+                 class="post-video"
+                 controls
+                 [muted]="true">
+          </video>
+        </div>
+
+        <!-- Product Tags -->
+        <div class="product-tags" *ngIf="post.products.length > 0">
+          <div class="product-tag"
+               *ngFor="let productTag of post.products"
+               [style.left.%]="productTag.position.x"
+               [style.top.%]="productTag.position.y"
+               (click)="showProductDetails(productTag.product)">
+            <div class="product-tag-icon">
+              <i class="fas fa-shopping-bag"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Media Navigation (for multiple images) -->
+        <div class="media-nav" *ngIf="post.media.length > 1">
+          <div class="nav-dots">
+            <span class="dot"
+                  *ngFor="let media of post.media; let i = index"
+                  [class.active]="i === 0"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Post Actions -->
+      <div class="post-actions">
+        <div class="primary-actions">
+          <button class="action-btn like"
+                  [class.liked]="post.isLiked"
+                  (click)="toggleLike(post)">
+            <i class="fas fa-heart"></i>
+          </button>
+
+          <button class="action-btn comment" (click)="focusComment(post._id)">
+            <i class="fas fa-comment"></i>
+          </button>
+
+          <button class="action-btn share" (click)="sharePost(post)">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+
+        <div class="secondary-actions">
+          <button class="action-btn save"
+                  [class.saved]="post.isSaved"
+                  (click)="toggleSave(post)">
+            <i class="fas fa-bookmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Post Stats -->
+      <div class="post-stats">
+        <div class="likes-count" *ngIf="post.likes.length > 0">
+          <strong>{{ post.likes.length | number }} likes</strong>
+        </div>
+      </div>
+
+      <!-- Post Caption -->
+      <div class="post-caption" (click)="viewPost(post)">
+        <span class="username" (click)="viewProfile(post.user._id); $event.stopPropagation()">{{ post.user.username }}</span>
+        <span class="caption-text">{{ post.caption }}</span>
+
+        <div class="hashtags" *ngIf="post.hashtags.length > 0">
+          <span class="hashtag"
+                *ngFor="let hashtag of post.hashtags"
+                (click)="searchHashtag(hashtag)">
+            #{{ hashtag }}
+          </span>
+        </div>
+      </div>
+
+      <!-- E-commerce Actions -->
+      <div class="ecommerce-actions" *ngIf="post.products.length > 0">
+        <button class="ecom-btn buy-now" (click)="buyNow(post)">
+          <i class="fas fa-bolt"></i>
+          Buy Now
+        </button>
+        <button class="ecom-btn add-cart" (click)="addToCart(post)">
+          <i class="fas fa-shopping-cart"></i>
+          Add to Cart
+        </button>
+        <button class="ecom-btn wishlist" (click)="addToWishlist(post)">
+          <i class="fas fa-heart"></i>
+          Wishlist
+        </button>
+      </div>
+
+      <!-- Comments Preview -->
+      <div class="comments-preview" *ngIf="post.comments.length > 0">
+        <div class="view-all-comments"
+             *ngIf="post.comments.length > 2"
+             (click)="viewAllComments(post)">
+          View all {{ post.comments.length }} comments
+        </div>
+
+        <div class="comment"
+             *ngFor="let comment of post.comments.slice(-2)">
+          <span class="comment-username">{{ comment.user.username }}</span>
+          <span class="comment-text">{{ comment.text }}</span>
+        </div>
+      </div>
+
+      <!-- Add Comment -->
+      <div class="add-comment">
+        <img [src]="currentUser?.avatar || '/assets/images/default-avatar.png'"
+             [alt]="currentUser?.fullName"
+             class="comment-avatar">
+        <input type="text"
+               [id]="'comment-' + post._id"
+               [(ngModel)]="commentTexts[post._id]"
+               placeholder="Add a comment..."
+               (keyup.enter)="addComment(post)"
+               class="comment-input">
+        <button class="btn-post-comment"
+                (click)="addComment(post)"
+                [disabled]="!commentTexts[post._id] || !commentTexts[post._id].trim()">
+          Post
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load More -->
+  <div class="load-more" *ngIf="hasMorePosts">
+    <button class="btn-load-more" (click)="loadMorePosts()" [disabled]="loading">
+      <i class="fas fa-spinner fa-spin" *ngIf="loading"></i>
+      {{ loading ? 'Loading...' : 'Load More Posts' }}
+    </button>
+  </div>
+</div>
+
+<!-- Product Details Modal -->
+<div class="product-modal" *ngIf="selectedProduct" (click)="closeProductModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ selectedProduct.name }}</h3>
+      <button class="btn-close" (click)="closeProductModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <img [src]="selectedProduct.images[0]?.url"
+           [alt]="selectedProduct.name"
+           class="product-image">
+
+      <div class="product-info">
+        <p class="brand">{{ selectedProduct.brand }}</p>
+        <div class="price">
+          <span class="current-price">₹{{ selectedProduct.price | number:'1.0-0' }}</span>
+          <span class="original-price" *ngIf="selectedProduct.originalPrice">
+            ₹{{ selectedProduct.originalPrice | number:'1.0-0' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-primary" (click)="buyProductNow()">Buy Now</button>
+        <button class="btn-secondary" (click)="addProductToCart()">Add to Cart</button>
+        <button class="btn-outline" (click)="addProductToWishlist()">Add to Wishlist</button>
+      </div>
+    </div>
+  </div>
+</div>

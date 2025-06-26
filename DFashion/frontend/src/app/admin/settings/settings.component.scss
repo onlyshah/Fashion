@@ -1,0 +1,122 @@
+.settings-container {
+  padding: 1rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.settings-header {
+  margin-bottom: 2rem;
+
+  h1 {
+    margin: 0 0 0.5rem 0;
+    color: #333;
+    font-weight: 500;
+  }
+
+  p {
+    margin: 0;
+    color: #666;
+    font-size: 1rem;
+  }
+}
+
+.tab-content {
+  padding: 1.5rem 0;
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 600px;
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  h3 {
+    margin: 1.5rem 0 1rem 0;
+    color: #333;
+    font-size: 1.125rem;
+    font-weight: 500;
+
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1rem 0;
+
+  mat-checkbox {
+    font-size: 0.875rem;
+  }
+}
+
+.form-actions {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+
+  button {
+    min-width: 120px;
+  }
+}
+
+mat-card {
+  margin-bottom: 1.5rem;
+
+  mat-card-header {
+    margin-bottom: 1rem;
+  }
+
+  mat-card-title {
+    font-size: 1.25rem;
+    font-weight: 500;
+  }
+
+  mat-card-subtitle {
+    font-size: 0.875rem;
+    color: #666;
+    margin-top: 0.25rem;
+  }
+}
+
+mat-tab-group {
+  ::ng-deep {
+    .mat-tab-label {
+      min-width: 120px;
+    }
+
+    .mat-tab-body-content {
+      overflow: visible;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .settings-container {
+    padding: 0.5rem;
+  }
+
+  .settings-form {
+    max-width: none;
+  }
+
+  mat-tab-group {
+    ::ng-deep {
+      .mat-tab-label {
+        min-width: auto;
+        padding: 0 12px;
+      }
+
+      .mat-tab-label-content {
+        font-size: 0.875rem;
+      }
+    }
+  }
+}

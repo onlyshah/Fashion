@@ -1,0 +1,252 @@
+<div class="advanced-search-container">
+  <!-- Search Input with Suggestions -->
+  <div class="search-input-container">
+    <div class="search-bar">
+      <ion-searchbar
+        #searchInput
+        [(ngModel)]="searchQuery"
+        (ionInput)="onSearchInput($event)"
+        (ionFocus)="onSearchFocus()"
+        (ionBlur)="onSearchBlur()"
+        (keydown.enter)="performSearch()"
+        [placeholder]="placeholder"
+        [showClearButton]="'focus'"
+        [debounce]="0"
+        class="custom-searchbar">
+      </ion-searchbar>
+      
+      <!-- Voice Search Button -->
+      <ion-button 
+        *ngIf="enableVoiceSearch"
+        fill="clear" 
+        size="small"
+        (click)="startVoiceSearch()"
+        class="voice-search-btn">
+        <ion-icon name="mic" slot="icon-only"></ion-icon>
+      </ion-button>
+    </div>
+
+    <!-- Search Suggestions Dropdown -->
+    <div 
+      *ngIf="showSuggestions && (suggestions.length > 0 || trendingSearches.length > 0)"
+      class="suggestions-dropdown">
+      
+      <!-- Search Suggestions -->
+      <div *ngIf="suggestions.length > 0" class="suggestions-section">
+        <div class="section-header">
+          <ion-icon name="search"></ion-icon>
+          <span>Suggestions</span>
+        </div>
+        <ion-item 
+          *ngFor="let suggestion of suggestions; trackBy: trackSuggestion"
+          button
+          (click)="selectSuggestion(suggestion)"
+          class="suggestion-item">
+          <ion-icon 
+            [name]="getSuggestionIcon(suggestion.type)" 
+            slot="start"
+            class="suggestion-icon">
+          </ion-icon>
+          <ion-label>
+            <h3 [innerHTML]="highlightQuery(suggestion.text)"></h3>
+            <p class="suggestion-type">{{ getSuggestionTypeLabel(suggestion.type) }}</p>
+          </ion-label>
+          <ion-badge 
+            *ngIf="suggestion.popularity > 0"
+            color="medium"
+            slot="end">
+            {{ suggestion.popularity }}
+          </ion-badge>
+        </ion-item>
+      </div>
+
+      <!-- Trending Searches -->
+      <div *ngIf="trendingSearches.length > 0 && !searchQuery" class="suggestions-section">
+        <div class="section-header">
+          <ion-icon name="trending-up"></ion-icon>
+          <span>Trending</span>
+        </div>
+        <ion-item 
+          *ngFor="let trending of trendingSearches; trackBy: trackTrending"
+          button
+          (click)="selectTrendingSearch(trending)"
+          class="suggestion-item trending-item">
+          <ion-icon name="flame" slot="start" color="danger"></ion-icon>
+          <ion-label>
+            <h3>{{ trending.query }}</h3>
+            <p>{{ trending.searches }} searches</p>
+          </ion-label>
+          <ion-chip 
+            *ngIf="trending.growth && trending.growth > 0"
+            color="success"
+            slot="end">
+            +{{ trending.growth }}
+          </ion-chip>
+        </ion-item>
+      </div>
+
+      <!-- Recent Searches -->
+      <div *ngIf="recentSearches.length > 0 && !searchQuery" class="suggestions-section">
+        <div class="section-header">
+          <ion-icon name="time"></ion-icon>
+          <span>Recent</span>
+          <ion-button 
+            fill="clear" 
+            size="small"
+            (click)="clearRecentSearches()"
+            slot="end">
+            Clear
+          </ion-button>
+        </div>
+        <ion-item 
+          *ngFor="let recent of recentSearches; trackBy: trackRecent"
+          button
+          (click)="selectRecentSearch(recent)"
+          class="suggestion-item recent-item">
+          <ion-icon name="time-outline" slot="start"></ion-icon>
+          <ion-label>
+            <h3>{{ recent.query }}</h3>
+            <p>{{ recent.resultsCount }} results • {{ getRelativeTime(recent.timestamp) }}</p>
+          </ion-label>
+        </ion-item>
+      </div>
+    </div>
+  </div>
+
+  <!-- Advanced Filters -->
+  <div *ngIf="showFilters" class="filters-container">
+    <form [formGroup]="filtersForm" class="filters-form">
+      
+      <!-- Category Filter -->
+      <div class="filter-group">
+        <ion-select 
+          formControlName="category"
+          placeholder="Category"
+          interface="popover"
+          (ionChange)="onFilterChange()">
+          <ion-select-option value="">All Categories</ion-select-option>
+          <ion-select-option 
+            *ngFor="let category of categories" 
+            [value]="category.value">
+            {{ category.label }}
+          </ion-select-option>
+        </ion-select>
+      </div>
+
+      <!-- Brand Filter -->
+      <div class="filter-group">
+        <ion-select 
+          formControlName="brand"
+          placeholder="Brand"
+          interface="popover"
+          (ionChange)="onFilterChange()">
+          <ion-select-option value="">All Brands</ion-select-option>
+          <ion-select-option 
+            *ngFor="let brand of brands" 
+            [value]="brand">
+            {{ brand }}
+          </ion-select-option>
+        </ion-select>
+      </div>
+
+      <!-- Price Range -->
+      <div class="filter-group price-range">
+        <ion-label>Price Range</ion-label>
+        <div class="price-inputs">
+          <ion-input 
+            formControlName="minPrice"
+            type="number"
+            placeholder="Min"
+            (ionBlur)="onFilterChange()">
+          </ion-input>
+          <span class="price-separator">-</span>
+          <ion-input 
+            formControlName="maxPrice"
+            type="number"
+            placeholder="Max"
+            (ionBlur)="onFilterChange()">
+          </ion-input>
+        </div>
+      </div>
+
+      <!-- Rating Filter -->
+      <div class="filter-group">
+        <ion-select 
+          formControlName="rating"
+          placeholder="Rating"
+          interface="popover"
+          (ionChange)="onFilterChange()">
+          <ion-select-option value="">Any Rating</ion-select-option>
+          <ion-select-option value="4">4+ Stars</ion-select-option>
+          <ion-select-option value="3">3+ Stars</ion-select-option>
+          <ion-select-option value="2">2+ Stars</ion-select-option>
+        </ion-select>
+      </div>
+
+      <!-- Additional Filters -->
+      <div class="filter-group checkbox-filters">
+        <ion-checkbox 
+          formControlName="inStock"
+          (ionChange)="onFilterChange()">
+        </ion-checkbox>
+        <ion-label>In Stock Only</ion-label>
+      </div>
+
+      <div class="filter-group checkbox-filters">
+        <ion-checkbox 
+          formControlName="onSale"
+          (ionChange)="onFilterChange()">
+        </ion-checkbox>
+        <ion-label>On Sale</ion-label>
+      </div>
+
+      <!-- Sort Options -->
+      <div class="filter-group">
+        <ion-select 
+          formControlName="sortBy"
+          placeholder="Sort By"
+          interface="popover"
+          (ionChange)="onFilterChange()">
+          <ion-select-option value="relevance">Relevance</ion-select-option>
+          <ion-select-option value="price">Price</ion-select-option>
+          <ion-select-option value="rating">Rating</ion-select-option>
+          <ion-select-option value="popularity">Popularity</ion-select-option>
+          <ion-select-option value="newest">Newest</ion-select-option>
+          <ion-select-option value="name">Name</ion-select-option>
+        </ion-select>
+      </div>
+
+      <!-- Clear Filters Button -->
+      <ion-button 
+        fill="clear" 
+        size="small"
+        (click)="clearFilters()"
+        class="clear-filters-btn">
+        <ion-icon name="close-circle" slot="start"></ion-icon>
+        Clear Filters
+      </ion-button>
+    </form>
+  </div>
+
+  <!-- Active Filters Display -->
+  <div *ngIf="activeFilters.length > 0" class="active-filters">
+    <ion-chip 
+      *ngFor="let filter of activeFilters; trackBy: trackFilter"
+      (click)="removeFilter(filter)"
+      class="filter-chip">
+      <ion-label>{{ filter.label }}: {{ filter.value }}</ion-label>
+      <ion-icon name="close-circle"></ion-icon>
+    </ion-chip>
+  </div>
+
+  <!-- Search Results Summary -->
+  <div *ngIf="searchResults" class="search-summary">
+    <p>
+      <strong>{{ searchResults.pagination.total }}</strong> results found
+      <span *ngIf="searchQuery"> for "{{ searchQuery }}"</span>
+      <span *ngIf="searchResults.searchMeta.searchTime"> 
+        ({{ getSearchTime(searchResults.searchMeta.searchTime) }}ms)
+      </span>
+    </p>
+  </div>
+</div>

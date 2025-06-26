@@ -1,0 +1,337 @@
+<div class="analytics-dashboard">
+  <!-- Dashboard Header -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <h1 class="dashboard-title">
+        <i class="fas fa-chart-line"></i>
+        Analytics Dashboard
+      </h1>
+      <p class="dashboard-subtitle">Real-time insights and third-party data integration</p>
+    </div>
+    
+    <div class="header-actions">
+      <!-- Date Range Selector -->
+      <select class="date-range-select" [(ngModel)]="selectedDateRange" (change)="changeDateRange(selectedDateRange)">
+        <option value="7d">Last 7 days</option>
+        <option value="30d">Last 30 days</option>
+        <option value="90d">Last 90 days</option>
+      </select>
+      
+      <!-- Export Options -->
+      <div class="export-dropdown">
+        <button class="export-btn">
+          <i class="fas fa-download"></i>
+          Export
+        </button>
+        <div class="export-menu">
+          <button (click)="exportData('csv')">CSV</button>
+          <button (click)="exportData('excel')">Excel</button>
+          <button (click)="exportData('pdf')">PDF</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading analytics data...</p>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div *ngIf="!isLoading" class="dashboard-content">
+    
+    <!-- Navigation Tabs -->
+    <div class="dashboard-tabs">
+      <button 
+        *ngFor="let tab of ['overview', 'social', 'search', 'competitors', 'scraping']"
+        class="tab-btn"
+        [class.active]="selectedTab === tab"
+        (click)="selectTab(tab)">
+        {{ tab | titlecase }}
+      </button>
+    </div>
+
+    <!-- Overview Tab -->
+    <div *ngIf="selectedTab === 'overview' && analyticsData" class="tab-content overview-tab">
+      
+      <!-- Key Metrics Cards -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-icon users-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="metric-content">
+            <h3>{{ formatNumber(analyticsData.totalUsers) }}</h3>
+            <p>Total Users</p>
+            <span class="metric-change positive">+12.5%</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon revenue-icon">
+            <i class="fas fa-rupee-sign"></i>
+          </div>
+          <div class="metric-content">
+            <h3>{{ formatCurrency(analyticsData.totalRevenue) }}</h3>
+            <p>Total Revenue</p>
+            <span class="metric-change positive">+8.3%</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon orders-icon">
+            <i class="fas fa-shopping-cart"></i>
+          </div>
+          <div class="metric-content">
+            <h3>{{ formatNumber(analyticsData.totalOrders) }}</h3>
+            <p>Total Orders</p>
+            <span class="metric-change positive">+15.7%</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon conversion-icon">
+            <i class="fas fa-percentage"></i>
+          </div>
+          <div class="metric-content">
+            <h3>{{ formatPercentage(analyticsData.conversionRate) }}</h3>
+            <p>Conversion Rate</p>
+            <span class="metric-change negative">-2.1%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Categories -->
+      <div class="analytics-section">
+        <h2>Top Categories</h2>
+        <div class="categories-list">
+          <div *ngFor="let category of analyticsData.topCategories" class="category-item">
+            <div class="category-info">
+              <h4>{{ category.name }}</h4>
+              <p>{{ category.count }} products</p>
+            </div>
+            <div class="category-revenue">
+              <span class="revenue-amount">{{ formatCurrency(category.revenue) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search Trends -->
+      <div class="analytics-section">
+        <h2>Search Trends</h2>
+        <div class="trends-list">
+          <div *ngFor="let trend of analyticsData.searchTrends" class="trend-item">
+            <div class="trend-info">
+              <h4>{{ trend.query }}</h4>
+              <p>{{ formatNumber(trend.count) }} searches</p>
+            </div>
+            <div class="trend-indicator">
+              <i [class]="getTrendIcon(trend.trend)" [style.color]="getTrendColor(trend.trend)"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Social Media Tab -->
+    <div *ngIf="selectedTab === 'social'" class="tab-content social-tab">
+      <div class="social-platforms">
+        <div *ngFor="let platform of socialMetrics" class="platform-card">
+          <div class="platform-header">
+            <h3>{{ platform.platform }}</h3>
+            <div class="sentiment-indicator">
+              <i [class]="getSentimentIcon(platform.sentiment)" [style.color]="getSentimentColor(platform.sentiment)"></i>
+              <span>{{ platform.sentiment | titlecase }}</span>
+            </div>
+          </div>
+          
+          <div class="platform-metrics">
+            <div class="metric">
+              <span class="metric-label">Followers</span>
+              <span class="metric-value">{{ formatNumber(platform.followers) }}</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Engagement</span>
+              <span class="metric-value" [style.color]="getEngagementColor(platform.engagement)">
+                {{ formatPercentage(platform.engagement) }}
+              </span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Reach</span>
+              <span class="metric-value">{{ formatNumber(platform.reach) }}</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Mentions</span>
+              <span class="metric-value">{{ formatNumber(platform.mentions) }}</span>
+            </div>
+          </div>
+
+          <div class="top-posts">
+            <h4>Top Posts</h4>
+            <div *ngFor="let post of platform.topPosts.slice(0, 3)" class="post-item">
+              <p class="post-content">{{ post.content }}</p>
+              <div class="post-stats">
+                <span><i class="fas fa-heart"></i> {{ formatNumber(post.likes) }}</span>
+                <span><i class="fas fa-share"></i> {{ formatNumber(post.shares) }}</span>
+                <span><i class="fas fa-comment"></i> {{ formatNumber(post.comments) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search Engine Tab -->
+    <div *ngIf="selectedTab === 'search' && searchData" class="tab-content search-tab">
+      <div class="search-overview">
+        <div class="search-metrics">
+          <div class="search-metric">
+            <h3>{{ formatNumber(searchData.organicTraffic) }}</h3>
+            <p>Organic Traffic</p>
+          </div>
+          <div class="search-metric">
+            <h3>{{ formatPercentage(searchData.clickThroughRate) }}</h3>
+            <p>Click Through Rate</p>
+          </div>
+          <div class="search-metric">
+            <h3>{{ searchData.averagePosition.toFixed(1) }}</h3>
+            <p>Average Position</p>
+          </div>
+          <div class="search-metric">
+            <h3>{{ formatNumber(searchData.impressions) }}</h3>
+            <p>Impressions</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="keywords-section">
+        <h2>Top Keywords</h2>
+        <div class="keywords-table">
+          <div class="table-header">
+            <span>Keyword</span>
+            <span>Position</span>
+            <span>Volume</span>
+            <span>Difficulty</span>
+            <span>Trend</span>
+          </div>
+          <div *ngFor="let keyword of searchData.keywords" class="table-row">
+            <span class="keyword-name">{{ keyword.keyword }}</span>
+            <span class="keyword-position">{{ keyword.position }}</span>
+            <span class="keyword-volume">{{ formatNumber(keyword.searchVolume) }}</span>
+            <span class="keyword-difficulty">{{ keyword.difficulty }}%</span>
+            <span class="keyword-trend">
+              <i [class]="getTrendIcon(keyword.trend)" [style.color]="getTrendColor(keyword.trend)"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Competitors Tab -->
+    <div *ngIf="selectedTab === 'competitors'" class="tab-content competitors-tab">
+      <div class="competitors-grid">
+        <div *ngFor="let competitor of competitorData" class="competitor-card">
+          <div class="competitor-header">
+            <h3>{{ competitor.competitor }}</h3>
+            <span class="market-share">{{ formatPercentage(competitor.marketShare) }} market share</span>
+          </div>
+          
+          <div class="competitor-metrics">
+            <div class="competitor-metric">
+              <span class="metric-label">Price Comparison</span>
+              <span class="metric-value" [class.higher]="competitor.priceComparison > 100" [class.lower]="competitor.priceComparison < 100">
+                {{ competitor.priceComparison }}%
+              </span>
+            </div>
+            <div class="competitor-metric">
+              <span class="metric-label">Traffic</span>
+              <span class="metric-value">{{ formatNumber(competitor.trafficEstimate) }}</span>
+            </div>
+            <div class="competitor-metric">
+              <span class="metric-label">Social Following</span>
+              <span class="metric-value">{{ formatNumber(competitor.socialFollowing) }}</span>
+            </div>
+            <div class="competitor-metric">
+              <span class="metric-label">Engagement Rate</span>
+              <span class="metric-value">{{ formatPercentage(competitor.engagementRate) }}</span>
+            </div>
+          </div>
+
+          <div class="top-keywords">
+            <h4>Top Keywords</h4>
+            <div class="keywords-tags">
+              <span *ngFor="let keyword of competitor.topKeywords" class="keyword-tag">{{ keyword }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Scraping Tab -->
+    <div *ngIf="selectedTab === 'scraping'" class="tab-content scraping-tab">
+      <div class="scraping-section">
+        <h2>Third-Party Data Scraping</h2>
+        <p class="scraping-description">Integrate real-time data from social media platforms and search engines</p>
+        
+        <!-- Instagram Scraping -->
+        <div class="scraping-tool">
+          <div class="tool-header">
+            <h3><i class="fab fa-instagram"></i> Instagram Data Scraper</h3>
+            <p>Extract follower count, engagement metrics, and post performance</p>
+          </div>
+          <div class="tool-form">
+            <input 
+              type="text" 
+              [(ngModel)]="instagramUsername" 
+              placeholder="Enter Instagram username"
+              class="scraping-input">
+            <button 
+              (click)="scrapeInstagramData()" 
+              [disabled]="isScrapingInstagram || !instagramUsername.trim()"
+              class="scraping-btn">
+              <i *ngIf="isScrapingInstagram" class="fas fa-spinner fa-spin"></i>
+              <i *ngIf="!isScrapingInstagram" class="fas fa-download"></i>
+              {{ isScrapingInstagram ? 'Scraping...' : 'Scrape Data' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Google Trends Scraping -->
+        <div class="scraping-tool">
+          <div class="tool-header">
+            <h3><i class="fab fa-google"></i> Google Trends Scraper</h3>
+            <p>Get trending search data and keyword popularity</p>
+          </div>
+          <div class="tool-form">
+            <input 
+              type="text" 
+              [(ngModel)]="googleTrendsKeyword" 
+              placeholder="Enter keyword to analyze"
+              class="scraping-input">
+            <button 
+              (click)="scrapeGoogleTrends()" 
+              [disabled]="isScrapingTrends || !googleTrendsKeyword.trim()"
+              class="scraping-btn">
+              <i *ngIf="isScrapingTrends" class="fas fa-spinner fa-spin"></i>
+              <i *ngIf="!isScrapingTrends" class="fas fa-search"></i>
+              {{ isScrapingTrends ? 'Analyzing...' : 'Analyze Trends' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Scraping Guidelines -->
+        <div class="scraping-guidelines">
+          <h4>Scraping Guidelines</h4>
+          <ul>
+            <li>Respect rate limits and terms of service</li>
+            <li>Use scraped data for analytics purposes only</li>
+            <li>Data is cached for 24 hours to reduce API calls</li>
+            <li>Some platforms may require authentication</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

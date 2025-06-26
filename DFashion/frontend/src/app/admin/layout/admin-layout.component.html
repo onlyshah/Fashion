@@ -1,0 +1,124 @@
+<mat-sidenav-container class="sidenav-container">
+  <!-- Sidebar -->
+  <mat-sidenav #drawer 
+               class="sidenav" 
+               fixedInViewport
+               [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
+               [mode]="(isHandset$ | async) ? 'over' : 'side'"
+               [opened]="(isHandset$ | async) === false">
+    
+    <!-- Sidebar Header -->
+    <div class="sidenav-header">
+      <div class="logo">
+        <mat-icon class="logo-icon">shopping_bag</mat-icon>
+        <span class="logo-text">DFashion</span>
+      </div>
+      <div class="admin-badge">Admin Panel</div>
+    </div>
+
+    <!-- User Profile Section -->
+    <div class="user-profile" *ngIf="currentUser">
+      <div class="user-avatar" [style.background-color]="getRoleColor()">
+        <span class="user-initials">{{ getUserInitials() }}</span>
+      </div>
+      <div class="user-info">
+        <div class="user-name">{{ currentUser.fullName }}</div>
+        <div class="user-role">{{ getRoleDisplayName() }}</div>
+        <div class="user-department">{{ currentUser.department | titlecase }}</div>
+      </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <mat-nav-list class="nav-list">
+      <mat-list-item 
+        *ngFor="let item of getVisibleNavigationItems()"
+        [routerLink]="item.route"
+        routerLinkActive="active-nav-item"
+        class="nav-item"
+        (click)="onMenuItemClick()">
+        <mat-icon matListIcon>{{ item.icon }}</mat-icon>
+        <span matLine>{{ item.title }}</span>
+        <mat-icon class="nav-arrow" *ngIf="isActiveRoute(item.route)">chevron_right</mat-icon>
+      </mat-list-item>
+    </mat-nav-list>
+
+    <!-- Sidebar Footer -->
+    <div class="sidenav-footer">
+      <button mat-button class="logout-button" (click)="onLogout()">
+        <mat-icon>logout</mat-icon>
+        <span>Logout</span>
+      </button>
+    </div>
+  </mat-sidenav>
+
+  <!-- Main Content -->
+  <mat-sidenav-content class="main-content">
+    <!-- Top Toolbar -->
+    <mat-toolbar class="toolbar" color="primary">
+      <!-- Menu Button (Mobile) -->
+      <button
+        type="button"
+        aria-label="Toggle sidenav"
+        mat-icon-button
+        (click)="drawer.toggle()"
+        *ngIf="isHandset$ | async">
+        <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+      </button>
+
+      <!-- Page Title -->
+      <span class="page-title">{{ pageTitle }}</span>
+
+      <!-- Spacer -->
+      <span class="toolbar-spacer"></span>
+
+      <!-- Notifications -->
+      <button mat-icon-button class="notification-button">
+        <mat-icon matBadge="3" matBadgeColor="warn">notifications</mat-icon>
+      </button>
+
+      <!-- User Menu -->
+      <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-menu-button">
+        <div class="toolbar-user-avatar" [style.background-color]="getRoleColor()">
+          <span class="toolbar-user-initials">{{ getUserInitials() }}</span>
+        </div>
+      </button>
+
+      <!-- User Menu Dropdown -->
+      <mat-menu #userMenu="matMenu" class="user-menu">
+        <div class="user-menu-header" *ngIf="currentUser">
+          <div class="menu-user-avatar" [style.background-color]="getRoleColor()">
+            <span class="menu-user-initials">{{ getUserInitials() }}</span>
+          </div>
+          <div class="menu-user-info">
+            <div class="menu-user-name">{{ currentUser.fullName }}</div>
+            <div class="menu-user-email">{{ currentUser.email }}</div>
+            <div class="menu-user-role">{{ getRoleDisplayName() }}</div>
+          </div>
+        </div>
+        <mat-divider></mat-divider>
+        <button mat-menu-item>
+          <mat-icon>person</mat-icon>
+          <span>Profile</span>
+        </button>
+        <button mat-menu-item>
+          <mat-icon>settings</mat-icon>
+          <span>Account Settings</span>
+        </button>
+        <button mat-menu-item>
+          <mat-icon>help</mat-icon>
+          <span>Help & Support</span>
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="onLogout()" class="logout-menu-item">
+          <mat-icon>logout</mat-icon>
+          <span>Logout</span>
+        </button>
+      </mat-menu>
+    </mat-toolbar>
+
+    <!-- Page Content -->
+    <div class="page-content">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

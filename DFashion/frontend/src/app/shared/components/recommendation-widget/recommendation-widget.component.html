@@ -1,0 +1,142 @@
+<div class="recommendation-widget" [class]="'layout-' + layout">
+  <!-- Header -->
+  <div class="widget-header">
+    <div class="header-content">
+      <ion-icon [name]="getRecommendationIcon()" [color]="getRecommendationColor()"></ion-icon>
+      <h3>{{ title }}</h3>
+    </div>
+    <ion-button 
+      fill="clear" 
+      size="small" 
+      (click)="refresh()"
+      [disabled]="loading">
+      <ion-icon name="refresh" slot="icon-only"></ion-icon>
+    </ion-button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading recommendations...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <ion-icon name="alert-circle" color="danger"></ion-icon>
+    <p>{{ error }}</p>
+    <ion-button fill="outline" size="small" (click)="refresh()">
+      Try Again
+    </ion-button>
+  </div>
+
+  <!-- Recommendations Grid/List -->
+  <div *ngIf="!loading && !error && recommendations.length > 0" 
+       class="recommendations-container"
+       [class.horizontal-scroll]="layout === 'horizontal'"
+       [class.grid-layout]="layout === 'grid'">
+    
+    <div *ngFor="let product of recommendations; trackBy: trackByProductId" 
+         class="recommendation-card"
+         (click)="onProductClick(product)">
+      
+      <!-- Product Image -->
+      <div class="product-image">
+        <img [src]="product.images?.[0] || '/assets/images/placeholder-product.jpg'" 
+             [alt]="product.name"
+             loading="lazy">
+        
+        <!-- Quick Actions Overlay -->
+        <div class="quick-actions">
+          <ion-button 
+            fill="clear" 
+            size="small"
+            (click)="onProductLike(product, $event)"
+            class="action-btn like-btn">
+            <ion-icon name="heart" slot="icon-only"></ion-icon>
+          </ion-button>
+          
+          <ion-button 
+            fill="clear" 
+            size="small"
+            (click)="onAddToWishlist(product, $event)"
+            class="action-btn wishlist-btn">
+            <ion-icon name="bookmark" slot="icon-only"></ion-icon>
+          </ion-button>
+        </div>
+
+        <!-- Recommendation Badge -->
+        <div class="recommendation-badge" *ngIf="product.recommendationReason && showReason">
+          <span>{{ product.recommendationReason }}</span>
+        </div>
+      </div>
+
+      <!-- Product Info -->
+      <div class="product-info">
+        <h4 class="product-name">{{ product.name }}</h4>
+        
+        <div class="product-meta">
+          <span class="brand" *ngIf="product.brand">{{ product.brand }}</span>
+          <span class="category" *ngIf="product.category">{{ product.category }}</span>
+        </div>
+
+        <div class="price-rating">
+          <div class="price">
+            <span class="current-price">${{ product.price | number:'1.2-2' }}</span>
+            <span *ngIf="product.originalPrice && product.originalPrice > product.price" 
+                  class="original-price">${{ product.originalPrice | number:'1.2-2' }}</span>
+          </div>
+          
+          <div class="rating" *ngIf="product.rating?.average">
+            <ion-icon name="star" color="warning"></ion-icon>
+            <span>{{ product.rating.average | number:'1.1' }}</span>
+            <span class="review-count">({{ product.rating.count }})</span>
+          </div>
+        </div>
+
+        <!-- Vendor Info -->
+        <div class="vendor-info" *ngIf="product.vendor">
+          <img [src]="product.vendor.avatar || '/assets/images/default-avatar.png'" 
+               [alt]="product.vendor.fullName"
+               class="vendor-avatar">
+          <span class="vendor-name">{{ product.vendor.fullName || product.vendor.username }}</span>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <ion-button 
+            expand="block" 
+            fill="solid" 
+            size="small"
+            (click)="onAddToCart(product, $event)"
+            class="add-to-cart-btn">
+            <ion-icon name="cart" slot="start"></ion-icon>
+            Add to Cart
+          </ion-button>
+          
+          <ion-button 
+            fill="clear" 
+            size="small"
+            (click)="onProductShare(product, 'copy', $event)"
+            class="share-btn">
+            <ion-icon name="share" slot="icon-only"></ion-icon>
+          </ion-button>
+        </div>
+
+        <!-- Recommendation Score (Debug) -->
+        <div class="recommendation-score" *ngIf="product.recommendationScore && false">
+          Score: {{ product.recommendationScore | number:'1.2' }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && !error && recommendations.length === 0" class="empty-state">
+    <ion-icon name="search" color="medium"></ion-icon>
+    <h4>No recommendations found</h4>
+    <p>We're working on finding the perfect products for you!</p>
+    <ion-button fill="outline" (click)="refresh()">
+      Refresh
+    </ion-button>
+  </div>
+</div>

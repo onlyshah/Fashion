@@ -1,0 +1,61 @@
+<div class="stories-container">
+  <!-- Stories Header -->
+  <div class="stories-header">
+    <h3>Stories</h3>
+    <button class="create-story-btn" (click)="createStory()">
+      <i class="fas fa-plus"></i>
+      <span class="btn-text">Create</span>
+    </button>
+  </div>
+
+  <!-- Stories List -->
+  <div class="stories-list" [class.loading]="loading">
+    <!-- Add Story Button -->
+    <div class="story-item add-story" (click)="createStory()">
+      <div class="story-avatar add-avatar">
+        <i class="fas fa-plus"></i>
+      </div>
+      <span class="story-username">Your Story</span>
+    </div>
+
+    <!-- Story Items -->
+    <div class="story-item" 
+         *ngFor="let story of stories; let i = index"
+         (click)="openStory(story, i)"
+         [class.viewed]="story.isViewed">
+      
+      <div class="story-avatar" [class.has-story]="!story.isViewed">
+        <img [src]="story.user.avatar || 'assets/images/default-avatar.svg'" 
+             [alt]="story.user.fullName"
+             class="avatar-image">
+        
+        <!-- Story Ring -->
+        <div class="story-ring" *ngIf="!story.isViewed"></div>
+        
+        <!-- Video Indicator -->
+        <div class="video-indicator" *ngIf="story.media.type === 'video'">
+          <i class="fas fa-play"></i>
+        </div>
+      </div>
+      
+      <span class="story-username">{{ story.user.username }}</span>
+      <span class="story-time">{{ getTimeAgo(story.createdAt) }}</span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="loading-skeleton" *ngFor="let item of [1,2,3,4,5]">
+      <div class="skeleton-avatar"></div>
+      <div class="skeleton-text"></div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!loading && stories.length === 0">
+    <i class="fas fa-camera"></i>
+    <h4>No Stories Yet</h4>
+    <p>Be the first to share a story!</p>
+    <button class="btn-primary" (click)="createStory()">Create Story</button>
+  </div>
+</div>

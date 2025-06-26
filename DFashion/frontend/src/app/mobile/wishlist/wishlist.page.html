@@ -1,0 +1,127 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>My Wishlist</ion-title>
+    <ion-buttons slot="end" *ngIf="wishlistItems.length > 0">
+      <ion-button fill="clear" (click)="toggleSelectAll()" [title]="allItemsSelected() ? 'Deselect All' : 'Select All'">
+        <ion-icon [name]="allItemsSelected() ? 'checkbox' : 'square-outline'"></ion-icon>
+      </ion-button>
+      <ion-button fill="clear" (click)="bulkRemoveItems()" [disabled]="selectedItems.length === 0">
+        <ion-icon name="trash"></ion-icon>
+        <ion-badge color="danger" *ngIf="selectedItems.length > 0">{{ selectedItems.length }}</ion-badge>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading wishlist...</p>
+  </div>
+
+  <!-- Empty Wishlist -->
+  <div class="empty-wishlist" *ngIf="!isLoading && wishlistItems.length === 0">
+    <div class="empty-content">
+      <ion-icon name="heart-outline" color="medium"></ion-icon>
+      <h2>Your wishlist is empty</h2>
+      <p>Save items you love to buy them later</p>
+      <ion-button expand="block" (click)="continueShopping()">
+        Start Shopping
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Selection Status -->
+  <ion-card *ngIf="!isLoading && wishlistItems.length > 0" class="selection-status-card">
+    <ion-card-content>
+      <div class="selection-info">
+        <div class="selection-row">
+          <span class="selection-label">Selected Items:</span>
+          <span class="selection-value">{{ selectedItems.length }} of {{ wishlistItems.length }} items</span>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Bulk Actions -->
+  <div class="bulk-actions" *ngIf="!isLoading && wishlistItems.length > 0">
+    <ion-button 
+      expand="block" 
+      fill="outline" 
+      [disabled]="selectedItems.length === 0"
+      (click)="bulkMoveToCart()"
+      color="primary">
+      <ion-icon name="bag" slot="start"></ion-icon>
+      Move Selected to Cart ({{ selectedItems.length }})
+    </ion-button>
+  </div>
+
+  <!-- Wishlist Items -->
+  <div *ngIf="!isLoading && wishlistItems.length > 0">
+    <ion-list>
+      <ion-item-sliding *ngFor="let item of wishlistItems; trackBy: trackByItemId">
+        <ion-item [class.selected-item]="isItemSelected(item._id)">
+          <ion-checkbox 
+            slot="start" 
+            [checked]="isItemSelected(item._id)"
+            (ionChange)="toggleItemSelection(item._id)"
+            color="primary">
+          </ion-checkbox>
+          
+          <ion-thumbnail slot="start" (click)="viewProduct(item.product._id)">
+            <img [src]="getImageUrl(item.product.images[0])" [alt]="item.product.name">
+          </ion-thumbnail>
+          
+          <ion-label (click)="viewProduct(item.product._id)">
+            <h2>{{ item.product.name }}</h2>
+            <p>{{ item.product.brand }}</p>
+            
+            <!-- Enhanced Price Display -->
+            <div class="item-price">
+              <span class="current-price">₹{{ item.product.price | number:'1.0-0' }}</span>
+              <span class="original-price" *ngIf="item.product.originalPrice && item.product.originalPrice > item.product.price">
+                ₹{{ item.product.originalPrice | number:'1.0-0' }}
+              </span>
+              <ion-chip color="success" *ngIf="item.product.originalPrice && item.product.originalPrice > item.product.price">
+                {{ getDiscountPercentage(item.product.originalPrice, item.product.price) }}% OFF
+              </ion-chip>
+            </div>
+            
+            <!-- Added Date -->
+            <div class="item-meta">
+              <span class="added-date">Added {{ item.addedAt | date:'MMM d, y' }}</span>
+            </div>
+          </ion-label>
+          
+          <div slot="end" class="item-actions">
+            <ion-button fill="clear" size="small" (click)="moveToCart(item)">
+              <ion-icon name="bag" color="primary"></ion-icon>
+            </ion-button>
+          </div>
+        </ion-item>
+        
+        <ion-item-options side="end">
+          <ion-item-option color="success" (click)="moveToCart(item)">
+            <ion-icon name="bag" slot="icon-only"></ion-icon>
+          </ion-item-option>
+          <ion-item-option color="danger" (click)="removeFromWishlist(item.product._id)">
+            <ion-icon name="trash" slot="icon-only"></ion-icon>
+          </ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <ion-button expand="block" fill="outline" (click)="continueShopping()">
+        <ion-icon name="arrow-back" slot="start"></ion-icon>
+        Continue Shopping
+      </ion-button>
+    </div>
+  </div>
+</ion-content>
