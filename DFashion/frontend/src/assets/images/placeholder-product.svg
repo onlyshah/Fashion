@@ -1,0 +1,13 @@
+<svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="300" fill="#F9FAFB"/>
+  <rect x="30" y="30" width="240" height="240" fill="#F3F4F6" stroke="#E5E7EB" stroke-width="2" rx="12"/>
+  
+  <!-- Shopping bag icon -->
+  <path d="M150 80C150 71.1634 142.837 64 134 64C125.163 64 118 71.1634 118 80" stroke="#9CA3AF" stroke-width="4" stroke-linecap="round"/>
+  <path d="M150 80C150 71.1634 157.163 64 166 64C174.837 64 182 71.1634 182 80" stroke="#9CA3AF" stroke-width="4" stroke-linecap="round"/>
+  <rect x="100" y="80" width="100" height="120" fill="none" stroke="#9CA3AF" stroke-width="4" rx="8"/>
+  
+  <!-- Product placeholder text -->
+  <text x="150" y="230" text-anchor="middle" fill="#6B7280" font-family="Arial, sans-serif" font-size="12">Product Image</text>
+  <text x="150" y="250" text-anchor="middle" fill="#9CA3AF" font-family="Arial, sans-serif" font-size="10">Loading...</text>
+</svg>

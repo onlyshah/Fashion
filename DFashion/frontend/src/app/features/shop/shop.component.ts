@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { ProductService } from '../../core/services/product.service';
+import { Product } from '../../core/models/product.model';
 
 interface Category {
   id: string;
@@ -18,19 +20,9 @@ interface Brand {
   isPopular: boolean;
 }
 
-interface Product {
-  _id: string;
-  name: string;
-  price: number;
-  originalPrice?: number;
-  images: { url: string; alt: string }[];
-  brand: string;
-  rating: { average: number; count: number };
-  category: string;
-  subcategory: string;
-  tags: string[];
-  isNew: boolean;
-  isTrending: boolean;
+interface ShopProduct extends Product {
+  isNew?: boolean;
+  isTrending?: boolean;
 }
 
 @Component({
@@ -805,10 +797,13 @@ export class ShopComponent implements OnInit {
   searchQuery = '';
   categories: Category[] = [];
   featuredBrands: Brand[] = [];
-  trendingProducts: Product[] = [];
-  newArrivals: Product[] = [];
+  trendingProducts: ShopProduct[] = [];
+  newArrivals: ShopProduct[] = [];
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private productService: ProductService
+  ) {}
 
   ngOnInit() {
     this.loadCategories();
@@ -818,65 +813,63 @@ export class ShopComponent implements OnInit {
   }
 
   loadCategories() {
-    this.categories = [
-      {
-        id: 'women',
-        name: 'Women\'s Fashion',
-        image: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400&h=300&fit=crop',
-        subcategories: ['Dresses', 'Tops', 'Bottoms', 'Ethnic Wear', 'Accessories'],
-        productCount: 2500
+    // Load categories from real API
+    this.productService.getCategories().subscribe({
+      next: (response) => {
+        this.categories = response?.data || [];
       },
-      {
-        id: 'men',
-        name: 'Men\'s Fashion',
-        image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&h=300&fit=crop',
-        subcategories: ['Shirts', 'T-Shirts', 'Jeans', 'Formal Wear', 'Accessories'],
-        productCount: 1800
-      },
-      {
-        id: 'kids',
-        name: 'Kids\' Fashion',
-        image: 'https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?w=400&h=300&fit=crop',
-        subcategories: ['Boys', 'Girls', 'Baby', 'Toys', 'Accessories'],
-        productCount: 1200
-      },
-      {
-        id: 'ethnic',
-        name: 'Ethnic Wear',
-        image: 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?w=400&h=300&fit=crop',
-        subcategories: ['Sarees', 'Kurtas', 'Lehengas', 'Sherwanis', 'Accessories'],
-        productCount: 900
-      },
-      {
-        id: 'accessories',
-        name: 'Accessories',
-        image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=300&fit=crop',
-        subcategories: ['Bags', 'Jewelry', 'Watches', 'Sunglasses', 'Belts'],
-        productCount: 1500
-      },
-      {
-        id: 'shoes',
-        name: 'Footwear',
-        image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=300&fit=crop',
-        subcategories: ['Sneakers', 'Formal', 'Sandals', 'Boots', 'Sports'],
-        productCount: 800
+      error: (error) => {
+        console.error('Error loading categories:', error);
+        this.categories = [];
       }
-    ];
+    });
   }
 
   loadFeaturedBrands() {
     // Load from real API
-    this.featuredBrands = [];
+    this.productService.getFeaturedBrands().subscribe({
+      next: (response) => {
+        this.featuredBrands = response?.data || [];
+      },
+      error: (error) => {
+        console.error('Error loading featured brands:', error);
+        this.featuredBrands = [];
+      }
+    });
   }
 
   loadTrendingProducts() {
     // Load from real API
-    this.trendingProducts = [];
+    this.productService.getTrendingProducts().subscribe({
+      next: (response) => {
+        this.trendingProducts = (response?.data || []).map((product: Product) => ({
+          ...product,
+          isTrending: true,
+          isNew: false
+        }));
+      },
+      error: (error) => {
+        console.error('Error loading trending products:', error);
+        this.trendingProducts = [];
+      }
+    });
   }
 
   loadNewArrivals() {
     // Load from real API
-    this.newArrivals = [];
+    this.productService.getNewArrivals().subscribe({
+      next: (response) => {
+        this.newArrivals = (response?.data || []).map((product: Product) => ({
+          ...product,
+          isNew: true,
+          isTrending: false
+        }));
+      },
+      error: (error) => {
+        console.error('Error loading new arrivals:', error);
+        this.newArrivals = [];
+      }
+    });
   }
 
   search() {
@@ -893,11 +886,39 @@ export class ShopComponent implements OnInit {
     this.router.navigate(['/brand', brandId]);
   }
 
-  viewProduct(product: Product) {
+  viewProduct(product: any) {
     this.router.navigate(['/product', product._id]);
   }
 
+  likeProduct(product: any, event: Event) {
+    event.stopPropagation();
+    // Implement like functionality
+    product.isLiked = !product.isLiked;
+    if (product.isLiked) {
+      product.likesCount = (product.likesCount || 0) + 1;
+    } else {
+      product.likesCount = Math.max((product.likesCount || 1) - 1, 0);
+    }
+  }
 
+  shareProduct(product: any, event: Event) {
+    event.stopPropagation();
+    // Implement share functionality
+    if (navigator.share) {
+      navigator.share({
+        title: product.name,
+        text: product.description,
+        url: window.location.origin + '/product/' + product._id
+      });
+    }
+  }
+
+  commentOnProduct(product: any, event: Event) {
+    event.stopPropagation();
+    this.router.navigate(['/product', product._id], {
+      queryParams: { action: 'comment' }
+    });
+  }
 
   viewAllTrending() {
     this.router.navigate(['/category/trending']);

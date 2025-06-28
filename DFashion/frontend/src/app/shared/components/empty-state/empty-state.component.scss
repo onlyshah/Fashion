@@ -6,6 +6,60 @@
   padding: 3rem 1rem;
   text-align: center;
   min-height: 200px;
+  opacity: 0;
+  animation: fadeIn 0.5s ease-in-out forwards;
+
+  &.size-small {
+    padding: 2rem 1rem;
+    min-height: 150px;
+
+    .empty-icon ion-icon {
+      font-size: 3rem;
+    }
+
+    .empty-title {
+      font-size: 1.1rem;
+    }
+
+    .empty-message {
+      font-size: 0.8rem;
+    }
+  }
+
+  &.size-large {
+    padding: 4rem 1rem;
+    min-height: 300px;
+
+    .empty-icon ion-icon {
+      font-size: 5rem;
+    }
+
+    .empty-title {
+      font-size: 1.5rem;
+    }
+
+    .empty-message {
+      font-size: 1rem;
+    }
+  }
+
+  &.animated {
+    .empty-icon {
+      animation: bounceIn 0.8s ease-in-out;
+    }
+
+    .empty-title {
+      animation: slideInUp 0.6s ease-in-out 0.2s both;
+    }
+
+    .empty-message {
+      animation: slideInUp 0.6s ease-in-out 0.4s both;
+    }
+
+    .empty-button {
+      animation: slideInUp 0.6s ease-in-out 0.6s both;
+    }
+  }
 }
 
 .empty-icon {
@@ -14,6 +68,11 @@
   ion-icon {
     font-size: 4rem;
     opacity: 0.6;
+    transition: all 0.3s ease;
+  }
+
+  &.pulse {
+    animation: pulse 2s infinite;
   }
 }
 
@@ -32,6 +91,64 @@
   max-width: 300px;
 }
 
-ion-button {
+.empty-button {
   margin-top: 0.5rem;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
 }

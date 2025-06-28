@@ -1,7 +1,4 @@
 <aside class="sidebar">
-  <!-- Instagram-style Stories -->
- 
-
   <!-- Trending Products Section -->
   <app-trending-products></app-trending-products>
 
@@ -11,76 +8,12 @@
   <!-- New Arrivals Section -->
   <app-new-arrivals></app-new-arrivals>
 
-  <!-- Suggested Users -->
-  <div class="suggestions">
-    <h3>Suggested for you</h3>
-    <div *ngFor="let user of suggestedUsers" class="suggestion-item">
-      <img [src]="user.avatar" [alt]="user.fullName">
-      <div class="suggestion-info">
-        <h5>{{ user.username }}</h5>
-        <p>{{ user.followedBy }}</p>
-      </div>
-      <button class="follow-btn" (click)="followUser(user.id)">
-        {{ user.isFollowing ? 'Following' : 'Follow' }}
-      </button>
-    </div>
-  </div>
-
-  <!-- Trending Products -->
-  <div class="trending">
-    <h3>Trending Products</h3>
-    <div *ngFor="let product of trendingProducts" class="trending-item">
-      <img [src]="product.images[0].url" [alt]="product.name">
-      <div class="trending-info">
-        <h5>{{ product.name }}</h5>
-        <p>₹{{ product.price | number }} 
-          <span class="original-price" *ngIf="product.originalPrice">
-            ₹{{ product.originalPrice | number }}
-          </span>
-        </p>
-        <div class="trending-stats">
-          <span class="trending-badge">🔥 Trending</span>
-          <span class="views">{{ product.analytics.views | number }}k views</span>
-        </div>
-      </div>
-      <button class="quick-buy-btn" (click)="quickBuy(product._id)">
-        Quick Buy
-      </button>
-    </div>
-  </div>
+  <!-- Suggested for you -->
+  <app-suggested-for-you></app-suggested-for-you>
 
   <!-- Top Fashion Influencers -->
-  <div class="influencers">
-    <h3>Top Fashion Influencers</h3>
-    <div *ngFor="let influencer of topInfluencers" class="influencer-item">
-      <img [src]="influencer.avatar" [alt]="influencer.fullName">
-      <div class="influencer-info">
-        <h5>{{ influencer.username }}</h5>
-        <p>{{ formatFollowerCount(influencer.followersCount) }} followers</p>
-        <div class="influencer-stats">
-          <span class="posts-count">{{ influencer.postsCount }} posts</span>
-          <span class="engagement">{{ influencer.engagement }}% engagement</span>
-        </div>
-      </div>
-      <button class="follow-btn" (click)="followInfluencer(influencer.id)">
-        {{ influencer.isFollowing ? 'Following' : 'Follow' }}
-      </button>
-    </div>
-  </div>
+  <app-top-fashion-influencers></app-top-fashion-influencers>
 
   <!-- Shop by Category -->
-  <div class="categories">
-    <h3>Shop by Category</h3>
-    <div class="category-grid">
-      <div
-        *ngFor="let category of categories"
-        class="category-item"
-        (click)="browseCategory(category.slug)"
-        [routerLink]="['/category', category.slug]"
-        routerLinkActive="active">
-        <img [src]="category.image" [alt]="category.name">
-        <span>{{ category.name }}</span>
-      </div>
-    </div>
-  </div>
+  <app-shop-by-category></app-shop-by-category>
 </aside>

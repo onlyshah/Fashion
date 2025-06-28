@@ -100,7 +100,7 @@ export class AuthService {
 
         import('./wishlist.service').then(({ WishlistService }) => {
           const wishlistService = new WishlistService(this.http);
-          wishlistService.loadWishlistCountOnLogin();
+          wishlistService.syncWithServer().subscribe();
         });
       } catch (error) {
         console.error('Error refreshing user data on login:', error);
@@ -120,7 +120,7 @@ export class AuthService {
 
         import('./wishlist.service').then(({ WishlistService }) => {
           const wishlistService = new WishlistService(this.http);
-          wishlistService.clearWishlistData();
+          wishlistService.clearWishlist().subscribe();
         });
       } catch (error) {
         console.error('Error clearing user data on logout:', error);

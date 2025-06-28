@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ProductService } from '../../../../core/services/product.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -17,14 +18,14 @@ import { ActivatedRoute, Router } from '@angular/router';
         <h1>Product Details</h1>
       </div>
 
-      <div class="product-content" *ngIf="productId">
+      <div class="product-content" *ngIf="product">
         <div class="product-image">
-          <img src="https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400" alt="Product">
+          <img [src]="getProductImage(product)" [alt]="product.name">
         </div>
         <div class="product-info">
-          <h2>Sample Product</h2>
-          <p class="price">₹2,499</p>
-          <p class="description">This is a sample product description. The actual product details would be loaded from the backend.</p>
+          <h2>{{ product.name }}</h2>
+          <p class="price">₹{{ product.price }}</p>
+          <p class="description">{{ product.description }}</p>
 
           <div class="product-actions">
             <button class="btn-cart">Add to Cart</button>
@@ -150,16 +151,43 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class ProductDetailComponent implements OnInit {
   productId: string | null = null;
+  product: any = null;
+  loading = true;
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private productService: ProductService
   ) {}
 
   ngOnInit() {
     this.route.params.subscribe(params => {
       this.productId = params['id'];
+      if (this.productId) {
+        this.loadProduct();
+      }
     });
+  }
+
+  loadProduct() {
+    if (!this.productId) return;
+
+    this.loading = true;
+    this.productService.getProductById(this.productId).subscribe({
+      next: (response) => {
+        this.product = response?.data || null;
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading product:', error);
+        this.product = null;
+        this.loading = false;
+      }
+    });
+  }
+
+  getProductImage(product: any): string {
+    return product?.images?.[0]?.url || '/assets/images/default-product.svg';
   }
 
   goBack() {

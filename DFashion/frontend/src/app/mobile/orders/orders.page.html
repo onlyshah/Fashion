@@ -1,0 +1,160 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>My Orders</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/profile"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Not Authenticated -->
+  <div *ngIf="!isAuthenticated" class="auth-required">
+    <div class="auth-content">
+      <ion-icon name="bag-handle-outline" color="medium"></ion-icon>
+      <h2>Sign in to view your orders</h2>
+      <p>Track your purchases and manage your order history</p>
+      <ion-button expand="block" (click)="onLogin()" color="primary">
+        <ion-icon name="log-in" slot="start"></ion-icon>
+        Sign In
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Authenticated Content -->
+  <div *ngIf="isAuthenticated">
+    <!-- Status Filter -->
+    <div class="filter-section">
+      <ion-segment [(ngModel)]="selectedStatus" (ionChange)="onStatusChange()">
+        <ion-segment-button value="all">
+          <ion-label>All</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="pending">
+          <ion-label>Pending</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="shipped">
+          <ion-label>Shipped</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="delivered">
+          <ion-label>Delivered</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Loading your orders...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && filteredOrders.length === 0" class="empty-orders">
+      <div class="empty-content">
+        <ion-icon name="bag-outline" color="medium"></ion-icon>
+        <h3>No orders found</h3>
+        <p *ngIf="selectedStatus === 'all'">You haven't placed any orders yet</p>
+        <p *ngIf="selectedStatus !== 'all'">No orders with status "{{ selectedStatus }}"</p>
+        <ion-button expand="block" routerLink="/tabs/categories" *ngIf="selectedStatus === 'all'">
+          Start Shopping
+        </ion-button>
+        <ion-button fill="outline" (click)="selectedStatus = 'all'; onStatusChange()" *ngIf="selectedStatus !== 'all'">
+          View All Orders
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Orders List -->
+    <div *ngIf="!isLoading && filteredOrders.length > 0" class="orders-list">
+      <ion-card *ngFor="let order of filteredOrders" class="order-card" (click)="onOrderClick(order)">
+        <ion-card-header>
+          <div class="order-header">
+            <div class="order-info">
+              <ion-card-title>Order #{{ order.orderNumber || order._id.slice(-6) }}</ion-card-title>
+              <ion-card-subtitle>{{ getOrderDate(order) }}</ion-card-subtitle>
+            </div>
+            <ion-chip [color]="getOrderStatusColor(order.status)">
+              <ion-icon [name]="getOrderStatusIcon(order.status)"></ion-icon>
+              <ion-label>{{ order.status | titlecase }}</ion-label>
+            </ion-chip>
+          </div>
+        </ion-card-header>
+
+        <ion-card-content>
+          <!-- Order Items Preview -->
+          <div class="order-items-preview">
+            <div class="items-images">
+              <img 
+                *ngFor="let item of order.items?.slice(0, 3)" 
+                [src]="item.product?.images?.[0]?.url || '/assets/images/placeholder-product.png'" 
+                [alt]="item.product?.name"
+                class="item-image">
+              <div *ngIf="order.items?.length > 3" class="more-items">
+                +{{ order.items.length - 3 }}
+              </div>
+            </div>
+            <div class="items-info">
+              <p class="items-count">{{ getOrderItemCount(order) }} items</p>
+              <p class="order-total">₹{{ getOrderTotal(order) | number:'1.0-0' }}</p>
+            </div>
+          </div>
+
+          <!-- Delivery Info -->
+          <div class="delivery-info" *ngIf="order.status !== 'cancelled'">
+            <ion-icon name="location" color="primary"></ion-icon>
+            <span *ngIf="order.status === 'delivered'">Delivered</span>
+            <span *ngIf="order.status !== 'delivered'">
+              Expected by {{ getEstimatedDelivery(order) }}
+            </span>
+          </div>
+
+          <!-- Order Actions -->
+          <div class="order-actions">
+            <ion-button 
+              fill="outline" 
+              size="small" 
+              (click)="onTrackOrder(order, $event)"
+              *ngIf="canTrackOrder(order)">
+              <ion-icon name="location" slot="start"></ion-icon>
+              Track
+            </ion-button>
+            
+            <ion-button 
+              fill="outline" 
+              size="small" 
+              (click)="onReorderItems(order, $event)">
+              <ion-icon name="refresh" slot="start"></ion-icon>
+              Reorder
+            </ion-button>
+            
+            <ion-button 
+              fill="outline" 
+              size="small" 
+              color="danger"
+              (click)="onCancelOrder(order, $event)"
+              *ngIf="canCancelOrder(order)">
+              <ion-icon name="close" slot="start"></ion-icon>
+              Cancel
+            </ion-button>
+            
+            <ion-button 
+              fill="outline" 
+              size="small" 
+              color="warning"
+              (click)="onReturnOrder(order, $event)"
+              *ngIf="canReturnOrder(order)">
+              <ion-icon name="return-up-back" slot="start"></ion-icon>
+              Return
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+
+  <!-- Bottom Spacing -->
+  <div class="bottom-spacing"></div>
+</ion-content>

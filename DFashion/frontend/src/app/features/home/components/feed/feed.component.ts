@@ -70,35 +70,7 @@ export class FeedComponent implements OnInit {
           }
         ]
       },
-      {
-        _id: 'post-2',
-        user: {
-          _id: 'user-2',
-          username: 'ai_stylist_alex',
-          fullName: 'Alex Rodriguez',
-          avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150'
-        },
-        content: 'Street style essentials for the modern man 🔥 Check out this look!',
-        mediaUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
-        mediaType: 'video',
-        location: 'Delhi, India',
-        likes: 892,
-        comments: 67,
-        shares: 23,
-        isLiked: true,
-        isSaved: false,
-        isReel: true,
-        hashtags: ['StreetStyle', 'MensFashion', 'Urban'],
-        createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-        products: [
-          {
-            _id: 'prod-2',
-            name: 'Urban Cotton T-Shirt',
-            price: 899,
-            image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=200'
-          }
-        ]
-      },
+
       {
         _id: 'post-3',
         user: {

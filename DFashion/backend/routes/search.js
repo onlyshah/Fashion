@@ -1,9 +1,25 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const { auth, optionalAuth } = require('../middleware/auth');
 const searchEngine = require('../services/searchEngine');
 const { SearchHistory, TrendingSearch, SearchSuggestion } = require('../models/SearchHistory');
 const Product = require('../models/Product');
+
+// Configure multer for image uploads
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'), false);
+    }
+  }
+});
 
 // @route   GET /api/search
 // @desc    Advanced product search with filters and analytics
@@ -443,6 +459,458 @@ router.get('/analytics', auth, async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch search analytics'
+    });
+  }
+});
+
+// @route   POST /api/search/visual
+// @desc    Visual search using image upload
+// @access  Public
+router.post('/visual', upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No image file provided'
+      });
+    }
+
+    // For now, return mock results since we don't have actual image recognition
+    // In a real implementation, you would use services like Google Vision API,
+    // Amazon Rekognition, or a custom ML model
+
+    const mockResults = await Product.find({ isActive: true })
+      .populate('vendor', 'username fullName avatar')
+      .limit(12)
+      .lean();
+
+    res.json({
+      success: true,
+      products: mockResults,
+      pagination: {
+        current: 1,
+        pages: 1,
+        total: mockResults.length,
+        hasNext: false,
+        hasPrev: false
+      },
+      searchMeta: {
+        query: 'Visual Search',
+        filters: {},
+        resultsCount: mockResults.length,
+        searchTime: Date.now(),
+        suggestions: []
+      }
+    });
+
+  } catch (error) {
+    console.error('Visual search error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Visual search failed'
+    });
+  }
+});
+
+// @route   GET /api/search/barcode
+// @desc    Search by barcode/QR code
+// @access  Public
+router.get('/barcode', async (req, res) => {
+  try {
+    const { barcode } = req.query;
+
+    if (!barcode) {
+      return res.status(400).json({
+        success: false,
+        message: 'Barcode is required'
+      });
+    }
+
+    // Search for products with matching barcode
+    const products = await Product.find({
+      barcode: barcode,
+      isActive: true
+    })
+    .populate('vendor', 'username fullName avatar')
+    .lean();
+
+    res.json({
+      success: true,
+      products,
+      pagination: {
+        current: 1,
+        pages: 1,
+        total: products.length,
+        hasNext: false,
+        hasPrev: false
+      },
+      searchMeta: {
+        query: `Barcode: ${barcode}`,
+        filters: {},
+        resultsCount: products.length,
+        searchTime: Date.now(),
+        suggestions: []
+      }
+    });
+
+  } catch (error) {
+    console.error('Barcode search error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Barcode search failed'
+    });
+  }
+});
+
+// @route   GET /api/search/similar
+// @desc    Find similar products
+// @access  Public
+router.get('/similar', async (req, res) => {
+  try {
+    const { productId, limit = 12 } = req.query;
+
+    if (!productId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Product ID is required'
+      });
+    }
+
+    // Get the reference product
+    const referenceProduct = await Product.findById(productId);
+    if (!referenceProduct) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
+
+    // Find similar products based on category, subcategory, and tags
+    const similarProducts = await Product.find({
+      _id: { $ne: productId },
+      isActive: true,
+      $or: [
+        { category: referenceProduct.category },
+        { subcategory: referenceProduct.subcategory },
+        { tags: { $in: referenceProduct.tags || [] } },
+        { brand: referenceProduct.brand }
+      ]
+    })
+    .populate('vendor', 'username fullName avatar')
+    .limit(parseInt(limit))
+    .lean();
+
+    res.json({
+      success: true,
+      products: similarProducts,
+      pagination: {
+        current: 1,
+        pages: 1,
+        total: similarProducts.length,
+        hasNext: false,
+        hasPrev: false
+      },
+      searchMeta: {
+        query: 'Similar Products',
+        filters: {},
+        resultsCount: similarProducts.length,
+        searchTime: Date.now(),
+        suggestions: []
+      }
+    });
+
+  } catch (error) {
+    console.error('Similar products search error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Similar products search failed'
+    });
+  }
+});
+
+// @route   GET /api/search/smart-suggestions
+// @desc    Get AI-powered smart search suggestions
+// @access  Public
+router.get('/smart-suggestions', optionalAuth, async (req, res) => {
+  try {
+    const { q: query, context } = req.query;
+    const userId = req.user?.id;
+
+    if (!query || query.length < 2) {
+      return res.json({
+        success: true,
+        suggestions: []
+      });
+    }
+
+    // Get basic suggestions
+    const basicSuggestions = await searchEngine.getSearchSuggestions(query, 5);
+
+    // Enhance with user context if available
+    let smartSuggestions = basicSuggestions;
+
+    if (userId) {
+      // Get user's search history for personalization
+      const userHistory = await SearchHistory.findOne({ user: userId });
+
+      if (userHistory) {
+        // Add personalized suggestions based on user's search patterns
+        const personalizedSuggestions = userHistory.searches
+          .filter(search => search.query.toLowerCase().includes(query.toLowerCase()))
+          .slice(0, 3)
+          .map(search => ({
+            text: search.query,
+            type: 'personal',
+            popularity: search.results.count || 0
+          }));
+
+        smartSuggestions = [...personalizedSuggestions, ...basicSuggestions]
+          .slice(0, 10);
+      }
+    }
+
+    res.json({
+      success: true,
+      suggestions: smartSuggestions
+    });
+
+  } catch (error) {
+    console.error('Smart suggestions error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get smart suggestions'
+    });
+  }
+});
+
+// @route   GET /api/search/personalized
+// @desc    Get personalized search recommendations
+// @access  Private
+router.get('/personalized', auth, async (req, res) => {
+  try {
+    const { limit = 10 } = req.query;
+    const userId = req.user.id;
+
+    // Get user's search history and preferences
+    const userHistory = await SearchHistory.findOne({ user: userId });
+
+    if (!userHistory || userHistory.searches.length === 0) {
+      // Return trending searches for new users
+      const trending = await TrendingSearch.find({})
+        .sort({ 'metrics.trendingScore': -1 })
+        .limit(parseInt(limit))
+        .select('query metrics.totalSearches');
+
+      const suggestions = trending.map(t => ({
+        text: t.query,
+        type: 'trending',
+        popularity: t.metrics.totalSearches
+      }));
+
+      return res.json({
+        success: true,
+        suggestions
+      });
+    }
+
+    // Analyze user's search patterns
+    const categoryPreferences = {};
+    const brandPreferences = {};
+
+    userHistory.searches.forEach(search => {
+      if (search.filters.category) {
+        categoryPreferences[search.filters.category] =
+          (categoryPreferences[search.filters.category] || 0) + 1;
+      }
+      if (search.filters.brand) {
+        brandPreferences[search.filters.brand] =
+          (brandPreferences[search.filters.brand] || 0) + 1;
+      }
+    });
+
+    // Generate personalized suggestions
+    const suggestions = [];
+
+    // Add category-based suggestions
+    const topCategories = Object.entries(categoryPreferences)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 3);
+
+    for (const [category, count] of topCategories) {
+      suggestions.push({
+        text: `New arrivals in ${category}`,
+        type: 'category',
+        popularity: count
+      });
+    }
+
+    // Add brand-based suggestions
+    const topBrands = Object.entries(brandPreferences)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 3);
+
+    for (const [brand, count] of topBrands) {
+      suggestions.push({
+        text: `Latest from ${brand}`,
+        type: 'brand',
+        popularity: count
+      });
+    }
+
+    // Add recent search variations
+    const recentQueries = userHistory.searches
+      .slice(0, 5)
+      .map(search => ({
+        text: `${search.query} sale`,
+        type: 'personal',
+        popularity: search.results.count || 0
+      }));
+
+    suggestions.push(...recentQueries);
+
+    res.json({
+      success: true,
+      suggestions: suggestions.slice(0, parseInt(limit))
+    });
+
+  } catch (error) {
+    console.error('Personalized recommendations error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get personalized recommendations'
+    });
+  }
+});
+
+// @route   GET /api/search/insights
+// @desc    Get search analytics and insights
+// @access  Private
+router.get('/insights', auth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Get user's search history
+    const userHistory = await SearchHistory.findOne({ user: userId });
+
+    if (!userHistory) {
+      return res.json({
+        success: true,
+        insights: {
+          totalSearches: 0,
+          uniqueQueries: 0,
+          topCategories: [],
+          topBrands: [],
+          searchTrends: [],
+          clickThroughRate: 0,
+          conversionRate: 0,
+          averageSearchTime: 0,
+          popularFilters: [],
+          searchPatterns: {
+            peakHours: [],
+            weeklyPattern: []
+          }
+        }
+      });
+    }
+
+    // Analyze search patterns
+    const insights = {
+      totalSearches: userHistory.analytics.totalSearches,
+      uniqueQueries: userHistory.analytics.uniqueQueries,
+      clickThroughRate: userHistory.analytics.clickThroughRate,
+      conversionRate: userHistory.analytics.conversionRate,
+      averageSearchTime: 2.5, // Mock data
+      topCategories: [],
+      topBrands: [],
+      searchTrends: [],
+      popularFilters: [],
+      searchPatterns: {
+        peakHours: Array.from({ length: 24 }, (_, i) => ({
+          hour: i,
+          searches: Math.floor(Math.random() * 50)
+        })),
+        weeklyPattern: [
+          { day: 'Mon', searches: Math.floor(Math.random() * 100) },
+          { day: 'Tue', searches: Math.floor(Math.random() * 100) },
+          { day: 'Wed', searches: Math.floor(Math.random() * 100) },
+          { day: 'Thu', searches: Math.floor(Math.random() * 100) },
+          { day: 'Fri', searches: Math.floor(Math.random() * 100) },
+          { day: 'Sat', searches: Math.floor(Math.random() * 100) },
+          { day: 'Sun', searches: Math.floor(Math.random() * 100) }
+        ]
+      }
+    };
+
+    // Analyze categories and brands from search history
+    const categoryCount = {};
+    const brandCount = {};
+    const filterCount = {};
+
+    userHistory.searches.forEach(search => {
+      if (search.filters.category) {
+        categoryCount[search.filters.category] =
+          (categoryCount[search.filters.category] || 0) + 1;
+      }
+      if (search.filters.brand) {
+        brandCount[search.filters.brand] =
+          (brandCount[search.filters.brand] || 0) + 1;
+      }
+
+      // Count filter usage
+      Object.keys(search.filters).forEach(filter => {
+        if (search.filters[filter]) {
+          filterCount[filter] = (filterCount[filter] || 0) + 1;
+        }
+      });
+    });
+
+    // Convert to arrays and calculate percentages
+    const totalSearches = userHistory.analytics.totalSearches || 1;
+
+    insights.topCategories = Object.entries(categoryCount)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 5)
+      .map(([name, count]) => ({
+        name,
+        count,
+        percentage: (count / totalSearches) * 100
+      }));
+
+    insights.topBrands = Object.entries(brandCount)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 5)
+      .map(([name, count]) => ({
+        name,
+        count,
+        percentage: (count / totalSearches) * 100
+      }));
+
+    insights.popularFilters = Object.entries(filterCount)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 8)
+      .map(([filter, count]) => ({
+        filter,
+        usage: Math.round((count / totalSearches) * 100)
+      }));
+
+    // Mock trending data
+    insights.searchTrends = [
+      { query: 'summer collection', searches: 45, growth: 0.25 },
+      { query: 'wireless headphones', searches: 38, growth: 0.15 },
+      { query: 'running shoes', searches: 32, growth: -0.05 },
+      { query: 'casual wear', searches: 28, growth: 0.10 }
+    ];
+
+    res.json({
+      success: true,
+      insights
+    });
+
+  } catch (error) {
+    console.error('Search insights error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get search insights'
     });
   }
 });

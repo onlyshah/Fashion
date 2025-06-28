@@ -8,11 +8,12 @@ import { SocialInteractionsService } from '../../../../core/services/social-inte
 import { CartService } from '../../../../core/services/cart.service';
 import { WishlistService } from '../../../../core/services/wishlist.service';
 import { IonicModule } from '@ionic/angular';
+import { CarouselModule } from 'ngx-owl-carousel-o';
 
 @Component({
   selector: 'app-new-arrivals',
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [CommonModule, IonicModule, CarouselModule],
   templateUrl: './new-arrivals.component.html',
   styleUrls: ['./new-arrivals.component.scss']
 })
@@ -22,6 +23,15 @@ export class NewArrivalsComponent implements OnInit, OnDestroy {
   error: string | null = null;
   likedProducts = new Set<string>();
   private subscription: Subscription = new Subscription();
+
+  // Slider properties
+  currentSlide = 0;
+  slideOffset = 0;
+  cardWidth = 280;
+  visibleCards = 4;
+  maxSlide = 0;
+  autoSlideInterval: any;
+  autoSlideDelay = 3500; // 3.5 seconds for new arrivals
 
   constructor(
     private trendingService: TrendingService,
@@ -35,10 +45,13 @@ export class NewArrivalsComponent implements OnInit, OnDestroy {
     this.loadNewArrivals();
     this.subscribeNewArrivals();
     this.subscribeLikedProducts();
+    this.initializeSlider();
+    this.startAutoSlide();
   }
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
+    this.stopAutoSlide();
   }
 
   private subscribeNewArrivals() {
@@ -46,6 +59,9 @@ export class NewArrivalsComponent implements OnInit, OnDestroy {
       this.trendingService.newArrivals$.subscribe(products => {
         this.newArrivals = products;
         this.isLoading = false;
+        this.calculateMaxSlide();
+        this.currentSlide = 0;
+        this.updateSlidePosition();
       })
     );
   }
@@ -164,5 +180,89 @@ export class NewArrivalsComponent implements OnInit, OnDestroy {
 
   trackByProductId(index: number, product: Product): string {
     return product._id;
+  }
+
+  // Slider methods
+  private initializeSlider() {
+    this.updateResponsiveSettings();
+    this.calculateMaxSlide();
+    window.addEventListener('resize', () => this.updateResponsiveSettings());
+  }
+
+  private updateResponsiveSettings() {
+    const containerWidth = window.innerWidth;
+
+    if (containerWidth >= 1200) {
+      this.visibleCards = 4;
+      this.cardWidth = 280;
+    } else if (containerWidth >= 992) {
+      this.visibleCards = 3;
+      this.cardWidth = 260;
+    } else if (containerWidth >= 768) {
+      this.visibleCards = 2;
+      this.cardWidth = 240;
+    } else {
+      this.visibleCards = 1;
+      this.cardWidth = 220;
+    }
+
+    this.calculateMaxSlide();
+    this.updateSlidePosition();
+  }
+
+  private calculateMaxSlide() {
+    this.maxSlide = Math.max(0, this.newArrivals.length - this.visibleCards);
+  }
+
+  private updateSlidePosition() {
+    this.slideOffset = this.currentSlide * (this.cardWidth + 16); // 16px gap
+  }
+
+  nextSlide() {
+    if (this.currentSlide < this.maxSlide) {
+      this.currentSlide++;
+      this.updateSlidePosition();
+    }
+  }
+
+  prevSlide() {
+    if (this.currentSlide > 0) {
+      this.currentSlide--;
+      this.updateSlidePosition();
+    }
+  }
+
+  private startAutoSlide() {
+    this.autoSlideInterval = setInterval(() => {
+      if (this.currentSlide >= this.maxSlide) {
+        this.currentSlide = 0;
+      } else {
+        this.currentSlide++;
+      }
+      this.updateSlidePosition();
+    }, this.autoSlideDelay);
+  }
+
+  private stopAutoSlide() {
+    if (this.autoSlideInterval) {
+      clearInterval(this.autoSlideInterval);
+      this.autoSlideInterval = null;
+    }
+  }
+
+  pauseAutoSlide() {
+    this.stopAutoSlide();
+  }
+
+  resumeAutoSlide() {
+    this.startAutoSlide();
+  }
+
+  get canGoPrev(): boolean {
+    return this.currentSlide > 0;
+  }
+
+  get canGoNext(): boolean {
+    return this.currentSlide < this.maxSlide;
   }
 }

@@ -318,6 +318,7 @@ try {
 
 try {
     app.use('/api/categories', require('./routes/categories'));
+    app.use('/api/v1/categories', require('./routes/categories')); // Add v1 prefix
     console.log('✅ Categories routes loaded');
 } catch (error) {
     console.error('❌ Error loading categories routes:', error.message);
@@ -342,6 +343,13 @@ try {
     console.log('✅ Recommendations routes loaded');
 } catch (error) {
     console.error('❌ Error loading recommendations routes:', error.message);
+}
+
+try {
+    app.use('/api/v1/search', require('./routes/search'));
+    console.log('✅ Search routes loaded');
+} catch (error) {
+    console.error('❌ Error loading search routes:', error.message);
 }
 
 // Mount main routes with /v1 prefix

@@ -2,13 +2,31 @@
   <ion-toolbar color="primary">
     <ion-title>Posts</ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="clear">
+      <ion-button fill="clear" (click)="onSearchClick()">
         <ion-icon name="search"></ion-icon>
       </ion-button>
-      <ion-button fill="clear">
-        <ion-icon name="heart-outline"></ion-icon>
+      <ion-button fill="clear" (click)="onCreatePost()">
+        <ion-icon name="add"></ion-icon>
       </ion-button>
     </ion-buttons>
+  </ion-toolbar>
+
+  <!-- Filter Segment -->
+  <ion-toolbar>
+    <ion-segment [(ngModel)]="selectedFilter" (ionChange)="onFilterChange()">
+      <ion-segment-button value="all">
+        <ion-label>All</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="trending">
+        <ion-label>Trending</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="following" *ngIf="isAuthenticated">
+        <ion-label>Following</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="fashion">
+        <ion-label>Fashion</ion-label>
+      </ion-segment-button>
+    </ion-segment>
   </ion-toolbar>
 </ion-header>
 

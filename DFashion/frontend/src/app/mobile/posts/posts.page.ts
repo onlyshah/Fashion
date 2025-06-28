@@ -1,6 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonContent, IonInfiniteScroll } from '@ionic/angular';
+import { PostService } from '../../core/services/post.service';
+import { AuthService } from '../../core/services/auth.service';
+import { SocialInteractionsService } from '../../core/services/social-interactions.service';
+import { CartService } from '../../core/services/cart.service';
+import { WishlistService } from '../../core/services/wishlist.service';
 
 @Component({
   selector: 'app-posts',
@@ -15,10 +20,37 @@ export class PostsPage implements OnInit {
   isLoading = false;
   hasMorePosts = true;
   currentPage = 1;
+  isAuthenticated = false;
+  likedPosts = new Set<string>();
+  savedPosts = new Set<string>();
+  selectedFilter = 'all';
 
-  constructor(private router: Router) {}
+  filterOptions = [
+    { value: 'all', label: 'All Posts' },
+    { value: 'trending', label: 'Trending' },
+    { value: 'following', label: 'Following' },
+    { value: 'fashion', label: 'Fashion' },
+    { value: 'lifestyle', label: 'Lifestyle' }
+  ];
+
+  constructor(
+    private router: Router,
+    private postService: PostService,
+    private authService: AuthService,
+    private socialService: SocialInteractionsService,
+    private cartService: CartService,
+    private wishlistService: WishlistService
+  ) {}
 
   ngOnInit() {
+    this.authService.isAuthenticated$.subscribe(
+      isAuth => {
+        this.isAuthenticated = isAuth;
+      }
+    );
+
+    this.loadLikedPosts();
+    this.loadSavedPosts();
     this.loadPosts();
   }
 
@@ -26,7 +58,19 @@ export class PostsPage implements OnInit {
     this.loadPosts();
   }
 
-  loadPosts(refresh = false) {
+  loadLikedPosts() {
+    this.socialService.likedPosts$.subscribe(likedPosts => {
+      this.likedPosts = likedPosts;
+    });
+  }
+
+  loadSavedPosts() {
+    this.socialService.savedPosts$.subscribe(savedPosts => {
+      this.savedPosts = savedPosts;
+    });
+  }
+
+  async loadPosts(refresh = false) {
     if (refresh) {
       this.currentPage = 1;
       this.posts = [];
@@ -35,34 +79,32 @@ export class PostsPage implements OnInit {
 
     this.isLoading = true;
 
-    // Load posts from API
-    fetch(`http://localhost:5000/api/posts?page=${this.currentPage}&limit=10`)
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          const newPosts = data.posts.map((post: any) => ({
-            ...post,
-            isLiked: false, // TODO: Check if current user liked this post
-            isSaved: false, // TODO: Check if current user saved this post
-            showComments: false,
-            showProductTags: false
-          }));
+    try {
+      const response = await this.postService.getAllPosts(this.currentPage, 10).toPromise();
 
-          if (refresh) {
-            this.posts = newPosts;
-          } else {
-            this.posts = [...this.posts, ...newPosts];
-          }
+      if (response?.success) {
+        const newPosts = response.data.map((post: any) => ({
+          ...post,
+          isLiked: this.likedPosts.has(post._id),
+          isSaved: this.savedPosts.has(post._id),
+          showComments: false,
+          showProductTags: false
+        }));
 
-          this.hasMorePosts = data.posts.length === 10;
-          this.currentPage++;
+        if (refresh) {
+          this.posts = newPosts;
+        } else {
+          this.posts = [...this.posts, ...newPosts];
         }
-        this.isLoading = false;
-      })
-      .catch(error => {
-        console.error('Error loading posts:', error);
-        this.isLoading = false;
-      });
+
+        this.hasMorePosts = response.data.length === 10;
+        this.currentPage++;
+      }
+    } catch (error) {
+      console.error('Error loading posts:', error);
+    } finally {
+      this.isLoading = false;
+    }
   }
 
 
@@ -90,19 +132,21 @@ export class PostsPage implements OnInit {
     post.isLiked = !post.isLiked;
     if (post.isLiked) {
       post.analytics.likes++;
+      this.socialService.likePost(post._id);
     } else {
       post.analytics.likes--;
+      this.socialService.unlikePost(post._id);
     }
-    
-    // TODO: Send like/unlike request to API
-    console.log('Toggle like for post:', post._id);
   }
 
   toggleSave(post: any) {
     post.isSaved = !post.isSaved;
-    
-    // TODO: Send save/unsave request to API
-    console.log('Toggle save for post:', post._id);
+
+    if (post.isSaved) {
+      this.socialService.savePost(post._id);
+    } else {
+      this.socialService.unsavePost(post._id);
+    }
   }
 
   toggleComments(post: any) {
@@ -122,14 +166,53 @@ export class PostsPage implements OnInit {
     this.router.navigate(['/product', product._id]);
   }
 
-  addToCart(product: any) {
-    // TODO: Add product to cart
-    console.log('Adding to cart:', product);
+  async addToCart(product: any) {
+    try {
+      await this.cartService.addToCart(product._id, 1).toPromise();
+      console.log('Added to cart:', product.name);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    }
   }
 
-  addToWishlist(product: any) {
-    // TODO: Add product to wishlist
-    console.log('Adding to wishlist:', product);
+  async addToWishlist(product: any) {
+    try {
+      await this.wishlistService.addToWishlist(product._id).toPromise();
+      console.log('Added to wishlist:', product.name);
+    } catch (error) {
+      console.error('Error adding to wishlist:', error);
+    }
+  }
+
+  onFilterChange() {
+    this.filterPosts();
+  }
+
+  filterPosts() {
+    // Apply filter logic based on selectedFilter
+    if (this.selectedFilter === 'all') {
+      // Show all posts - no filtering needed as we load all posts
+      return;
+    } else if (this.selectedFilter === 'trending') {
+      // Could implement trending logic here
+      return;
+    } else if (this.selectedFilter === 'following') {
+      // Could implement following filter here
+      return;
+    }
+    // Add more filter logic as needed
+  }
+
+  onCreatePost() {
+    if (this.isAuthenticated) {
+      this.router.navigate(['/create-post']);
+    } else {
+      this.router.navigate(['/auth/login']);
+    }
+  }
+
+  onSearchClick() {
+    this.router.navigate(['/search']);
   }
 
   getTimeAgo(date: Date): string {

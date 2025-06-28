@@ -7,6 +7,108 @@ const { SearchHistory, TrendingSearch, SearchSuggestion } = require('../models/S
 
 const router = express.Router();
 
+// @route   GET /api/v1/products/trending
+// @desc    Get trending products
+// @access  Public
+router.get('/trending', async (req, res) => {
+  try {
+    console.log('Trending endpoint called');
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 12;
+    const skip = (page - 1) * limit;
+
+    console.log('Query params:', { page, limit, skip });
+
+    // Get trending products based on isTrending flag
+    const products = await Product.find({
+      isTrending: true,
+      isActive: true
+    })
+    .populate('vendor', 'username fullName avatar')
+    .sort({
+      'analytics.views': -1,
+      'analytics.likes': -1,
+      'analytics.purchases': -1,
+      createdAt: -1
+    })
+    .skip(skip)
+    .limit(limit);
+
+    console.log(`Found ${products.length} trending products`);
+
+    const total = await Product.countDocuments({
+      isTrending: true,
+      isActive: true
+    });
+
+    console.log(`Total trending products: ${total}`);
+
+    res.json({
+      success: true,
+      products: products,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        totalItems: total,
+        hasNextPage: page < Math.ceil(total / limit),
+        hasPrevPage: page > 1
+      }
+    });
+  } catch (error) {
+    console.error('Get trending products error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
+
+// @route   GET /api/v1/products/new-arrivals
+// @desc    Get new arrival products
+// @access  Public
+router.get('/new-arrivals', async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 12;
+    const skip = (page - 1) * limit;
+
+    // Get products marked as new arrivals
+    const products = await Product.find({
+      isNewArrival: true,
+      isActive: true
+    })
+    .populate('vendor', 'username fullName avatar')
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+    const total = await Product.countDocuments({
+      isNewArrival: true,
+      isActive: true
+    });
+
+    res.json({
+      success: true,
+      products: products,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        totalItems: total,
+        hasNextPage: page < Math.ceil(total / limit),
+        hasPrevPage: page > 1
+      }
+    });
+  } catch (error) {
+    console.error('Get new arrivals error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
+
 // @route   GET /api/products
 // @desc    Get all products with filters and advanced search
 // @access  Public
@@ -242,55 +344,9 @@ router.post('/search/track', auth, async (req, res) => {
   }
 });
 
-// @route   GET /api/products/trending
-// @desc    Get trending products
-// @access  Public
-router.get('/trending', async (req, res) => {
-  try {
-    const limit = parseInt(req.query.limit) || 12;
 
-    const products = await Product.find({ isActive: true })
-      .populate('vendor', 'username fullName avatar')
-      .sort({ 'analytics.views': -1, 'analytics.likes': -1, createdAt: -1 })
-      .limit(limit);
 
-    res.json({
-      success: true,
-      data: products
-    });
-  } catch (error) {
-    console.error('Get trending products error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch trending products'
-    });
-  }
-});
 
-// @route   GET /api/products/new-arrivals
-// @desc    Get new arrival products
-// @access  Public
-router.get('/new-arrivals', async (req, res) => {
-  try {
-    const limit = parseInt(req.query.limit) || 12;
-
-    const products = await Product.find({ isActive: true })
-      .populate('vendor', 'username fullName avatar')
-      .sort({ createdAt: -1 })
-      .limit(limit);
-
-    res.json({
-      success: true,
-      data: products
-    });
-  } catch (error) {
-    console.error('Get new arrivals error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch new arrivals'
-    });
-  }
-});
 
 // @route   GET /api/products/categories
 // @desc    Get all product categories
@@ -450,6 +506,90 @@ router.get('/category/:slug', async (req, res) => {
   }
 });
 
+// @route   GET /api/v1/products/featured-brands
+// @desc    Get featured brands with their top products
+// @access  Public
+router.get('/featured-brands', optionalAuth, async (req, res) => {
+  try {
+    console.log('Featured brands endpoint called');
+
+    // Get all active products first
+    const products = await Product.find({
+      isActive: true
+    }).select('brand name price discountPrice images analytics stock').limit(100);
+
+    console.log(`Found ${products.length} products`);
+
+    if (products.length === 0) {
+      return res.json({
+        success: true,
+        brands: []
+      });
+    }
+
+    // Group products by brand manually
+    const brandMap = new Map();
+
+    products.forEach(product => {
+      const brand = product.brand;
+      if (!brandMap.has(brand)) {
+        brandMap.set(brand, {
+          brand: brand,
+          productCount: 0,
+          totalViews: 0,
+          totalLikes: 0,
+          avgPrice: 0,
+          products: []
+        });
+      }
+
+      const brandData = brandMap.get(brand);
+      brandData.productCount++;
+      brandData.totalViews += (product.analytics?.views || 0);
+      brandData.totalLikes += (product.analytics?.likes || 0);
+      brandData.products.push({
+        _id: product._id,
+        name: product.name,
+        price: product.price,
+        discountPrice: product.discountPrice,
+        images: product.images,
+        analytics: product.analytics
+      });
+    });
+
+    // Convert to array and calculate averages
+    const featuredBrands = Array.from(brandMap.values()).map(brand => {
+      brand.avgPrice = brand.products.reduce((sum, p) => sum + p.price, 0) / brand.productCount;
+      brand.products = brand.products.slice(0, 6); // Top 6 products per brand
+      return brand;
+    });
+
+    // Sort by popularity
+    featuredBrands.sort((a, b) => {
+      if (b.totalViews !== a.totalViews) return b.totalViews - a.totalViews;
+      if (b.totalLikes !== a.totalLikes) return b.totalLikes - a.totalLikes;
+      return b.productCount - a.productCount;
+    });
+
+    // Limit to top 10 brands
+    const topBrands = featuredBrands.slice(0, 10);
+
+    console.log(`Returning ${topBrands.length} featured brands`);
+
+    res.json({
+      success: true,
+      brands: topBrands
+    });
+  } catch (error) {
+    console.error('Get featured brands error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
+
 // @route   GET /api/products/:id
 // @desc    Get single product
 // @access  Public
@@ -576,173 +716,10 @@ router.delete('/:id', [auth, isVendor], async (req, res) => {
   }
 });
 
-// @route   GET /api/v1/products/trending
-// @desc    Get trending products
-// @access  Public
-router.get('/trending', optionalAuth, async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 12;
-    const skip = (page - 1) * limit;
 
-    // Get trending products based on analytics (views, likes, purchases)
-    const products = await Product.find({
-      isActive: true,
-      stock: { $gt: 0 }
-    })
-    .populate('vendor', 'username fullName avatar socialStats')
-    .sort({
-      'analytics.views': -1,
-      'analytics.likes': -1,
-      'analytics.purchases': -1,
-      createdAt: -1
-    })
-    .skip(skip)
-    .limit(limit);
 
-    const total = await Product.countDocuments({
-      isActive: true,
-      stock: { $gt: 0 }
-    });
 
-    res.json({
-      success: true,
-      products: products,
-      pagination: {
-        currentPage: page,
-        totalPages: Math.ceil(total / limit),
-        totalItems: total,
-        hasNextPage: page < Math.ceil(total / limit),
-        hasPrevPage: page > 1
-      }
-    });
-  } catch (error) {
-    console.error('Get trending products error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error',
-      error: error.message
-    });
-  }
-});
 
-// @route   GET /api/v1/products/new-arrivals
-// @desc    Get new arrival products
-// @access  Public
-router.get('/new-arrivals', optionalAuth, async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 12;
-    const skip = (page - 1) * limit;
-
-    // Get products created in the last 30 days
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-    const products = await Product.find({
-      isActive: true,
-      stock: { $gt: 0 },
-      createdAt: { $gte: thirtyDaysAgo }
-    })
-    .populate('vendor', 'username fullName avatar socialStats')
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit);
-
-    const total = await Product.countDocuments({
-      isActive: true,
-      stock: { $gt: 0 },
-      createdAt: { $gte: thirtyDaysAgo }
-    });
-
-    res.json({
-      success: true,
-      products: products,
-      pagination: {
-        currentPage: page,
-        totalPages: Math.ceil(total / limit),
-        totalItems: total,
-        hasNextPage: page < Math.ceil(total / limit),
-        hasPrevPage: page > 1
-      }
-    });
-  } catch (error) {
-    console.error('Get new arrivals error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error',
-      error: error.message
-    });
-  }
-});
-
-// @route   GET /api/v1/products/featured-brands
-// @desc    Get featured brands with their top products
-// @access  Public
-router.get('/featured-brands', optionalAuth, async (req, res) => {
-  try {
-    // Aggregate products by brand and get top brands
-    const featuredBrands = await Product.aggregate([
-      {
-        $match: {
-          isActive: true,
-          stock: { $gt: 0 }
-        }
-      },
-      {
-        $group: {
-          _id: '$brand',
-          productCount: { $sum: 1 },
-          totalViews: { $sum: '$analytics.views' },
-          totalLikes: { $sum: '$analytics.likes' },
-          avgPrice: { $avg: '$price' },
-          products: {
-            $push: {
-              _id: '$_id',
-              name: '$name',
-              price: '$price',
-              discountPrice: '$discountPrice',
-              images: '$images',
-              analytics: '$analytics'
-            }
-          }
-        }
-      },
-      {
-        $sort: {
-          totalViews: -1,
-          totalLikes: -1,
-          productCount: -1
-        }
-      },
-      {
-        $limit: 10
-      },
-      {
-        $project: {
-          brand: '$_id',
-          productCount: 1,
-          totalViews: 1,
-          totalLikes: 1,
-          avgPrice: 1,
-          products: { $slice: ['$products', 6] } // Top 6 products per brand
-        }
-      }
-    ]);
-
-    res.json({
-      success: true,
-      brands: featuredBrands
-    });
-  } catch (error) {
-    console.error('Get featured brands error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error',
-      error: error.message
-    });
-  }
-});
 
 // @route   POST /api/products/:id/review
 // @desc    Add product review
@@ -796,45 +773,7 @@ router.post('/:id/review', [
   }
 });
 
-// @route   GET /api/products/trending
-// @desc    Get trending products
-// @access  Public
-router.get('/trending', async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 12;
-    const skip = (page - 1) * limit;
 
-    const products = await Product.find({
-      isTrending: true,
-      isActive: true
-    })
-    .populate('vendor', 'username fullName avatar')
-    .sort({ 'analytics.views': -1, createdAt: -1 })
-    .skip(skip)
-    .limit(limit);
-
-    const total = await Product.countDocuments({
-      isTrending: true,
-      isActive: true
-    });
-
-    res.json({
-      success: true,
-      products,
-      pagination: {
-        currentPage: page,
-        totalPages: Math.ceil(total / limit),
-        totalItems: total,
-        hasNextPage: page < Math.ceil(total / limit),
-        hasPrevPage: page > 1
-      }
-    });
-  } catch (error) {
-    console.error('Get trending products error:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
 
 // @route   GET /api/products/suggested
 // @desc    Get suggested products for user
@@ -876,89 +815,8 @@ router.get('/suggested', optionalAuth, async (req, res) => {
   }
 });
 
-// @route   GET /api/products/new-arrivals
-// @desc    Get new arrival products
-// @access  Public
-router.get('/new-arrivals', async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 12;
-    const skip = (page - 1) * limit;
 
-    const products = await Product.find({
-      isNewArrival: true,
-      isActive: true
-    })
-    .populate('vendor', 'username fullName avatar')
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit);
 
-    const total = await Product.countDocuments({
-      isNewArrival: true,
-      isActive: true
-    });
 
-    res.json({
-      success: true,
-      products,
-      pagination: {
-        currentPage: page,
-        totalPages: Math.ceil(total / limit),
-        totalItems: total,
-        hasNextPage: page < Math.ceil(total / limit),
-        hasPrevPage: page > 1
-      }
-    });
-  } catch (error) {
-    console.error('Get new arrivals error:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-// @route   GET /api/products/featured-brands
-// @desc    Get featured brands with their top products
-// @access  Public
-router.get('/featured-brands', async (req, res) => {
-  try {
-    const brands = await Product.aggregate([
-      {
-        $match: { isActive: true, isFeatured: true }
-      },
-      {
-        $group: {
-          _id: '$brand',
-          productCount: { $sum: 1 },
-          avgRating: { $avg: '$rating.average' },
-          totalViews: { $sum: '$analytics.views' },
-          products: { $push: '$$ROOT' }
-        }
-      },
-      {
-        $project: {
-          brand: '$_id',
-          productCount: 1,
-          avgRating: { $round: ['$avgRating', 1] },
-          totalViews: 1,
-          topProducts: { $slice: ['$products', 3] }
-        }
-      },
-      {
-        $sort: { totalViews: -1, avgRating: -1 }
-      },
-      {
-        $limit: 10
-      }
-    ]);
-
-    res.json({
-      success: true,
-      brands
-    });
-  } catch (error) {
-    console.error('Get featured brands error:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
 
 module.exports = router;

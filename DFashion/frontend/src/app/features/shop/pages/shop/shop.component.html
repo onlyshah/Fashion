@@ -39,19 +39,24 @@
     <!-- Featured Brands Section -->
     <section class="featured-brands-section">
       <h2 class="section-title">Featured Brands</h2>
-      <div class="brands-slider">
+      <div *ngIf="featuredBrands.length > 0" class="brands-slider">
         <div *ngFor="let brand of featuredBrands" class="brand-card">
           <img [src]="brand.logo" [alt]="brand.name" class="brand-logo">
           <h3 class="brand-name">{{ brand.name }}</h3>
           <span *ngIf="brand.isPopular" class="popular-badge">Popular</span>
         </div>
       </div>
+      <div *ngIf="featuredBrands.length === 0" class="empty-state">
+        <i class="fas fa-diamond"></i>
+        <h3>No Featured Brands</h3>
+        <p>Check back later for featured brand collections!</p>
+      </div>
     </section>
 
     <!-- Trending Now Section -->
     <section class="trending-section">
       <h2 class="section-title">Trending Now</h2>
-      <div class="products-grid">
+      <div *ngIf="trendingProducts.length > 0" class="products-grid">
         <div *ngFor="let product of trendingProducts" class="product-card" (click)="viewProduct(product)">
           <div class="product-image-container">
             <img [src]="getProductImage(product)" [alt]="product.name" class="product-image">
@@ -93,11 +98,24 @@
           </div>
         </div>
       </div>
+      <div *ngIf="trendingProducts.length === 0" class="empty-state">
+        <i class="fas fa-fire"></i>
+        <h3>No Trending Products</h3>
+        <p>Check back later for trending items!</p>
+      </div>
     </section>
 
     <!-- New Arrivals Section -->
     <section class="new-arrivals-section">
       <h2 class="section-title">New Arrivals</h2>
+      <div *ngIf="newArrivals.length > 0" class="products-grid">
+        <!-- New arrivals products will be displayed here -->
+      </div>
+      <div *ngIf="newArrivals.length === 0" class="empty-state">
+        <i class="fas fa-star"></i>
+        <h3>No New Arrivals</h3>
+        <p>Stay tuned for exciting new products!</p>
+      </div>
       <div class="products-grid">
         <div *ngFor="let product of newArrivals" class="product-card" (click)="viewProduct(product)">
           <div class="product-image-container">

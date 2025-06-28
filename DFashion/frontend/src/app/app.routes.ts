@@ -138,6 +138,11 @@ export const routes: Routes = [
         loadChildren: () => import('./features/profile/profile.routes').then(m => m.profileRoutes)
       },
       {
+        path: 'settings',
+        loadComponent: () => import('./features/profile/pages/settings/settings.component').then(m => m.SettingsComponent),
+        title: 'Account Settings - DFashion'
+      },
+      {
         path: 'orders',
         loadComponent: () => import('./features/profile/pages/profile/profile.component').then(m => m.ProfileComponent),
         title: 'My Orders - DFashion'

@@ -43,7 +43,7 @@ export class CartService {
   private showCartTotalPrice = new BehaviorSubject<boolean>(false);
   private totalItemCount = new BehaviorSubject<number>(0); // Combined cart + wishlist count
   private isLoadingCart = false;
-  private useLocalStorageOnly = false; // Temporary flag to disable API calls
+  private useLocalStorageOnly = false; // Use real database integration only
 
   public cartItems$ = this.cartItems.asObservable();
   public cartSummary$ = this.cartSummary.asObservable();
@@ -130,24 +130,19 @@ export class CartService {
 
   // Load cart and update local state
   loadCart() {
-    // Temporary: Use local storage only to avoid API errors
-    if (this.useLocalStorageOnly) {
-      console.log('🔄 Using local storage only (API disabled)...');
-      this.loadCartFromStorage();
-      return;
-    }
-
-    // Check if user is logged in
+    // Always use real database integration
     const token = localStorage.getItem('token');
 
     if (token) {
-      // User is logged in - try API first, fallback to local storage
-      console.log('🔄 User authenticated, attempting to load cart from API...');
+      // User is logged in - load from API
+      console.log('🔄 User authenticated, loading cart from API...');
       this.loadCartFromAPI();
     } else {
-      // Guest user - load from local storage
-      console.log('🔄 Guest user, loading cart from local storage...');
-      this.loadCartFromStorage();
+      // Guest user - require authentication for cart functionality
+      console.log('🔄 Guest user detected, cart requires authentication');
+      this.cartItems.next([]);
+      this.cartSummary.next(null);
+      this.updateCartCount();
     }
   }
 

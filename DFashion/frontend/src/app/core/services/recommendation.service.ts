@@ -98,11 +98,7 @@ export class RecommendationService {
 
   // Trending Products - Based on Analytics
   getTrendingProducts(category?: string, limit: number = 10): Observable<TrendingProduct[]> {
-    // For demo purposes, return fallback data immediately to avoid API calls
-    console.log('📈 Loading trending products (offline mode)');
-    return this.getFallbackTrendingProducts(limit);
-
-    /* API version - uncomment when backend is available
+    console.log('📈 Loading trending products from API');
     const params = new URLSearchParams();
     if (category) params.append('category', category);
     params.append('limit', limit.toString());
@@ -115,7 +111,6 @@ export class RecommendationService {
           return this.getFallbackTrendingProducts(limit);
         })
       );
-    */
   }
 
   // Similar Products - Based on Product
@@ -373,106 +368,19 @@ export class RecommendationService {
     */
   }
 
-  // Fallback methods for offline/error scenarios
+  // Fallback methods for offline/error scenarios - removed mock data
   private getFallbackSuggestedProducts(limit: number): Observable<RecommendationProduct[]> {
-    // Return mock suggested products based on popular items
-    const mockProducts: RecommendationProduct[] = [
-      {
-        _id: 'suggested-1',
-        name: 'Trending Cotton T-Shirt',
-        description: 'Popular cotton t-shirt based on your preferences',
-        price: 899,
-        originalPrice: 1299,
-        discount: 31,
-        images: [{ url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400', alt: 'Cotton T-Shirt', isPrimary: true }],
-        category: 'men',
-        subcategory: 'shirts',
-        brand: 'ComfortWear',
-        rating: { average: 4.2, count: 156 },
-        tags: ['cotton', 'casual', 'trending'],
-        isActive: true,
-        isFeatured: true,
-        recommendationScore: 0.85,
-        recommendationReason: 'Based on your recent views'
-      }
-    ];
+    // Return empty array - use real API data only
     return new Observable(observer => {
-      observer.next(mockProducts.slice(0, limit));
+      observer.next([]);
       observer.complete();
     });
   }
 
   private getFallbackTrendingProducts(limit: number): Observable<TrendingProduct[]> {
-    const mockTrending: TrendingProduct[] = [
-      {
-        _id: 'trending-1',
-        name: 'Viral Summer Dress',
-        description: 'This dress is trending across social media',
-        price: 2499,
-        originalPrice: 3499,
-        discount: 29,
-        images: [{ url: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400', alt: 'Summer Dress', isPrimary: true }],
-        category: 'women',
-        subcategory: 'dresses',
-        brand: 'StyleHub',
-        rating: { average: 4.5, count: 89 },
-        tags: ['summer', 'trending', 'viral'],
-        isActive: true,
-        isFeatured: true,
-        trendingScore: 0.92,
-        trendingReason: 'Viral on social media',
-        viewCount: 15420,
-        purchaseCount: 342,
-        shareCount: 1250,
-        engagementRate: 8.7
-      },
-      {
-        _id: 'trending-2',
-        name: 'Trending Casual T-Shirt',
-        description: 'Popular casual wear for everyday comfort',
-        price: 899,
-        originalPrice: 1299,
-        discount: 31,
-        images: [{ url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400', alt: 'Casual T-Shirt', isPrimary: true }],
-        category: 'men',
-        subcategory: 'shirts',
-        brand: 'ComfortWear',
-        rating: { average: 4.2, count: 156 },
-        tags: ['casual', 'trending', 'comfort'],
-        isActive: true,
-        isFeatured: true,
-        trendingScore: 0.85,
-        trendingReason: 'High demand this week',
-        viewCount: 12300,
-        purchaseCount: 287,
-        shareCount: 890,
-        engagementRate: 7.4
-      },
-      {
-        _id: 'trending-3',
-        name: 'Stylish Ethnic Kurta',
-        description: 'Traditional wear with modern styling',
-        price: 1899,
-        originalPrice: 2499,
-        discount: 24,
-        images: [{ url: 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?w=400', alt: 'Ethnic Kurta', isPrimary: true }],
-        category: 'women',
-        subcategory: 'ethnic',
-        brand: 'EthnicChic',
-        rating: { average: 4.6, count: 203 },
-        tags: ['ethnic', 'traditional', 'festive'],
-        isActive: true,
-        isFeatured: true,
-        trendingScore: 0.88,
-        trendingReason: 'Festival season favorite',
-        viewCount: 9800,
-        purchaseCount: 198,
-        shareCount: 567,
-        engagementRate: 8.1
-      }
-    ];
+    // Return empty array - use real API data only
     return new Observable(observer => {
-      observer.next(mockTrending.slice(0, limit));
+      observer.next([]);
       observer.complete();
     });
   }

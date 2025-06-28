@@ -430,7 +430,9 @@ export class ProductDetailComponent implements OnInit {
       error: (error) => {
         console.error('Wishlist error:', error);
         // Fallback to offline mode
-        this.wishlistService.toggleWishlistOffline(this.product);
+        if (this.product) {
+          this.wishlistService.toggleWishlist(this.product._id);
+        }
         this.isInWishlist = !this.isInWishlist;
       }
     });

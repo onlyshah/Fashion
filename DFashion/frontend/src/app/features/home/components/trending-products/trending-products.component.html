@@ -38,14 +38,25 @@
     </button>
   </div>
 
-  <!-- Products Grid -->
-  <div *ngIf="!isLoading && !error && trendingProducts.length > 0" class="products-grid">
-    <div 
-      *ngFor="let product of trendingProducts; trackBy: trackByProductId" 
-      class="product-card"
-      (click)="onProductClick(product)"
-    >
-      <!-- Product Image -->
+  <!-- Products Slider -->
+  <div *ngIf="!isLoading && !error && trendingProducts.length > 0" class="products-slider-container">
+    <!-- Navigation Buttons -->
+    <button class="slider-nav prev-btn" (click)="slidePrev()" [disabled]="currentSlide === 0">
+      <ion-icon name="chevron-back"></ion-icon>
+    </button>
+    <button class="slider-nav next-btn" (click)="slideNext()" [disabled]="currentSlide >= maxSlide">
+      <ion-icon name="chevron-forward"></ion-icon>
+    </button>
+
+    <!-- Slider Wrapper -->
+    <div class="products-slider-wrapper" (mouseenter)="pauseAutoSlide()" (mouseleave)="resumeAutoSlide()">
+      <div class="products-slider" [style.transform]="'translateX(' + slideOffset + 'px)'">
+        <div
+          *ngFor="let product of trendingProducts; trackBy: trackByProductId"
+          class="product-card"
+          (click)="onProductClick(product)"
+        >
+
       <div class="product-image-container">
         <img 
           [src]="product.images[0].url"
@@ -54,18 +65,18 @@
           loading="lazy"
         />
         
-        <!-- Trending Badge -->
+      
         <div class="trending-badge">
           <ion-icon name="trending-up"></ion-icon>
           Trending
         </div>
 
-        <!-- Discount Badge -->
+      
         <div *ngIf="getDiscountPercentage(product) > 0" class="discount-badge">
           {{ getDiscountPercentage(product) }}% OFF
         </div>
 
-        <!-- Action Buttons -->
+       
         <div class="action-buttons">
           <button
             class="action-btn like-btn"
@@ -85,19 +96,19 @@
         </div>
       </div>
 
-      <!-- Product Info -->
+    
       <div class="product-info">
         <div class="product-brand">{{ product.brand }}</div>
         <h3 class="product-name">{{ product.name }}</h3>
         
-        <!-- Price Section -->
+      
         <div class="price-section">
           <span class="current-price">{{ formatPrice(product.price) }}</span>
           <span *ngIf="product.originalPrice && product.originalPrice > product.price" 
                 class="original-price">{{ formatPrice(product.originalPrice) }}</span>
         </div>
 
-        <!-- Rating -->
+       
         <div class="rating-section">
           <div class="stars">
             <ion-icon 
@@ -127,7 +138,9 @@
         </div>
       </div>
     </div>
-  </div>
+    </div> <!-- End products-slider -->
+    </div> <!-- End products-slider-wrapper -->
+  </div> <!-- End products-slider-container -->
 
   <!-- Empty State -->
   <div *ngIf="!isLoading && !error && trendingProducts.length === 0" class="empty-container">

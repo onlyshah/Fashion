@@ -1,0 +1,124 @@
+<div class="top-influencers-container">
+  <!-- Header -->
+  <div class="section-header">
+    <div class="header-content">
+      <h2 class="section-title">
+        <ion-icon name="star" class="title-icon"></ion-icon>
+        Top Fashion Influencers
+      </h2>
+      <p class="section-subtitle">Follow the trendsetters</p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-grid">
+      <div *ngFor="let item of [1,2,3]" class="loading-influencer-card">
+        <div class="loading-avatar"></div>
+        <div class="loading-content">
+          <div class="loading-line short"></div>
+          <div class="loading-line medium"></div>
+          <div class="loading-line long"></div>
+          <div class="loading-stats">
+            <div class="loading-stat"></div>
+            <div class="loading-stat"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="error-container">
+    <ion-icon name="alert-circle" class="error-icon"></ion-icon>
+    <p class="error-message">{{ error }}</p>
+    <button class="retry-btn" (click)="onRetry()">
+      <ion-icon name="refresh"></ion-icon>
+      Try Again
+    </button>
+  </div>
+
+  <!-- Influencers Slider -->
+  <div *ngIf="!isLoading && !error && topInfluencers.length > 0" class="influencers-slider-container">
+    <!-- Navigation Buttons -->
+    <button class="slider-nav prev-btn" (click)="slidePrev()" [disabled]="currentSlide === 0">
+      <ion-icon name="chevron-back"></ion-icon>
+    </button>
+    <button class="slider-nav next-btn" (click)="slideNext()" [disabled]="currentSlide >= maxSlide">
+      <ion-icon name="chevron-forward"></ion-icon>
+    </button>
+    
+    <!-- Slider Wrapper -->
+    <div class="influencers-slider-wrapper" (mouseenter)="pauseAutoSlide()" (mouseleave)="resumeAutoSlide()">
+      <div class="influencers-slider" [style.transform]="'translateX(' + slideOffset + 'px)'">
+        <div 
+          *ngFor="let influencer of topInfluencers; trackBy: trackByInfluencerId" 
+          class="influencer-card"
+          (click)="onInfluencerClick(influencer)"
+        >
+          <!-- Influencer Avatar -->
+          <div class="influencer-avatar-container">
+            <img 
+              [src]="influencer.avatar"
+              [alt]="influencer.fullName"
+              class="influencer-avatar"
+              loading="lazy"
+            />
+            <div *ngIf="influencer.isVerified" class="verified-badge">
+              <ion-icon name="checkmark"></ion-icon>
+            </div>
+          </div>
+
+          <!-- Influencer Info -->
+          <div class="influencer-info">
+            <h3 class="influencer-name">{{ influencer.fullName }}</h3>
+            <p class="username">&#64;{{ influencer.username }}</p>
+            <p class="category">{{ influencer.category }}</p>
+            
+            <!-- Stats -->
+            <div class="stats-container">
+              <div class="stat">
+                <span class="stat-value">{{ formatFollowerCount(influencer.followerCount) }}</span>
+                <span class="stat-label">Followers</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">{{ influencer.engagementRate }}%</span>
+                <span class="stat-label">Engagement</span>
+              </div>
+            </div>
+            
+            <!-- Top Brands -->
+            <div class="top-brands">
+              <span class="brands-label">Works with:</span>
+              <div class="brands-list">
+                <span *ngFor="let brand of influencer.topBrands.slice(0, 2)" class="brand-tag">
+                  {{ brand }}
+                </span>
+                <span *ngIf="influencer.topBrands.length > 2" class="more-brands">
+                  +{{ influencer.topBrands.length - 2 }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Follow Button -->
+          <button 
+            class="follow-btn"
+            [class.following]="influencer.isFollowing"
+            (click)="onFollowInfluencer(influencer, $event)"
+          >
+            <span>{{ influencer.isFollowing ? 'Following' : 'Follow' }}</span>
+            <ion-icon [name]="influencer.isFollowing ? 'checkmark' : 'add'"></ion-icon>
+          </button>
+        </div>
+      </div>
+    </div> <!-- End influencers-slider-wrapper -->
+  </div> <!-- End influencers-slider-container -->
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && !error && topInfluencers.length === 0" class="empty-container">
+    <ion-icon name="star-outline" class="empty-icon"></ion-icon>
+    <h3 class="empty-title">No Influencers</h3>
+    <p class="empty-message">Check back later for top fashion influencers</p>
+  </div>
+</div>

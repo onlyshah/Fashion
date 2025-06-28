@@ -8,11 +8,12 @@ import { SocialInteractionsService } from '../../../../core/services/social-inte
 import { CartService } from '../../../../core/services/cart.service';
 import { WishlistService } from '../../../../core/services/wishlist.service';
 import { IonicModule } from '@ionic/angular';
+import { CarouselModule, OwlOptions } from 'ngx-owl-carousel-o';
 
 @Component({
   selector: 'app-trending-products',
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [CommonModule, IonicModule, CarouselModule],
   templateUrl: './trending-products.component.html',
   styleUrls: ['./trending-products.component.scss']
 })
@@ -22,6 +23,71 @@ export class TrendingProductsComponent implements OnInit, OnDestroy {
   error: string | null = null;
   likedProducts = new Set<string>();
   private subscription: Subscription = new Subscription();
+
+  // Slider properties
+  currentSlide = 0;
+  slideOffset = 0;
+  cardWidth = 280; // Width of each product card including margin
+  visibleCards = 4; // Number of cards visible at once
+  maxSlide = 0;
+
+  // Auto-sliding properties
+  autoSlideInterval: any;
+  autoSlideDelay = 3000; // 3 seconds
+  isAutoSliding = true;
+  isPaused = false;
+
+  // Owl Carousel Options with Auto-sliding
+  carouselOptions: OwlOptions = {
+    loop: true,
+    mouseDrag: true,
+    touchDrag: true,
+    pullDrag: false,
+    dots: true,
+    navSpeed: 700,
+    navText: [
+      '<ion-icon name="chevron-back"></ion-icon>',
+      '<ion-icon name="chevron-forward"></ion-icon>'
+    ],
+    autoplay: true,
+    autoplayTimeout: 4000,        // 4 seconds between slides
+    autoplayHoverPause: true,     // Pause on hover
+    autoplaySpeed: 1000,          // Smooth 1 second transition
+    smartSpeed: 1000,             // Smart speed for better UX
+    fluidSpeed: true,             // Fluid speed calculation
+    responsive: {
+      0: {
+        items: 1,
+        margin: 10,
+        nav: false,               // Hide nav on mobile for cleaner look
+        dots: true
+      },
+      576: {
+        items: 2,
+        margin: 15,
+        nav: true,
+        dots: true
+      },
+      768: {
+        items: 3,
+        margin: 20,
+        nav: true,
+        dots: true
+      },
+      992: {
+        items: 4,
+        margin: 20,
+        nav: true,
+        dots: false               // Hide dots on desktop, show nav instead
+      }
+    },
+    nav: true,
+    margin: 20,
+    stagePadding: 0,
+    center: false,
+    animateOut: false,
+    animateIn: false
+  };
 
   constructor(
     private trendingService: TrendingService,
@@ -35,10 +101,13 @@ export class TrendingProductsComponent implements OnInit, OnDestroy {
     this.loadTrendingProducts();
     this.subscribeTrendingProducts();
     this.subscribeLikedProducts();
+    this.updateResponsiveSettings();
+    this.setupResizeListener();
   }
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
+    this.stopAutoSlide();
   }
 
   private subscribeTrendingProducts() {
@@ -46,6 +115,7 @@ export class TrendingProductsComponent implements OnInit, OnDestroy {
       this.trendingService.trendingProducts$.subscribe(products => {
         this.trendingProducts = products;
         this.isLoading = false;
+        this.updateSliderOnProductsLoad();
       })
     );
   }
@@ -158,5 +228,112 @@ export class TrendingProductsComponent implements OnInit, OnDestroy {
 
   trackByProductId(index: number, product: Product): string {
     return product._id;
+  }
+
+  // Auto-sliding methods
+  private startAutoSlide() {
+    if (!this.isAutoSliding || this.isPaused) return;
+
+    this.stopAutoSlide();
+    this.autoSlideInterval = setInterval(() => {
+      if (!this.isPaused && this.trendingProducts.length > this.visibleCards) {
+        this.autoSlideNext();
+      }
+    }, this.autoSlideDelay);
+  }
+
+  private stopAutoSlide() {
+    if (this.autoSlideInterval) {
+      clearInterval(this.autoSlideInterval);
+      this.autoSlideInterval = null;
+    }
+  }
+
+  private autoSlideNext() {
+    if (this.currentSlide >= this.maxSlide) {
+      // Reset to beginning for infinite loop
+      this.currentSlide = 0;
+    } else {
+      this.currentSlide++;
+    }
+    this.updateSlideOffset();
+  }
+
+  pauseAutoSlide() {
+    this.isPaused = true;
+    this.stopAutoSlide();
+  }
+
+  resumeAutoSlide() {
+    this.isPaused = false;
+    this.startAutoSlide();
+  }
+
+  // Responsive methods
+  private updateResponsiveSettings() {
+    const width = window.innerWidth;
+    if (width <= 480) {
+      this.cardWidth = 195; // 180px + 15px gap
+      this.visibleCards = 1;
+    } else if (width <= 768) {
+      this.cardWidth = 215; // 200px + 15px gap
+      this.visibleCards = 2;
+    } else if (width <= 1200) {
+      this.cardWidth = 260; // 240px + 20px gap
+      this.visibleCards = 3;
+    } else {
+      this.cardWidth = 280; // 260px + 20px gap
+      this.visibleCards = 4;
+    }
+    this.updateSliderLimits();
+    this.updateSlideOffset();
+  }
+
+  private setupResizeListener() {
+    window.addEventListener('resize', () => {
+      this.updateResponsiveSettings();
+    });
+  }
+
+  // Slider methods
+  updateSliderLimits() {
+    this.maxSlide = Math.max(0, this.trendingProducts.length - this.visibleCards);
+  }
+
+  slidePrev() {
+    if (this.currentSlide > 0) {
+      this.currentSlide--;
+      this.updateSlideOffset();
+      this.restartAutoSlideAfterInteraction();
+    }
+  }
+
+  slideNext() {
+    if (this.currentSlide < this.maxSlide) {
+      this.currentSlide++;
+      this.updateSlideOffset();
+      this.restartAutoSlideAfterInteraction();
+    }
+  }
+
+  private restartAutoSlideAfterInteraction() {
+    this.stopAutoSlide();
+    setTimeout(() => {
+      this.startAutoSlide();
+    }, 2000); // Wait 2 seconds before resuming auto-slide
+  }
+
+  private updateSlideOffset() {
+    this.slideOffset = -this.currentSlide * this.cardWidth;
+  }
+
+  // Update slider when products load
+  private updateSliderOnProductsLoad() {
+    setTimeout(() => {
+      this.updateSliderLimits();
+      this.currentSlide = 0;
+      this.slideOffset = 0;
+      this.startAutoSlide();
+    }, 100);
   }
 }

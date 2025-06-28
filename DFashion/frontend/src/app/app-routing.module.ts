@@ -39,60 +39,47 @@ const routes: Routes = [
     path: 'story',
     loadChildren: () => import('./features/story/story.routes').then(m => m.storyRoutes)
   },
-  // Mobile routes (for mobile app compatibility) - Commented out until modules are created
-  /*
+  // Mobile routes (for mobile app compatibility)
   {
     path: 'tabs',
     loadChildren: () => import('./mobile/tabs/tabs.module').then(m => m.TabsPageModule)
   },
   {
-    path: 'onboarding',
-    loadChildren: () => import('./mobile/onboarding/onboarding.module').then(m => m.OnboardingPageModule)
-  },
-  {
-    path: 'product/:id',
-    loadChildren: () => import('./mobile/product-detail/product-detail.module').then(m => m.ProductDetailPageModule)
-  },
-  {
-    path: 'cart',
+    path: 'mobile-cart',
     loadChildren: () => import('./mobile/cart/cart.module').then(m => m.CartPageModule)
   },
   {
-    path: 'checkout',
+    path: 'mobile-checkout',
     loadChildren: () => import('./mobile/checkout/checkout.module').then(m => m.CheckoutPageModule)
   },
   {
-    path: 'orders',
-    loadChildren: () => import('./mobile/orders/orders.module').then(m => m.OrdersPageModule),
-    canActivate: [AuthGuard]
+    path: 'mobile-orders',
+    loadChildren: () => import('./mobile/orders/orders.module').then(m => m.OrdersPageModule)
   },
   {
-    path: 'profile',
-    loadChildren: () => import('./mobile/profile/profile.module').then(m => m.ProfilePageModule),
-    canActivate: [AuthGuard]
+    path: 'mobile-profile',
+    loadChildren: () => import('./mobile/profile/profile.module').then(m => m.ProfilePageModule)
   },
   {
-    path: 'stories',
+    path: 'mobile-stories',
     loadChildren: () => import('./mobile/stories/stories.module').then(m => m.StoriesPageModule)
   },
   {
-    path: 'posts',
+    path: 'mobile-posts',
     loadChildren: () => import('./mobile/posts/posts.module').then(m => m.PostsPageModule)
   },
   {
-    path: 'search',
+    path: 'mobile-search',
     loadChildren: () => import('./mobile/search/search.module').then(m => m.SearchPageModule)
   },
   {
-    path: 'wishlist',
+    path: 'mobile-wishlist',
     loadChildren: () => import('./mobile/wishlist/wishlist.module').then(m => m.WishlistPageModule)
   },
   {
-    path: 'notifications',
-    loadChildren: () => import('./mobile/notifications/notifications.module').then(m => m.NotificationsPageModule),
-    canActivate: [AuthGuard]
-  },
-  */
+    path: 'mobile-vendor',
+    loadChildren: () => import('./mobile/vendor/vendor.module').then(m => m.VendorPageModule)
+  }
   // Admin routes (web-only) - Commented out until module is created
   /*
   {

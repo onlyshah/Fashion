@@ -224,6 +224,6 @@ export class OrderDetailsComponent implements OnInit {
   }
 
   getItemImage(item: any): string {
-    return item.product?.images?.[0]?.url || '/assets/images/placeholder-product.jpg';
+    return item.product?.images?.[0]?.url || '/assets/images/placeholder-product.svg';
   }
 }

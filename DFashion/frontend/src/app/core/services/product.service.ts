@@ -102,7 +102,7 @@ export class ProductService {
   }
 
   getCategories(): Observable<{ success: boolean; data: any[] }> {
-    return this.http.get<{ success: boolean; data: any[] }>(`${this.API_URL}/categories`);
+    return this.http.get<{ success: boolean; data: any[] }>(`${this.API_URL}/v1/categories`);
   }
 
   getBrands(): Observable<{ brands: string[] }> {
@@ -117,6 +117,21 @@ export class ProductService {
   // New Arrivals
   getNewArrivals(): Observable<{ success: boolean; data: Product[] }> {
     return this.http.get<{ success: boolean; data: Product[] }>(`${this.API_URL}/products/new-arrivals`);
+  }
+
+  // Get suggested users for sidebar
+  getSuggestedUsers(): Observable<any> {
+    return this.http.get(`${this.API_URL}/v1/users/suggested`);
+  }
+
+  // Get top influencers for sidebar
+  getTopInfluencers(): Observable<any> {
+    return this.http.get(`${this.API_URL}/v1/users/influencers`);
+  }
+
+  // Get product by ID
+  getProductById(id: string): Observable<any> {
+    return this.http.get(`${this.API_URL}/products/${id}`);
   }
 
   // Product interactions

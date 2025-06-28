@@ -35,8 +35,19 @@
     </button>
   </div>
 
-  <!-- Brands Grid -->
-  <div *ngIf="!isLoading && !error && featuredBrands.length > 0" class="brands-grid">
+  <!-- Brands Slider -->
+  <div *ngIf="!isLoading && !error && featuredBrands.length > 0" class="brands-slider-container">
+    <!-- Navigation Buttons -->
+    <button class="slider-nav prev-btn" (click)="slidePrev()" [disabled]="currentSlide === 0">
+      <ion-icon name="chevron-back"></ion-icon>
+    </button>
+    <button class="slider-nav next-btn" (click)="slideNext()" [disabled]="currentSlide >= maxSlide">
+      <ion-icon name="chevron-forward"></ion-icon>
+    </button>
+
+    <!-- Slider Wrapper -->
+    <div class="brands-slider-wrapper" (mouseenter)="pauseAutoSlide()" (mouseleave)="resumeAutoSlide()">
+      <div class="brands-slider" [style.transform]="'translateX(' + slideOffset + 'px)'">
     <div 
       *ngFor="let brand of featuredBrands; trackBy: trackByBrandName" 
       class="brand-card"
@@ -134,7 +145,9 @@
         </button>
       </div>
     </div>
-  </div>
+    </div> <!-- End brands-slider -->
+    </div> <!-- End brands-slider-wrapper -->
+  </div> <!-- End brands-slider-container -->
 
   <!-- Empty State -->
   <div *ngIf="!isLoading && !error && featuredBrands.length === 0" class="empty-container">

@@ -63,8 +63,8 @@
         <h3>Shop by Category</h3>
       </div>
       <div class="categories-grid">
-        <div 
-          *ngFor="let category of categories" 
+        <div
+          *ngFor="let category of categories"
           class="category-item"
           (click)="onCategoryClick(category)"
         >
@@ -74,6 +74,101 @@
           <span>{{ category.name }}</span>
         </div>
       </div>
+    </div>
+
+    <!-- Trending Products -->
+    <div class="section" *ngIf="trendingProducts.length > 0">
+      <div class="section-header">
+        <h3>Trending Now</h3>
+        <ion-button fill="clear" size="small">View All</ion-button>
+      </div>
+      <swiper [config]="productSlideOpts" class="products-slides">
+        <ng-template swiperSlide *ngFor="let product of trendingProducts">
+          <div class="product-card" (click)="onProductClick(product)">
+            <div class="product-image">
+              <img [src]="getProductImage(product)" [alt]="product.name">
+              <div class="trending-badge">
+                <ion-icon name="trending-up"></ion-icon>
+                Trending
+              </div>
+              <div class="product-badge" *ngIf="getDiscountPercentage(product) > 0">
+                <span>{{ getDiscountPercentage(product) }}% OFF</span>
+              </div>
+            </div>
+            <div class="product-info">
+              <h4>{{ product.name }}</h4>
+              <p class="brand">{{ product.brand }}</p>
+              <div class="product-price">
+                <span class="current-price">₹{{ product.discountPrice || product.price }}</span>
+                <span class="original-price" *ngIf="product.discountPrice">₹{{ product.price }}</span>
+              </div>
+              <div class="product-rating" *ngIf="product.rating?.average">
+                <ion-icon name="star" *ngFor="let star of [1,2,3,4,5]"
+                  [class.filled]="star <= product.rating.average"></ion-icon>
+                <span>({{ product.rating.count }})</span>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </swiper>
+    </div>
+
+    <!-- Featured Brands -->
+    <div class="section" *ngIf="featuredBrands.length > 0">
+      <div class="section-header">
+        <h3>Featured Brands</h3>
+        <ion-button fill="clear" size="small">View All</ion-button>
+      </div>
+      <swiper [config]="brandSlideOpts" class="brands-slides">
+        <ng-template swiperSlide *ngFor="let brand of featuredBrands">
+          <div class="brand-card" (click)="onBrandClick(brand)">
+            <div class="brand-image">
+              <img [src]="brand.logo" [alt]="brand.name">
+            </div>
+            <div class="brand-info">
+              <h4>{{ brand.name }}</h4>
+              <p>{{ brand.productCount }} products</p>
+            </div>
+          </div>
+        </ng-template>
+      </swiper>
+    </div>
+
+    <!-- New Arrivals -->
+    <div class="section" *ngIf="newArrivals.length > 0">
+      <div class="section-header">
+        <h3>New Arrivals</h3>
+        <ion-button fill="clear" size="small">View All</ion-button>
+      </div>
+      <swiper [config]="productSlideOpts" class="products-slides">
+        <ng-template swiperSlide *ngFor="let product of newArrivals">
+          <div class="product-card" (click)="onProductClick(product)">
+            <div class="product-image">
+              <img [src]="getProductImage(product)" [alt]="product.name">
+              <div class="new-badge">
+                <ion-icon name="sparkles"></ion-icon>
+                New
+              </div>
+              <div class="product-badge" *ngIf="getDiscountPercentage(product) > 0">
+                <span>{{ getDiscountPercentage(product) }}% OFF</span>
+              </div>
+            </div>
+            <div class="product-info">
+              <h4>{{ product.name }}</h4>
+              <p class="brand">{{ product.brand }}</p>
+              <div class="product-price">
+                <span class="current-price">₹{{ product.discountPrice || product.price }}</span>
+                <span class="original-price" *ngIf="product.discountPrice">₹{{ product.price }}</span>
+              </div>
+              <div class="product-rating" *ngIf="product.rating?.average">
+                <ion-icon name="star" *ngFor="let star of [1,2,3,4,5]"
+                  [class.filled]="star <= product.rating.average"></ion-icon>
+                <span>({{ product.rating.count }})</span>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </swiper>
     </div>
 
     <!-- Stories -->
@@ -124,6 +219,71 @@
                 <span>({{ product.rating.count }})</span>
               </div>
             </div>
+          </div>
+        </ng-template>
+      </swiper>
+    </div>
+
+    <!-- Suggested for You -->
+    <div class="section" *ngIf="suggestedUsers.length > 0">
+      <div class="section-header">
+        <h3>Suggested for You</h3>
+        <ion-button fill="clear" size="small">View All</ion-button>
+      </div>
+      <swiper [config]="userSlideOpts" class="users-slides">
+        <ng-template swiperSlide *ngFor="let user of suggestedUsers">
+          <div class="user-card" (click)="onUserClick(user)">
+            <div class="user-avatar">
+              <img [src]="user.avatar" [alt]="user.fullName">
+              <div class="influencer-badge" *ngIf="user.isInfluencer">
+                <ion-icon name="star"></ion-icon>
+              </div>
+            </div>
+            <div class="user-info">
+              <h4>{{ user.fullName }}</h4>
+              <p>@{{ user.username }}</p>
+              <p class="follower-count">{{ formatFollowerCount(user.followerCount) }} followers</p>
+            </div>
+            <ion-button
+              fill="outline"
+              size="small"
+              [color]="user.isFollowing ? 'medium' : 'primary'"
+              (click)="onFollowUser(user, $event)">
+              {{ user.isFollowing ? 'Following' : 'Follow' }}
+            </ion-button>
+          </div>
+        </ng-template>
+      </swiper>
+    </div>
+
+    <!-- Top Fashion Influencers -->
+    <div class="section" *ngIf="topInfluencers.length > 0">
+      <div class="section-header">
+        <h3>Top Fashion Influencers</h3>
+        <ion-button fill="clear" size="small">View All</ion-button>
+      </div>
+      <swiper [config]="userSlideOpts" class="influencers-slides">
+        <ng-template swiperSlide *ngFor="let influencer of topInfluencers">
+          <div class="influencer-card" (click)="onInfluencerClick(influencer)">
+            <div class="influencer-avatar">
+              <img [src]="influencer.avatar" [alt]="influencer.fullName">
+              <div class="verified-badge" *ngIf="influencer.isVerified">
+                <ion-icon name="checkmark-circle"></ion-icon>
+              </div>
+            </div>
+            <div class="influencer-info">
+              <h4>{{ influencer.fullName }}</h4>
+              <p>@{{ influencer.username }}</p>
+              <p class="category">{{ influencer.category }}</p>
+              <p class="follower-count">{{ formatFollowerCount(influencer.followerCount) }} followers</p>
+            </div>
+            <ion-button
+              fill="outline"
+              size="small"
+              [color]="influencer.isFollowing ? 'medium' : 'primary'"
+              (click)="onFollowInfluencer(influencer, $event)">
+              {{ influencer.isFollowing ? 'Following' : 'Follow' }}
+            </ion-button>
           </div>
         </ng-template>
       </swiper>

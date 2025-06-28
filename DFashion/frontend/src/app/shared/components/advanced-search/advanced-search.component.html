@@ -16,14 +16,31 @@
       </ion-searchbar>
       
       <!-- Voice Search Button -->
-      <ion-button 
+      <ion-button
         *ngIf="enableVoiceSearch"
-        fill="clear" 
+        fill="clear"
         size="small"
         (click)="startVoiceSearch()"
         class="voice-search-btn">
         <ion-icon name="mic" slot="icon-only"></ion-icon>
       </ion-button>
+
+      <!-- Visual Search Button -->
+      <ion-button
+        fill="clear"
+        size="small"
+        (click)="toggleVisualSearch()"
+        class="visual-search-btn">
+        <ion-icon name="camera" slot="icon-only"></ion-icon>
+      </ion-button>
+    </div>
+
+    <!-- Visual Search Component -->
+    <div *ngIf="showVisualSearch" class="visual-search-section">
+      <app-visual-search
+        (searchResults)="onVisualSearchResults($event)"
+        (searchError)="onVisualSearchError($event)">
+      </app-visual-search>
     </div>
 
     <!-- Search Suggestions Dropdown -->

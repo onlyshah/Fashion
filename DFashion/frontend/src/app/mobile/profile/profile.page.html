@@ -1,0 +1,148 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Profile</ion-title>
+    <ion-buttons slot="end" *ngIf="isAuthenticated">
+      <ion-button (click)="onEditProfile()">
+        <ion-icon name="create"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading profile...</p>
+  </div>
+
+  <!-- Authenticated User Profile -->
+  <div *ngIf="!isLoading && isAuthenticated" class="profile-content">
+    <!-- User Header -->
+    <div class="user-header">
+      <div class="user-avatar">
+        <img [src]="getUserAvatar()" [alt]="getUserDisplayName()">
+      </div>
+      <div class="user-info">
+        <h2>{{ getUserDisplayName() }}</h2>
+        <p class="user-email">{{ getUserEmail() }}</p>
+        <p class="join-date" *ngIf="getJoinDate()">Member since {{ getJoinDate() }}</p>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="quick-stats">
+      <div class="stat-item">
+        <ion-icon name="bag-handle" color="primary"></ion-icon>
+        <div class="stat-info">
+          <span class="stat-number">0</span>
+          <span class="stat-label">Orders</span>
+        </div>
+      </div>
+      <div class="stat-item">
+        <ion-icon name="heart" color="danger"></ion-icon>
+        <div class="stat-info">
+          <span class="stat-number">0</span>
+          <span class="stat-label">Wishlist</span>
+        </div>
+      </div>
+      <div class="stat-item">
+        <ion-icon name="star" color="warning"></ion-icon>
+        <div class="stat-info">
+          <span class="stat-number">0</span>
+          <span class="stat-label">Reviews</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Menu Items -->
+    <div class="menu-section">
+      <ion-list>
+        <ion-item 
+          *ngFor="let item of menuItems" 
+          button 
+          (click)="onMenuItemClick(item)"
+          class="menu-item">
+          <ion-icon 
+            [name]="item.icon" 
+            [color]="item.color" 
+            slot="start">
+          </ion-icon>
+          <ion-label>
+            <h3>{{ item.title }}</h3>
+          </ion-label>
+          <ion-icon name="chevron-forward" slot="end" color="medium"></ion-icon>
+        </ion-item>
+      </ion-list>
+    </div>
+
+    <!-- Logout Button -->
+    <div class="logout-section">
+      <ion-button 
+        expand="block" 
+        fill="outline" 
+        color="danger" 
+        (click)="onLogout()">
+        <ion-icon name="log-out" slot="start"></ion-icon>
+        Logout
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Guest User (Not Authenticated) -->
+  <div *ngIf="!isLoading && !isAuthenticated" class="guest-content">
+    <div class="guest-header">
+      <div class="guest-avatar">
+        <ion-icon name="person-circle" color="medium"></ion-icon>
+      </div>
+      <h2>Welcome to DFashion</h2>
+      <p>Sign in to access your profile and enjoy personalized shopping</p>
+    </div>
+
+    <!-- Auth Buttons -->
+    <div class="auth-buttons">
+      <ion-button expand="block" (click)="onLogin()" color="primary">
+        <ion-icon name="log-in" slot="start"></ion-icon>
+        Sign In
+      </ion-button>
+      <ion-button expand="block" fill="outline" (click)="onRegister()">
+        <ion-icon name="person-add" slot="start"></ion-icon>
+        Create Account
+      </ion-button>
+    </div>
+
+    <!-- Guest Menu Items -->
+    <div class="guest-menu">
+      <ion-list>
+        <ion-item button (click)="onMenuItemClick({route: '/support'})">
+          <ion-icon name="help-circle" color="medium" slot="start"></ion-icon>
+          <ion-label>
+            <h3>Help & Support</h3>
+          </ion-label>
+          <ion-icon name="chevron-forward" slot="end" color="medium"></ion-icon>
+        </ion-item>
+        <ion-item button (click)="onMenuItemClick({route: '/about'})">
+          <ion-icon name="information-circle" color="medium" slot="start"></ion-icon>
+          <ion-label>
+            <h3>About DFashion</h3>
+          </ion-label>
+          <ion-icon name="chevron-forward" slot="end" color="medium"></ion-icon>
+        </ion-item>
+        <ion-item button (click)="onMenuItemClick({route: '/privacy'})">
+          <ion-icon name="shield-checkmark" color="medium" slot="start"></ion-icon>
+          <ion-label>
+            <h3>Privacy Policy</h3>
+          </ion-label>
+          <ion-icon name="chevron-forward" slot="end" color="medium"></ion-icon>
+        </ion-item>
+      </ion-list>
+    </div>
+  </div>
+
+  <!-- Bottom Spacing -->
+  <div class="bottom-spacing"></div>
+</ion-content>

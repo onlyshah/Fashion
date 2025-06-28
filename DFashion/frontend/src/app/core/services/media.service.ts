@@ -336,4 +336,91 @@ export class MediaService {
 
     return Promise.all(promises);
   }
+
+  /**
+   * Optimize image URL with size parameters
+   */
+  optimizeImageUrl(url: string, width?: number, height?: number, quality: number = 80): string {
+    if (!url || this.isExternalImageUrl(url)) {
+      return url; // Don't modify external URLs
+    }
+
+    // For local images, we can add optimization parameters if the backend supports it
+    const params = new URLSearchParams();
+    if (width) params.append('w', width.toString());
+    if (height) params.append('h', height.toString());
+    if (quality !== 80) params.append('q', quality.toString());
+
+    const separator = url.includes('?') ? '&' : '?';
+    return params.toString() ? `${url}${separator}${params.toString()}` : url;
+  }
+
+  /**
+   * Get responsive image URLs for different screen sizes
+   */
+  getResponsiveImageUrls(url: string): { [key: string]: string } {
+    if (!url) return {};
+
+    return {
+      thumbnail: this.optimizeImageUrl(url, 150, 150, 70),
+      small: this.optimizeImageUrl(url, 300, 300, 75),
+      medium: this.optimizeImageUrl(url, 600, 600, 80),
+      large: this.optimizeImageUrl(url, 1200, 1200, 85),
+      original: url
+    };
+  }
+
+  /**
+   * Create a lazy loading image element with proper error handling
+   */
+  createLazyImage(src: string, alt: string = '', className: string = ''): HTMLImageElement {
+    const img = document.createElement('img');
+    img.alt = alt;
+    img.className = className;
+    img.loading = 'lazy';
+
+    // Set up error handling
+    img.onerror = (event: string | Event) => {
+      if (typeof event === 'string') {
+        this.handleImageError(new Event('error'), 'post');
+      } else {
+        this.handleImageError(event, 'post');
+      }
+    };
+
+    // Use intersection observer for lazy loading
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          img.src = this.getSafeImageUrl(src);
+          observer.unobserve(img);
+        }
+      });
+    }, { rootMargin: '50px' });
+
+    observer.observe(img);
+    return img;
+  }
+
+  /**
+   * Batch preload images with progress tracking
+   */
+  batchPreloadImages(urls: string[], onProgress?: (loaded: number, total: number) => void): Promise<void> {
+    let loaded = 0;
+    const total = urls.length;
+
+    const promises = urls.map(url => {
+      return new Promise<void>((resolve) => {
+        const img = new Image();
+        img.onload = img.onerror = () => {
+          loaded++;
+          if (onProgress) onProgress(loaded, total);
+          resolve();
+        };
+        img.src = this.getSafeImageUrl(url);
+      });
+    });
+
+    return Promise.all(promises).then(() => {});
+  }
 }

@@ -936,6 +936,7 @@ async function seedRealData() {
         isActive: true,
         isFeatured: true,
         isTrending: true,
+        isNewArrival: false,
         isSuggested: true,
         rating: { average: 4.2, count: 156 }
       },
@@ -999,6 +1000,8 @@ async function seedRealData() {
         careInstructions: 'Machine wash cold, hang dry',
         isActive: true,
         isFeatured: false,
+        isTrending: true,
+        isNewArrival: false,
         rating: { average: 4.1, count: 203 }
       },
       {
@@ -1027,6 +1030,8 @@ async function seedRealData() {
         careInstructions: 'Clean with leather cleaner, store in dust bag',
         isActive: true,
         isFeatured: true,
+        isTrending: false,
+        isNewArrival: true,
         rating: { average: 4.7, count: 67 }
       },
       {
@@ -1058,6 +1063,8 @@ async function seedRealData() {
         careInstructions: 'Clean with damp cloth, air dry',
         isActive: true,
         isFeatured: true,
+        isTrending: true,
+        isNewArrival: false,
         rating: { average: 4.3, count: 124 }
       },
       {
@@ -1086,6 +1093,8 @@ async function seedRealData() {
         careInstructions: 'Dry clean only',
         isActive: true,
         isFeatured: true,
+        isTrending: false,
+        isNewArrival: true,
         rating: { average: 4.8, count: 89 }
       },
       {
@@ -1118,6 +1127,8 @@ async function seedRealData() {
         careInstructions: 'Clean with damp cloth',
         isActive: true,
         isFeatured: false,
+        isTrending: true,
+        isNewArrival: true,
         rating: { average: 4.1, count: 203 }
       },
       {
@@ -1150,6 +1161,8 @@ async function seedRealData() {
         careInstructions: 'Machine wash cold',
         isActive: true,
         isFeatured: true,
+        isTrending: false,
+        isNewArrival: true,
         rating: { average: 4.4, count: 167 }
       },
       {
@@ -1182,6 +1195,8 @@ async function seedRealData() {
         careInstructions: 'Dry clean only',
         isActive: true,
         isFeatured: false,
+        isTrending: true,
+        isNewArrival: false,
         rating: { average: 4.6, count: 94 }
       },
       {
@@ -1213,6 +1228,8 @@ async function seedRealData() {
         careInstructions: 'Hand wash gently',
         isActive: true,
         isFeatured: true,
+        isTrending: false,
+        isNewArrival: true,
         rating: { average: 4.7, count: 78 }
       },
       {
@@ -1241,6 +1258,8 @@ async function seedRealData() {
         careInstructions: 'Clean with leather conditioner',
         isActive: true,
         isFeatured: false,
+        isTrending: true,
+        isNewArrival: false,
         rating: { average: 4.3, count: 145 }
       },
       {
@@ -1274,6 +1293,8 @@ async function seedRealData() {
         careInstructions: 'Machine wash cold, hang dry',
         isActive: true,
         isFeatured: true,
+        isTrending: true,
+        isNewArrival: true,
         rating: { average: 4.5, count: 189 }
       },
       {
@@ -1306,6 +1327,8 @@ async function seedRealData() {
         careInstructions: 'Machine wash cold, tumble dry low',
         isActive: true,
         isFeatured: false,
+        isTrending: false,
+        isNewArrival: true,
         rating: { average: 4.4, count: 112 }
       },
       {
@@ -1334,7 +1357,522 @@ async function seedRealData() {
         careInstructions: 'Clean with soft cloth',
         isActive: true,
         isFeatured: true,
+        isTrending: true,
+        isNewArrival: false,
         rating: { average: 4.6, count: 156 }
+      },
+
+      // NEW ARRIVALS - Fresh Fashion Collection
+      {
+        name: 'Trendy Crop Top',
+        description: 'Stylish crop top with modern cut and premium fabric. Perfect for casual outings and summer vibes.',
+        price: 899,
+        originalPrice: 1299,
+        discount: 31,
+        category: 'women',
+        subcategory: 'tops',
+        brand: 'TrendyWear',
+        vendor: vendor._id,
+        images: [
+          { url: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400', alt: 'Trendy Crop Top', isPrimary: true }
+        ],
+        sizes: [
+          { size: 'XS', stock: 15 },
+          { size: 'S', stock: 25 },
+          { size: 'M', stock: 30 },
+          { size: 'L', stock: 20 },
+          { size: 'XL', stock: 10 }
+        ],
+        colors: [
+          { name: 'Coral Pink', code: '#FF7F7F' },
+          { name: 'Mint Green', code: '#98FB98' },
+          { name: 'Lavender', code: '#E6E6FA' }
+        ],
+        tags: ['crop-top', 'trendy', 'summer', 'casual'],
+        material: '95% Cotton, 5% Elastane',
+        careInstructions: 'Machine wash cold, tumble dry low',
+        isActive: true,
+        isFeatured: false,
+        isTrending: false,
+        isNewArrival: true,
+        rating: { average: 4.3, count: 45 }
+      },
+      {
+        name: 'Oversized Hoodie',
+        description: 'Comfortable oversized hoodie with soft fleece lining. Perfect for cozy days and streetwear style.',
+        price: 2199,
+        originalPrice: 2999,
+        discount: 27,
+        category: 'men',
+        subcategory: 'tops',
+        brand: 'StreetStyle',
+        vendor: vendor._id,
+        images: [
+          { url: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400', alt: 'Oversized Hoodie', isPrimary: true }
+        ],
+        sizes: [
+          { size: 'S', stock: 20 },
+          { size: 'M', stock: 35 },
+          { size: 'L', stock: 40 },
+          { size: 'XL', stock: 25 },
+          { size: 'XXL', stock: 15 }
+        ],
+        colors: [
+          { name: 'Charcoal Gray', code: '#36454F' },
+          { name: 'Forest Green', code: '#228B22' },
+          { name: 'Burgundy', code: '#800020' }
+        ],
+        tags: ['hoodie', 'oversized', 'streetwear', 'comfortable'],
+        material: '80% Cotton, 20% Polyester',
+        careInstructions: 'Machine wash warm, tumble dry medium',
+        isActive: true,
+        isFeatured: false,
+        isTrending: false,
+        isNewArrival: true,
+        rating: { average: 4.5, count: 67 }
+      },
+      {
+        name: 'High-Waisted Jeans',
+        description: 'Vintage-inspired high-waisted jeans with perfect fit and premium denim quality.',
+        price: 3299,
+        originalPrice: 4199,
+        discount: 21,
+        category: 'women',
+        subcategory: 'pants',
+        brand: 'VintageVibes',
+        vendor: vendor._id,
+        images: [
+          { url: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=400', alt: 'High-Waisted Jeans', isPrimary: true }
+        ],
+        sizes: [
+          { size: '26', stock: 12 },
+          { size: '28', stock: 18 },
+          { size: '30', stock: 22 },
+          { size: '32', stock: 15 },
+          { size: '34', stock: 8 }
+        ],
+        colors: [
+          { name: 'Classic Blue', code: '#4169E1' },
+          { name: 'Vintage Wash', code: '#6495ED' },
+          { name: 'Dark Indigo', code: '#191970' }
+        ],
+        tags: ['jeans', 'high-waisted', 'vintage', 'denim'],
+        material: '99% Cotton, 1% Elastane',
+        careInstructions: 'Machine wash cold, hang dry',
+        isActive: true,
+        isFeatured: true,
+        isTrending: false,
+        isNewArrival: true,
+        rating: { average: 4.6, count: 89 }
+      },
+      {
+        name: 'Minimalist Backpack',
+        description: 'Sleek minimalist backpack with laptop compartment and water-resistant material.',
+        price: 2799,
+        originalPrice: 3499,
+        discount: 20,
+        category: 'men',
+        subcategory: 'accessories',
+        brand: 'MinimalCo',
+        vendor: vendor._id,
+        images: [
+          { url: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400', alt: 'Minimalist Backpack', isPrimary: true }
+        ],
+        sizes: [
+          { size: 'One Size', stock: 40 }
+        ],
+        colors: [
+          { name: 'Matte Black', code: '#28282B' },
+          { name: 'Stone Gray', code: '#918E85' },
+          { name: 'Navy Blue', code: '#000080' }
+        ],
+        tags: ['backpack', 'minimalist', 'laptop', 'travel'],
+        material: 'Water-resistant nylon',
+        careInstructions: 'Spot clean with damp cloth',
+        isActive: true,
+        isFeatured: false,
+        isTrending: false,
+        isNewArrival: true,
+        rating: { average: 4.4, count: 123 }
+      },
+
+      // TRENDING NOW - Popular Fashion Items
+      {
+        name: 'Viral TikTok Dress',
+        description: 'The dress everyone is talking about! Viral sensation with perfect fit and Instagram-worthy style.',
+        price: 1999,
+        originalPrice: 2799,
+        discount: 29,
+        category: 'women',
+        subcategory: 'dresses',
+        brand: 'ViralFashion',
+        vendor: vendor._id,
+        images: [
+          { url: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400', alt: 'Viral TikTok Dress', isPrimary: true }
+        ],
+        sizes: [
+          { size: 'XS', stock: 8 },
+          { size: 'S', stock: 15 },
+          { size: 'M', stock: 25 },
+          { size: 'L', stock: 18 },
+          { size: 'XL', stock: 12 }
+        ],
+        colors: [
+          { name: 'Sage Green', code: '#9CAF88' },
+          { name: 'Dusty Rose', code: '#DCAE96' },
+          { name: 'Cream White', code: '#F5F5DC' }
+        ],
+        tags: ['viral', 'tiktok', 'trending', 'instagram'],
+        material: '92% Polyester, 8% Elastane',
+        careInstructions: 'Hand wash cold, lay flat to dry',
+        isActive: true,
+        isFeatured: true,
+        isTrending: true,
+        isNewArrival: false,
+        rating: { average: 4.7, count: 234 }
+      },
+      {
+        name: 'Chunky Dad Sneakers',
+        description: 'Retro-inspired chunky sneakers that are taking the fashion world by storm. Ultimate comfort meets style.',
+        price: 4299,
+        originalPrice: 5999,
+        discount: 28,
+        category: 'men',
+        subcategory: 'shoes',
+        brand: 'RetroKicks',
+        vendor: vendor._id,
+        images: [
+          { url: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400', alt: 'Chunky Dad Sneakers', isPrimary: true }
+        ],
+        sizes: [
+          { size: '6', stock: 10 },
+          { size: '7', stock: 15 },
+          { size: '8', stock: 20 },
+          { size: '9', stock: 25 },
+          { size: '10', stock: 18 },
+          { size: '11', stock: 12 }
+        ],
+        colors: [
+          { name: 'Triple White', code: '#FFFFFF' },
+          { name: 'Beige Mix', code: '#F5F5DC' },
+          { name: 'Black/Gray', code: '#2F2F2F' }
+        ],
+        tags: ['chunky', 'dad-sneakers', 'retro', 'trending'],
+        material: 'Leather and mesh upper',
+        careInstructions: 'Clean with sneaker cleaner',
+        isActive: true,
+        isFeatured: true,
+        isTrending: true,
+        isNewArrival: false,
+        rating: { average: 4.5, count: 189 }
+      },
+      {
+        name: 'Y2K Cargo Pants',
+        description: 'Y2K revival cargo pants with multiple pockets and relaxed fit. The ultimate Gen-Z fashion statement.',
+        price: 2899,
+        originalPrice: 3799,
+        discount: 24,
+        category: 'men',
+        subcategory: 'pants',
+        brand: 'Y2KRevival',
+        vendor: vendor._id,
+        images: [
+          { url: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400', alt: 'Y2K Cargo Pants', isPrimary: true }
+        ],
+        sizes: [
+          { size: 'XS', stock: 12 },
+          { size: 'S', stock: 20 },
+          { size: 'M', stock: 28 },
+          { size: 'L', stock: 22 },
+          { size: 'XL', stock: 15 }
+        ],
+        colors: [
+          { name: 'Khaki Green', code: '#C3B091' },
+          { name: 'Vintage Black', code: '#36454F' },
+          { name: 'Desert Tan', code: '#D2B48C' }
+        ],
+        tags: ['y2k', 'cargo', 'vintage', 'genz'],
+        material: '100% Cotton twill',
+        careInstructions: 'Machine wash cold, tumble dry low',
+        isActive: true,
+        isFeatured: true,
+        isTrending: true,
+        isNewArrival: false,
+        rating: { average: 4.6, count: 167 }
+      },
+      {
+        name: 'Oversized Blazer',
+        description: 'Power dressing redefined! Oversized blazer that is dominating fashion feeds and office looks.',
+        price: 3999,
+        originalPrice: 5499,
+        discount: 27,
+        category: 'women',
+        subcategory: 'jackets',
+        brand: 'PowerSuit',
+        vendor: vendor._id,
+        images: [
+          { url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400', alt: 'Oversized Blazer', isPrimary: true }
+        ],
+        sizes: [
+          { size: 'XS', stock: 10 },
+          { size: 'S', stock: 18 },
+          { size: 'M', stock: 25 },
+          { size: 'L', stock: 20 },
+          { size: 'XL', stock: 12 }
+        ],
+        colors: [
+          { name: 'Classic Black', code: '#000000' },
+          { name: 'Camel Brown', code: '#C19A6B' },
+          { name: 'Pinstripe Navy', code: '#191970' }
+        ],
+        tags: ['blazer', 'oversized', 'power-dressing', 'office'],
+        material: 'Wool blend with polyester lining',
+        careInstructions: 'Dry clean recommended',
+        isActive: true,
+        isFeatured: true,
+        isTrending: true,
+        isNewArrival: false,
+        rating: { average: 4.8, count: 145 }
+      },
+
+      // MORE NEW ARRIVALS - Latest Fashion Drops
+      {
+        name: 'Sustainable Bamboo T-Shirt',
+        description: 'Eco-friendly bamboo fiber t-shirt with ultra-soft texture. Perfect for conscious fashion lovers.',
+        price: 1299,
+        originalPrice: 1799,
+        discount: 28,
+        category: 'men',
+        subcategory: 'tops',
+        brand: 'EcoWear',
+        vendor: vendor._id,
+        images: [
+          { url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400', alt: 'Sustainable Bamboo T-Shirt', isPrimary: true }
+        ],
+        sizes: [
+          { size: 'XS', stock: 15 },
+          { size: 'S', stock: 25 },
+          { size: 'M', stock: 30 },
+          { size: 'L', stock: 25 },
+          { size: 'XL', stock: 15 }
+        ],
+        colors: [
+          { name: 'Natural White', code: '#F8F8FF' },
+          { name: 'Earth Brown', code: '#8B4513' },
+          { name: 'Sage Green', code: '#9CAF88' }
+        ],
+        tags: ['sustainable', 'bamboo', 'eco-friendly', 'soft'],
+        material: '95% Bamboo fiber, 5% Elastane',
+        careInstructions: 'Machine wash cold, air dry',
+        isActive: true,
+        isFeatured: false,
+        isTrending: false,
+        isNewArrival: true,
+        rating: { average: 4.5, count: 78 }
+      },
+      {
+        name: 'Tech-Wear Joggers',
+        description: 'Futuristic tech-wear joggers with multiple zippers and water-resistant fabric. Street style meets function.',
+        price: 3599,
+        originalPrice: 4799,
+        discount: 25,
+        category: 'men',
+        subcategory: 'pants',
+        brand: 'TechStreet',
+        vendor: vendor._id,
+        images: [
+          { url: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400', alt: 'Tech-Wear Joggers', isPrimary: true }
+        ],
+        sizes: [
+          { size: 'S', stock: 18 },
+          { size: 'M', stock: 25 },
+          { size: 'L', stock: 22 },
+          { size: 'XL', stock: 15 },
+          { size: 'XXL', stock: 10 }
+        ],
+        colors: [
+          { name: 'Tactical Black', code: '#1C1C1C' },
+          { name: 'Urban Gray', code: '#696969' },
+          { name: 'Olive Drab', code: '#6B8E23' }
+        ],
+        tags: ['tech-wear', 'joggers', 'futuristic', 'functional'],
+        material: 'Water-resistant polyester blend',
+        careInstructions: 'Machine wash cold, hang dry',
+        isActive: true,
+        isFeatured: false,
+        isTrending: false,
+        isNewArrival: true,
+        rating: { average: 4.4, count: 92 }
+      },
+      {
+        name: 'Cottagecore Midi Dress',
+        description: 'Romantic cottagecore midi dress with floral embroidery. Perfect for dreamy aesthetic vibes.',
+        price: 2799,
+        originalPrice: 3599,
+        discount: 22,
+        category: 'women',
+        subcategory: 'dresses',
+        brand: 'CottageVibes',
+        vendor: vendor._id,
+        images: [
+          { url: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400', alt: 'Cottagecore Midi Dress', isPrimary: true }
+        ],
+        sizes: [
+          { size: 'XS', stock: 12 },
+          { size: 'S', stock: 20 },
+          { size: 'M', stock: 25 },
+          { size: 'L', stock: 18 },
+          { size: 'XL', stock: 10 }
+        ],
+        colors: [
+          { name: 'Meadow Green', code: '#90EE90' },
+          { name: 'Sunset Peach', code: '#FFCBA4' },
+          { name: 'Lavender Fields', code: '#E6E6FA' }
+        ],
+        tags: ['cottagecore', 'midi', 'romantic', 'embroidery'],
+        material: '100% Cotton with embroidered details',
+        careInstructions: 'Hand wash cold, lay flat to dry',
+        isActive: true,
+        isFeatured: true,
+        isTrending: false,
+        isNewArrival: true,
+        rating: { average: 4.7, count: 134 }
+      },
+
+      // MORE TRENDING - Hot Fashion Items
+      {
+        name: 'Platform Boots',
+        description: 'Chunky platform boots that are everywhere on social media. Bold statement piece for any outfit.',
+        price: 4599,
+        originalPrice: 6299,
+        discount: 27,
+        category: 'women',
+        subcategory: 'shoes',
+        brand: 'PlatformPower',
+        vendor: vendor._id,
+        images: [
+          { url: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=400', alt: 'Platform Boots', isPrimary: true }
+        ],
+        sizes: [
+          { size: '5', stock: 8 },
+          { size: '6', stock: 12 },
+          { size: '7', stock: 18 },
+          { size: '8', stock: 15 },
+          { size: '9', stock: 10 },
+          { size: '10', stock: 7 }
+        ],
+        colors: [
+          { name: 'Matte Black', code: '#28282B' },
+          { name: 'Patent White', code: '#F8F8FF' },
+          { name: 'Metallic Silver', code: '#C0C0C0' }
+        ],
+        tags: ['platform', 'boots', 'chunky', 'statement'],
+        material: 'Synthetic leather with rubber sole',
+        careInstructions: 'Clean with damp cloth',
+        isActive: true,
+        isFeatured: true,
+        isTrending: true,
+        isNewArrival: false,
+        rating: { average: 4.6, count: 203 }
+      },
+      {
+        name: 'Bucket Hat',
+        description: 'The comeback king! Trendy bucket hat that is dominating street style and festival fashion.',
+        price: 899,
+        originalPrice: 1299,
+        discount: 31,
+        category: 'men',
+        subcategory: 'accessories',
+        brand: 'StreetHead',
+        vendor: vendor._id,
+        images: [
+          { url: 'https://images.unsplash.com/photo-1521369909029-2afed882baee?w=400', alt: 'Bucket Hat', isPrimary: true }
+        ],
+        sizes: [
+          { size: 'One Size', stock: 50 }
+        ],
+        colors: [
+          { name: 'Classic Black', code: '#000000' },
+          { name: 'Khaki Green', code: '#C3B091' },
+          { name: 'Tie-Dye Multi', code: '#FF69B4' },
+          { name: 'Denim Blue', code: '#6495ED' }
+        ],
+        tags: ['bucket-hat', 'streetwear', 'festival', 'trending'],
+        material: '100% Cotton canvas',
+        careInstructions: 'Hand wash cold, air dry',
+        isActive: true,
+        isFeatured: false,
+        isTrending: true,
+        isNewArrival: false,
+        rating: { average: 4.3, count: 156 }
+      },
+      {
+        name: 'Corset Top',
+        description: 'Victorian-inspired corset top that is taking over fashion feeds. Perfect for layering or statement looks.',
+        price: 1899,
+        originalPrice: 2599,
+        discount: 27,
+        category: 'women',
+        subcategory: 'tops',
+        brand: 'VictorianVibes',
+        vendor: vendor._id,
+        images: [
+          { url: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400', alt: 'Corset Top', isPrimary: true }
+        ],
+        sizes: [
+          { size: 'XS', stock: 10 },
+          { size: 'S', stock: 18 },
+          { size: 'M', stock: 22 },
+          { size: 'L', stock: 15 },
+          { size: 'XL', stock: 8 }
+        ],
+        colors: [
+          { name: 'Midnight Black', code: '#000000' },
+          { name: 'Burgundy Wine', code: '#722F37' },
+          { name: 'Ivory Cream', code: '#FFFFF0' }
+        ],
+        tags: ['corset', 'victorian', 'statement', 'layering'],
+        material: 'Structured cotton with boning',
+        careInstructions: 'Hand wash cold, lay flat to dry',
+        isActive: true,
+        isFeatured: true,
+        isTrending: true,
+        isNewArrival: false,
+        rating: { average: 4.5, count: 187 }
+      },
+      {
+        name: 'Wide-Leg Trousers',
+        description: 'Effortlessly chic wide-leg trousers that are everywhere in fashion magazines. Comfort meets elegance.',
+        price: 2999,
+        originalPrice: 3999,
+        discount: 25,
+        category: 'women',
+        subcategory: 'pants',
+        brand: 'ChicFlow',
+        vendor: vendor._id,
+        images: [
+          { url: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400', alt: 'Wide-Leg Trousers', isPrimary: true }
+        ],
+        sizes: [
+          { size: 'XS', stock: 12 },
+          { size: 'S', stock: 20 },
+          { size: 'M', stock: 25 },
+          { size: 'L', stock: 18 },
+          { size: 'XL', stock: 10 }
+        ],
+        colors: [
+          { name: 'Camel Beige', code: '#C19A6B' },
+          { name: 'Chocolate Brown', code: '#7B3F00' },
+          { name: 'Charcoal Gray', code: '#36454F' }
+        ],
+        tags: ['wide-leg', 'trousers', 'elegant', 'comfortable'],
+        material: 'Viscose blend with stretch',
+        careInstructions: 'Machine wash cold, hang dry',
+        isActive: true,
+        isFeatured: true,
+        isTrending: true,
+        isNewArrival: false,
+        rating: { average: 4.7, count: 198 }
       }
     ]);
     console.log(`✅ Created ${products.length} products\n`);

@@ -32,7 +32,8 @@
         }
       }
 
-      .voice-search-btn {
+      .voice-search-btn,
+      .visual-search-btn {
         --color: var(--ion-color-primary);
         --background: transparent;
         --border-radius: 8px;
@@ -43,6 +44,35 @@
         &:hover {
           --background: var(--ion-color-primary-tint);
           --color: white;
+        }
+      }
+
+      .visual-search-btn {
+        --color: var(--ion-color-secondary);
+
+        &:hover {
+          --background: var(--ion-color-secondary-tint);
+          --color: white;
+        }
+      }
+    }
+
+    .visual-search-section {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: var(--ion-color-light-tint);
+      border-radius: 12px;
+      border: 2px dashed var(--ion-color-medium);
+      animation: slideDown 0.3s ease-out;
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
       }
     }

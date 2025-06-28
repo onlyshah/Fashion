@@ -188,95 +188,6 @@ export class WishlistService {
     }
   }
 
-  // Fallback methods for offline functionality
-  addToWishlistOffline(product: any): void {
-    try {
-      const savedWishlist = localStorage.getItem('wishlist');
-      let wishlistData = savedWishlist ? JSON.parse(savedWishlist) : { items: [] };
-
-      const existingItem = wishlistData.items.find((item: any) => item.product._id === product._id);
-
-      if (!existingItem) {
-        wishlistData.items.push({
-          _id: Date.now().toString(),
-          product: {
-            _id: product._id,
-            name: product.name,
-            price: product.price,
-            originalPrice: product.originalPrice,
-            images: product.images,
-            brand: product.brand,
-            discount: product.discount,
-            rating: product.rating,
-            analytics: product.analytics
-          },
-          addedAt: new Date()
-        });
-
-        localStorage.setItem('wishlist', JSON.stringify(wishlistData));
-        this.wishlistItemsSubject.next(wishlistData.items);
-        this.wishlistCountSubject.next(wishlistData.items.length);
-      }
-    } catch (error) {
-      console.error('Failed to add to wishlist offline:', error);
-    }
-  }
-
-  removeFromWishlistOffline(productId: string): void {
-    try {
-      const savedWishlist = localStorage.getItem('wishlist');
-      if (savedWishlist) {
-        let wishlistData = JSON.parse(savedWishlist);
-        wishlistData.items = wishlistData.items.filter((item: any) => item.product._id !== productId);
-
-        localStorage.setItem('wishlist', JSON.stringify(wishlistData));
-        this.wishlistItemsSubject.next(wishlistData.items);
-        this.wishlistCountSubject.next(wishlistData.items.length);
-      }
-    } catch (error) {
-      console.error('Failed to remove from wishlist offline:', error);
-    }
-  }
-
-  toggleWishlistOffline(product: any): void {
-    if (this.isInWishlist(product._id)) {
-      this.removeFromWishlistOffline(product._id);
-    } else {
-      this.addToWishlistOffline(product);
-    }
-  }
-
-  // Load wishlist count on user login
-  async loadWishlistCountOnLogin(): Promise<void> {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        this.wishlistCountSubject.next(0);
-        return;
-      }
-
-      const response = await this.http.get<WishlistResponse>(`${this.API_URL}/v1/wishlist`, {
-        headers: { Authorization: `Bearer ${token}` }
-      }).toPromise();
-
-      if (response?.success && response?.data) {
-        const itemCount = response.data.items?.length || 0;
-        this.wishlistCountSubject.next(itemCount);
-        this.wishlistItemsSubject.next(response.data.items);
-      }
-    } catch (error) {
-      console.error('Error loading wishlist count:', error);
-      this.wishlistCountSubject.next(0);
-    }
-  }
-
-  // Clear wishlist data on logout
-  clearWishlistData(): void {
-    this.wishlistItemsSubject.next([]);
-    this.wishlistCountSubject.next(0);
-    localStorage.removeItem('wishlist');
-  }
-
   // Get current wishlist count
   getCurrentCount(): number {
     return this.wishlistCountSubject.value;
@@ -285,12 +196,11 @@ export class WishlistService {
   // Sync with server when online
   syncWithServer(): Observable<any> {
     return this.getWishlist().pipe(
-      tap(response => {
-        if (response.success) {
-          // Update localStorage with server data
-          localStorage.setItem('wishlist', JSON.stringify({
-            items: response.data.items
-          }));
+      tap((response: any) => {
+        if (response && response.success) {
+          const items = response.data?.items || [];
+          this.wishlistItemsSubject.next(items);
+          this.wishlistCountSubject.next(items.length);
         }
       })
     );

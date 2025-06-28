@@ -1,4 +1,124 @@
 <div class="profile-container">
-  <h2>Profile Page</h2>
-  <p>Profile functionality coming soon...</p>
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading profile...</p>
+  </div>
+
+  <!-- Profile Content -->
+  <div *ngIf="!isLoading && currentUser" class="profile-content">
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <app-optimized-image
+        [src]="currentUser.avatar"
+        [alt]="currentUser.fullName"
+        fallbackType="user"
+        [width]="80"
+        [height]="80"
+        containerClass="profile-avatar"
+        imageClass="avatar-img"
+        objectFit="cover">
+      </app-optimized-image>
+      <div class="profile-info">
+        <h2>{{ currentUser.fullName }}</h2>
+        <p>{{ '@' + currentUser.username }}</p>
+        <span class="profile-role">{{ getRoleDisplayName() }}</span>
+      </div>
+    </div>
+
+    <!-- Profile Sections -->
+    <div class="profile-sections">
+      <!-- Role-based Features -->
+      <div class="profile-section">
+        <h3 class="section-title">Available Features</h3>
+        <div class="role-features">
+          <div *ngFor="let feature of getRoleFeatures()"
+               class="feature-card"
+               (click)="feature.action()">
+            <ion-icon [name]="feature.icon" class="feature-icon"></ion-icon>
+            <h4>{{ feature.title }}</h4>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account Information -->
+      <div class="profile-section">
+        <h3 class="section-title">Account Information</h3>
+        <ul class="settings-list">
+          <li class="settings-item">
+            <span>Email</span>
+            <span>{{ currentUser.email }}</span>
+          </li>
+          <li class="settings-item">
+            <span>Username</span>
+            <span>{{ currentUser.username }}</span>
+          </li>
+          <li class="settings-item">
+            <span>Account Type</span>
+            <span>{{ getRoleDisplayName() }}</span>
+          </li>
+          <li class="settings-item">
+            <span>Account Status</span>
+            <span [class]="currentUser.isActive ? 'text-success' : 'text-danger'">
+              {{ currentUser.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </li>
+          <li class="settings-item">
+            <span>Verification Status</span>
+            <span [class]="currentUser.isVerified ? 'text-success' : 'text-warning'">
+              {{ currentUser.isVerified ? 'Verified' : 'Pending Verification' }}
+            </span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Role-specific Information -->
+      <div *ngIf="canAccessVendorDashboard()" class="profile-section">
+        <h3 class="section-title">Vendor Information</h3>
+        <p>Access your vendor dashboard to manage products, view sales analytics, and handle orders.</p>
+        <button class="btn-primary" (click)="navigateToVendorDashboard()">
+          <ion-icon name="storefront-outline"></ion-icon>
+          Go to Vendor Dashboard
+        </button>
+      </div>
+
+      <div *ngIf="canAccessAdminPanel()" class="profile-section">
+        <h3 class="section-title">Administrator Access</h3>
+        <p>Access the admin panel to manage users, products, and system settings.</p>
+        <button class="btn-primary" (click)="navigateToAdminPanel()">
+          <ion-icon name="shield-outline"></ion-icon>
+          Go to Admin Panel
+        </button>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="profile-section">
+        <h3 class="section-title">Quick Actions</h3>
+        <div class="action-buttons">
+          <button class="btn-primary" (click)="editProfile()">
+            <ion-icon name="create-outline"></ion-icon>
+            Edit Profile
+          </button>
+          <button class="btn-secondary" (click)="navigateToSettings()">
+            <ion-icon name="settings-outline"></ion-icon>
+            Settings
+          </button>
+          <button class="btn-secondary" (click)="logout()">
+            <ion-icon name="log-out-outline"></ion-icon>
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- No User State -->
+  <div *ngIf="!isLoading && !currentUser" class="no-user-state">
+    <ion-icon name="person-outline" class="large-icon"></ion-icon>
+    <h3>No User Found</h3>
+    <p>Please log in to view your profile.</p>
+    <button class="btn-primary" (click)="navigateToLogin()">
+      Login
+    </button>
+  </div>
 </div>

@@ -38,13 +38,34 @@
     </button>
   </div>
 
-  <!-- Products Grid -->
-  <div *ngIf="!isLoading && !error && newArrivals.length > 0" class="products-grid">
-    <div 
-      *ngFor="let product of newArrivals; trackBy: trackByProductId" 
-      class="product-card"
-      (click)="onProductClick(product)"
-    >
+  <!-- Products Slider -->
+  <div *ngIf="!isLoading && !error && newArrivals.length > 0" class="products-slider-container"
+       (mouseenter)="pauseAutoSlide()" (mouseleave)="resumeAutoSlide()">
+
+    <!-- Navigation Buttons -->
+    <button class="nav-btn prev-btn"
+            [disabled]="!canGoPrev"
+            (click)="prevSlide()"
+            [attr.aria-label]="'Previous products'">
+      <ion-icon name="chevron-back"></ion-icon>
+    </button>
+
+    <button class="nav-btn next-btn"
+            [disabled]="!canGoNext"
+            (click)="nextSlide()"
+            [attr.aria-label]="'Next products'">
+      <ion-icon name="chevron-forward"></ion-icon>
+    </button>
+
+    <div class="products-slider-wrapper">
+      <div class="products-slider"
+           [style.transform]="'translateX(-' + slideOffset + 'px)'">
+        <div
+          *ngFor="let product of newArrivals; trackBy: trackByProductId"
+          class="product-card"
+          [style.width.px]="cardWidth"
+          (click)="onProductClick(product)"
+        >
       <!-- Product Image -->
       <div class="product-image-container">
         <img 

@@ -1,0 +1,257 @@
+<div class="settings-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading settings...</p>
+  </div>
+
+  <!-- Settings Content -->
+  <div *ngIf="!isLoading && currentUser" class="settings-content">
+    <!-- Settings Header -->
+    <div class="settings-header">
+      <h1>Account Settings</h1>
+      <p>Manage your account preferences and permissions</p>
+    </div>
+
+    <!-- Settings Sections -->
+    <div class="settings-sections">
+      <!-- Account Information -->
+      <div class="settings-section">
+        <h3 class="section-title">Account Information</h3>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-title">Account Type</div>
+            <div class="setting-description">Your current role and permissions</div>
+          </div>
+          <div class="setting-control">
+            <span class="role-badge" [ngClass]="getRoleBadgeClass()">
+              {{ getRoleDisplayName() }}
+            </span>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-title">Profile Information</div>
+            <div class="setting-description">Update your personal information</div>
+          </div>
+          <div class="setting-control">
+            <button class="btn-primary" (click)="editProfile()">
+              <ion-icon name="create-outline"></ion-icon>
+              Edit
+            </button>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-title">Password</div>
+            <div class="setting-description">Change your account password</div>
+          </div>
+          <div class="setting-control">
+            <button class="btn-primary" (click)="changePassword()">
+              <ion-icon name="key-outline"></ion-icon>
+              Change
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Role Permissions -->
+      <div class="settings-section">
+        <h3 class="section-title">Your Permissions</h3>
+        <p>Based on your {{ getRoleDisplayName() }} role, you have access to:</p>
+        <ul class="permission-list">
+          <li *ngFor="let permission of getRolePermissions()" class="permission-item">
+            {{ permission }}
+          </li>
+        </ul>
+      </div>
+
+      <!-- Notification Settings -->
+      <div class="settings-section">
+        <h3 class="section-title">Notifications</h3>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-title">Enable Notifications</div>
+            <div class="setting-description">Receive notifications about your account activity</div>
+          </div>
+          <div class="setting-control">
+            <ion-toggle [(ngModel)]="notificationsEnabled" (ionChange)="saveNotificationSettings()"></ion-toggle>
+          </div>
+        </div>
+
+        <div class="setting-item" *ngIf="notificationsEnabled">
+          <div class="setting-info">
+            <div class="setting-title">Email Notifications</div>
+            <div class="setting-description">Receive notifications via email</div>
+          </div>
+          <div class="setting-control">
+            <ion-toggle [(ngModel)]="emailNotifications" (ionChange)="saveNotificationSettings()"></ion-toggle>
+          </div>
+        </div>
+
+        <div class="setting-item" *ngIf="notificationsEnabled">
+          <div class="setting-info">
+            <div class="setting-title">Push Notifications</div>
+            <div class="setting-description">Receive push notifications on your device</div>
+          </div>
+          <div class="setting-control">
+            <ion-toggle [(ngModel)]="pushNotifications" (ionChange)="saveNotificationSettings()"></ion-toggle>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-title">Marketing Emails</div>
+            <div class="setting-description">Receive promotional emails and offers</div>
+          </div>
+          <div class="setting-control">
+            <ion-toggle [(ngModel)]="marketingEmails" (ionChange)="saveNotificationSettings()"></ion-toggle>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment & Shipping (Customer/Vendor) -->
+      <div class="settings-section" *ngIf="canManageAccount()">
+        <h3 class="section-title">Payment & Shipping</h3>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-title">Payment Methods</div>
+            <div class="setting-description">Manage your saved payment methods</div>
+          </div>
+          <div class="setting-control">
+            <button class="btn-primary" (click)="managePaymentMethods()">
+              <ion-icon name="card-outline"></ion-icon>
+              Manage
+            </button>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-title">Shipping Addresses</div>
+            <div class="setting-description">Manage your delivery addresses</div>
+          </div>
+          <div class="setting-control">
+            <button class="btn-primary" (click)="manageAddresses()">
+              <ion-icon name="location-outline"></ion-icon>
+              Manage
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vendor Settings -->
+      <div class="settings-section" *ngIf="canAccessVendorSettings()">
+        <h3 class="section-title">Vendor Settings</h3>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-title">Vendor Dashboard</div>
+            <div class="setting-description">Access vendor-specific settings and preferences</div>
+          </div>
+          <div class="setting-control">
+            <button class="btn-primary" (click)="navigateToVendorSettings()">
+              <ion-icon name="storefront-outline"></ion-icon>
+              Open
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Settings -->
+      <div class="settings-section" *ngIf="canAccessAdminSettings()">
+        <h3 class="section-title">Administrator Settings</h3>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-title">Admin Panel</div>
+            <div class="setting-description">Access system administration settings</div>
+          </div>
+          <div class="setting-control">
+            <button class="btn-primary" (click)="navigateToAdminSettings()">
+              <ion-icon name="shield-outline"></ion-icon>
+              Open
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Privacy & Security -->
+      <div class="settings-section">
+        <h3 class="section-title">Privacy & Security</h3>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-title">Privacy Settings</div>
+            <div class="setting-description">Control who can see your information</div>
+          </div>
+          <div class="setting-control">
+            <button class="btn-primary" (click)="viewPrivacySettings()">
+              <ion-icon name="eye-outline"></ion-icon>
+              Manage
+            </button>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-title">Security Settings</div>
+            <div class="setting-description">Two-factor authentication and security options</div>
+          </div>
+          <div class="setting-control">
+            <button class="btn-primary" (click)="viewSecuritySettings()">
+              <ion-icon name="shield-checkmark-outline"></ion-icon>
+              Manage
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account Management -->
+      <div class="settings-section">
+        <h3 class="section-title">Account Management</h3>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-title">Deactivate Account</div>
+            <div class="setting-description">Temporarily disable your account</div>
+          </div>
+          <div class="setting-control">
+            <button class="btn-danger" (click)="deactivateAccount()">
+              <ion-icon name="pause-outline"></ion-icon>
+              Deactivate
+            </button>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-title">Delete Account</div>
+            <div class="setting-description">Permanently delete your account and all data</div>
+          </div>
+          <div class="setting-control">
+            <button class="btn-danger" (click)="deleteAccount()">
+              <ion-icon name="trash-outline"></ion-icon>
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- No User State -->
+  <div *ngIf="!isLoading && !currentUser" class="no-user-state">
+    <ion-icon name="settings-outline" class="large-icon"></ion-icon>
+    <h3>Access Denied</h3>
+    <p>Please log in to access settings.</p>
+    <button class="btn-primary" (click)="navigateToLogin()">
+      Login
+    </button>
+  </div>
+</div>

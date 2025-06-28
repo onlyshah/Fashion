@@ -23,8 +23,8 @@ export interface Product {
     <ion-card class="product-card" [class.featured]="product.isFeatured">
       <!-- Product Image -->
       <div class="image-container" (click)="onProductClick()">
-        <img 
-          [src]="product.images?.[0] || '/assets/images/placeholder-product.jpg'"
+        <img
+          [src]="product.images?.[0] || '/assets/images/placeholder-product.svg'"
           [alt]="product.name"
           appLazyLoad>
         

@@ -2,15 +2,16 @@ import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, ViewChild, E
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
-import { Subject, Observable, of } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap, takeUntil, startWith } from 'rxjs/operators';
+import { Subject, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 import { SearchService, SearchSuggestion, SearchFilters, TrendingSearch } from '../../../core/services/search.service';
 import { ProductService } from '../../../core/services/product.service';
+import { VisualSearchComponent } from '../visual-search/visual-search.component';
 
 @Component({
   selector: 'app-advanced-search',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, IonicModule, VisualSearchComponent],
   templateUrl: './advanced-search.component.html',
   styleUrls: ['./advanced-search.component.scss']
 })
@@ -39,6 +40,7 @@ export class AdvancedSearchComponent implements OnInit, OnDestroy {
   brands: string[] = [];
   activeFilters: any[] = [];
   searchResults: any = null;
+  showVisualSearch = false;
 
   // Subjects for cleanup
   private destroy$ = new Subject<void>();
@@ -215,6 +217,24 @@ export class AdvancedSearchComponent implements OnInit, OnDestroy {
       
       recognition.start();
     }
+  }
+
+  // Visual search handlers
+  toggleVisualSearch(): void {
+    this.showVisualSearch = !this.showVisualSearch;
+    if (this.showVisualSearch) {
+      this.showSuggestions = false;
+    }
+  }
+
+  onVisualSearchResults(results: any): void {
+    this.showVisualSearch = false;
+    this.searchResults.emit(results);
+  }
+
+  onVisualSearchError(error: string): void {
+    console.error('Visual search error:', error);
+    // Could show a toast or alert here
   }
 
   // Filter handlers

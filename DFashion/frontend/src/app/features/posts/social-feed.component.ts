@@ -1262,90 +1262,9 @@ export class SocialFeedComponent implements OnInit, OnDestroy {
   }
 
   addMockStories() {
-    // Add some mock stories for testing the carousel
-    this.stories = [
-      {
-        _id: 'story1',
-        user: {
-          _id: 'user1',
-          username: 'shaniya_jo',
-          fullName: 'Shaniya Johnson',
-          avatar: '/assets/images/default-avatar.svg'
-        },
-        mediaUrl: '/assets/images/default-story.svg',
-        mediaType: 'image' as const,
-        caption: 'My latest story',
-        createdAt: new Date().toISOString(),
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-        views: 12,
-        isActive: true
-      },
-      {
-        _id: 'story2',
-        user: {
-          _id: 'user2',
-          username: 'meera_nair',
-          fullName: 'Meera Nair',
-          avatar: '/assets/images/default-avatar.svg'
-        },
-        mediaUrl: '/assets/images/default-story.svg',
-        mediaType: 'image' as const,
-        caption: 'Beautiful day',
-        createdAt: new Date().toISOString(),
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-        views: 45,
-        isActive: true
-      },
-      {
-        _id: 'story3',
-        user: {
-          _id: 'user3',
-          username: 'rohit_gupta',
-          fullName: 'Rohit Gupta',
-          avatar: '/assets/images/default-avatar.svg'
-        },
-        mediaUrl: '/assets/images/default-story.svg',
-        mediaType: 'image' as const,
-        caption: 'Coffee time',
-        createdAt: new Date().toISOString(),
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-        views: 23,
-        isActive: true
-      },
-      {
-        _id: 'story4',
-        user: {
-          _id: 'user4',
-          username: 'si_minim',
-          fullName: 'Simon Minimalist',
-          avatar: '/assets/images/default-avatar.svg'
-        },
-        mediaUrl: '/assets/images/default-story.svg',
-        mediaType: 'image' as const,
-        caption: 'Weekend vibes',
-        createdAt: new Date().toISOString(),
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-        views: 67,
-        isActive: true
-      },
-      {
-        _id: 'story5',
-        user: {
-          _id: 'user5',
-          username: 'priya_sha',
-          fullName: 'Priya Sharma',
-          avatar: '/assets/images/default-avatar.svg'
-        },
-        mediaUrl: '/assets/images/default-story.svg',
-        mediaType: 'image' as const,
-        caption: 'New adventure',
-        createdAt: new Date().toISOString(),
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-        views: 89,
-        isActive: true
-      }
-    ];
-    console.log('Mock stories added:', this.stories);
+    // Removed mock stories - use real API data only
+    this.stories = [];
+    console.log('Mock stories removed - using real API data only');
   }
 
 }

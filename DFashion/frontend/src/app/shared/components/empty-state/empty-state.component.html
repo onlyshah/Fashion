@@ -1,13 +1,14 @@
-<div class="empty-state">
-  <div class="empty-icon">
+<div [class]="containerClasses">
+  <div class="empty-icon" [class.pulse]="showAnimation">
     <ion-icon [name]="icon" [color]="iconColor"></ion-icon>
   </div>
   <h3 class="empty-title">{{ title }}</h3>
   <p class="empty-message">{{ message }}</p>
-  <ion-button 
-    *ngIf="buttonText" 
+  <ion-button
+    *ngIf="buttonText"
     [color]="buttonColor"
     [fill]="buttonFill"
+    class="empty-button"
     (click)="onButtonClick()">
     <ion-icon [name]="buttonIcon" slot="start" *ngIf="buttonIcon"></ion-icon>
     {{ buttonText }}

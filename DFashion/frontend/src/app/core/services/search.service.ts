@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject, Subject, timer, of } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap, catchError, tap, shareReplay } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, switchMap, catchError, tap, shareReplay, map } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 
 export interface SearchFilters {
@@ -385,6 +385,160 @@ export class SearchService {
       results: this.searchResultsSubject.value,
       loading: this.searchLoadingSubject.value
     };
+  }
+
+  // Enhanced search with AI-powered recommendations
+  getSmartSearchSuggestions(query: string, userContext?: any): Observable<SearchSuggestion[]> {
+    const params = new HttpParams()
+      .set('q', query)
+      .set('smart', 'true')
+      .set('context', JSON.stringify(userContext || {}));
+
+    return this.http.get<{ suggestions: SearchSuggestion[] }>(`${this.API_URL}/search/smart-suggestions`, { params })
+      .pipe(
+        map(response => response.suggestions || []),
+        catchError(error => {
+          console.error('Error fetching smart suggestions:', error);
+          return this.getSearchSuggestions(query);
+        })
+      );
+  }
+
+  // Visual search functionality
+  searchByImage(imageFile: File): Observable<SearchResult> {
+    const formData = new FormData();
+    formData.append('image', imageFile);
+
+    this.searchLoadingSubject.next(true);
+
+    return this.http.post<SearchResult>(`${this.API_URL}/search/visual`, formData).pipe(
+      tap(result => {
+        this.searchResultsSubject.next(result);
+        this.searchLoadingSubject.next(false);
+      }),
+      catchError(error => {
+        console.error('Visual search error:', error);
+        this.searchLoadingSubject.next(false);
+        return of({
+          success: false,
+          products: [],
+          pagination: { current: 1, pages: 0, total: 0, hasNext: false, hasPrev: false },
+          searchMeta: {
+            query: 'Visual Search',
+            filters: {},
+            resultsCount: 0,
+            searchTime: Date.now(),
+            suggestions: []
+          }
+        });
+      })
+    );
+  }
+
+  // Barcode/QR code search
+  searchByBarcode(barcode: string): Observable<SearchResult> {
+    const params = new HttpParams().set('barcode', barcode);
+
+    this.searchLoadingSubject.next(true);
+
+    return this.http.get<SearchResult>(`${this.API_URL}/search/barcode`, { params }).pipe(
+      tap(result => {
+        this.searchResultsSubject.next(result);
+        this.searchLoadingSubject.next(false);
+      }),
+      catchError(error => {
+        console.error('Barcode search error:', error);
+        this.searchLoadingSubject.next(false);
+        return of({
+          success: false,
+          products: [],
+          pagination: { current: 1, pages: 0, total: 0, hasNext: false, hasPrev: false },
+          searchMeta: {
+            query: `Barcode: ${barcode}`,
+            filters: {},
+            resultsCount: 0,
+            searchTime: Date.now(),
+            suggestions: []
+          }
+        });
+      })
+    );
+  }
+
+  // Search by similar products
+  searchSimilarProducts(productId: string, limit: number = 12): Observable<SearchResult> {
+    const params = new HttpParams()
+      .set('productId', productId)
+      .set('limit', limit.toString());
+
+    this.searchLoadingSubject.next(true);
+
+    return this.http.get<SearchResult>(`${this.API_URL}/search/similar`, { params }).pipe(
+      tap(result => {
+        this.searchResultsSubject.next(result);
+        this.searchLoadingSubject.next(false);
+      }),
+      catchError(error => {
+        console.error('Similar products search error:', error);
+        this.searchLoadingSubject.next(false);
+        return of({
+          success: false,
+          products: [],
+          pagination: { current: 1, pages: 0, total: 0, hasNext: false, hasPrev: false },
+          searchMeta: {
+            query: 'Similar Products',
+            filters: {},
+            resultsCount: 0,
+            searchTime: Date.now(),
+            suggestions: []
+          }
+        });
+      })
+    );
+  }
+
+  // Get personalized search recommendations
+  getPersonalizedRecommendations(limit: number = 10): Observable<SearchSuggestion[]> {
+    if (!this.authService.isAuthenticated) {
+      return this.getTrendingSearches(limit).pipe(
+        map(trending => trending.map(t => ({
+          text: t.query,
+          type: 'trending' as const,
+          popularity: t.searches
+        })))
+      );
+    }
+
+    const params = new HttpParams().set('limit', limit.toString());
+
+    return this.http.get<{ suggestions: SearchSuggestion[] }>(`${this.API_URL}/search/personalized`, { params })
+      .pipe(
+        map(response => response.suggestions || []),
+        catchError(error => {
+          console.error('Error fetching personalized recommendations:', error);
+          return this.getTrendingSearches(limit).pipe(
+            map(trending => trending.map(t => ({
+              text: t.query,
+              type: 'trending' as const,
+              popularity: t.searches
+            })))
+          );
+        })
+      );
+  }
+
+  // Search analytics and insights
+  getSearchInsights(): Observable<any> {
+    if (!this.authService.isAuthenticated) {
+      return of({});
+    }
+
+    return this.http.get<any>(`${this.API_URL}/search/insights`).pipe(
+      catchError(error => {
+        console.error('Error fetching search insights:', error);
+        return of({});
+      })
+    );
   }
 
   // Helper method for default analytics
