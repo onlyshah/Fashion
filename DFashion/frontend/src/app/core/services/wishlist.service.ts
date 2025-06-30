@@ -45,7 +45,7 @@ export interface WishlistResponse {
   providedIn: 'root'
 })
 export class WishlistService {
-  private readonly API_URL = 'http://localhost:5000/api';
+  private readonly API_URL = environment.apiUrl;
   private wishlistItemsSubject = new BehaviorSubject<WishlistItem[]>([]);
   private wishlistCountSubject = new BehaviorSubject<number>(0);
 

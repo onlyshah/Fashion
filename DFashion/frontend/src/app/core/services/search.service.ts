@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject, Subject, timer, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, catchError, tap, shareReplay, map } from 'rxjs/operators';
 import { AuthService } from './auth.service';
+import { environment } from '../../../environments/environment';
 
 export interface SearchFilters {
   category?: string;
@@ -81,7 +82,7 @@ export interface SearchAnalytics {
   providedIn: 'root'
 })
 export class SearchService {
-  private readonly API_URL = 'http://localhost:5000/api/v1';
+  private readonly API_URL = `${environment.apiUrl}/v1`;
   
   // Search state management
   private searchQuerySubject = new BehaviorSubject<string>('');

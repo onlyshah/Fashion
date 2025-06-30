@@ -62,6 +62,20 @@
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true
+            },
+            "mobile": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.mobile.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -74,6 +88,9 @@
             },
             "development": {
               "buildTarget": "dfashion-frontend:build:development"
+            },
+            "mobile": {
+              "buildTarget": "dfashion-frontend:build:mobile"
             }
           },
           "defaultConfiguration": "development"

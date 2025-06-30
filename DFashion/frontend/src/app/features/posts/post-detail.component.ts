@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CartService } from '../../core/services/cart.service';
 import { WishlistService } from '../../core/services/wishlist.service';
+import { environment } from '../../../environments/environment';
 
 interface Post {
   _id: string;
@@ -621,7 +622,7 @@ export class PostDetailComponent implements OnInit {
     this.loading = true;
     
     // Load post from real API
-    fetch(`http://localhost:5000/api/posts/${postId}`)
+    fetch(`${environment.apiUrl}/posts/${postId}`)
       .then(response => response.json())
       .then(data => {
         if (data.success) {

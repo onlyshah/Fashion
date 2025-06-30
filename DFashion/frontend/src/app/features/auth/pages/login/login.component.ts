@@ -34,6 +34,10 @@ export class LoginComponent {
 
 
   onSubmit() {
+    console.log('🚀 Login form submitted!');
+    console.log('📋 Form valid:', this.loginForm.valid);
+    console.log('📋 Form values:', this.loginForm.value);
+
     if (this.loginForm.valid) {
       this.loading = true;
       this.errorMessage = '';
@@ -45,18 +49,21 @@ export class LoginComponent {
         password: this.loginForm.value.password?.trim()
       };
 
+      console.log('📤 Calling authService.login() with:', formData);
       this.authService.login(formData).subscribe({
         next: (response) => {
           this.loading = false;
+          // Handle backend response format: { success: true, data: { token, user } }
+          const userData = response.data?.user || response.user;
           this.notificationService.success(
             'Login Successful!',
-            `Welcome back, ${response.user.fullName}!`
+            `Welcome back, ${userData.fullName}!`
           );
 
           // Role-based redirect
-          if (response.user.role === 'admin') {
+          if (userData.role === 'admin') {
             this.router.navigate(['/admin']);
-          } else if (response.user.role === 'vendor') {
+          } else if (userData.role === 'vendor') {
             this.router.navigate(['/vendor/dashboard']);
           } else {
             this.router.navigate(['/home']);

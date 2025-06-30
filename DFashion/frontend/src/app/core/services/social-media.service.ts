@@ -5,6 +5,7 @@ import { tap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { CartNewService } from './cart-new.service';
 import { WishlistNewService } from './wishlist-new.service';
+import { environment } from '../../../environments/environment';
 
 export interface SocialPost {
   _id: string;
@@ -101,7 +102,7 @@ export interface SocialStory {
   providedIn: 'root'
 })
 export class SocialMediaService {
-  private apiUrl = 'http://localhost:5000/api';
+  private apiUrl = environment.apiUrl;
   private postsSubject = new BehaviorSubject<SocialPost[]>([]);
   private storiesSubject = new BehaviorSubject<SocialStory[]>([]);
 

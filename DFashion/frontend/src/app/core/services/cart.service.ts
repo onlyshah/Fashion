@@ -35,7 +35,7 @@ export interface CartSummary {
   providedIn: 'root'
 })
 export class CartService {
-  private readonly API_URL = 'http://localhost:5000/api';
+  private readonly API_URL = environment.apiUrl;
   private cartItems = new BehaviorSubject<CartItem[]>([]);
   private cartSummary = new BehaviorSubject<CartSummary | null>(null);
   private cartItemCount = new BehaviorSubject<number>(0);

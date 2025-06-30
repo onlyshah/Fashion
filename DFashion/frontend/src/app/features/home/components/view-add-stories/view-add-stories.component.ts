@@ -6,7 +6,7 @@ import { WishlistService } from '../../../../core/services/wishlist.service';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { CarouselModule, OwlOptions } from 'ngx-owl-carousel-o';
-// import { environment } from '../../../../environments/environment';
+import { environment } from '../../../../../environments/environment';
 
 export interface Story {
   _id: string;
@@ -143,7 +143,7 @@ export class ViewAddStoriesComponent implements OnInit, OnDestroy {
 
     // Try to load from API first
     this.subscriptions.push(
-      this.http.get<any>(`http://localhost:5000/api/v1/stories/active`).subscribe({
+      this.http.get<any>(`${environment.apiUrl}/v1/stories/active`).subscribe({
         next: (response) => {
           if (response.success && response.data && response.data.length > 0) {
             this.stories = response.data;

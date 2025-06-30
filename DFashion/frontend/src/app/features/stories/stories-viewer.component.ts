@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../environments/environment';
 
 interface Story {
   _id: string;
@@ -209,7 +210,7 @@ export class StoriesViewerComponent implements OnInit, OnDestroy {
 
   loadStories() {
     // Load stories from real API
-    fetch('http://localhost:5000/api/stories')
+    fetch(`${environment.apiUrl}/stories`)
       .then(response => response.json())
       .then(data => {
         if (data.success) {

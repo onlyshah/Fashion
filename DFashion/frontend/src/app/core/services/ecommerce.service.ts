@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
+import { environment } from '../../../environments/environment';
 
 export interface Product {
   _id: string;
@@ -85,7 +86,7 @@ export interface CartItem {
   providedIn: 'root'
 })
 export class EcommerceService {
-  private apiUrl = 'http://localhost:5000/api/ecommerce';
+  private apiUrl = `${environment.apiUrl}/ecommerce`;
   
   // Subjects for real-time updates
   private wishlistSubject = new BehaviorSubject<WishlistItem[]>([]);

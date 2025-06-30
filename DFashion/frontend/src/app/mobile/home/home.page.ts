@@ -94,20 +94,30 @@ export class HomePage implements OnInit {
 
   async loadHomeData() {
     try {
+      console.log('📱 Mobile Home: Starting to load home data...');
       this.isLoading = true;
 
       // Load all data in parallel
+      console.log('📱 Mobile Home: Loading featured products, stories, and posts...');
       const [products, stories, posts] = await Promise.all([
         this.productService.getFeaturedProducts().toPromise(),
         this.storyService.getActiveStories().toPromise(),
         this.postService.getTrendingPosts().toPromise()
       ]);
 
+      console.log('📱 Mobile Home: Received data:', { products, stories, posts });
       this.featuredProducts = products?.data || [];
       this.recentStories = stories?.data || [];
       this.trendingPosts = posts?.data || [];
 
+      console.log('📱 Mobile Home: Assigned data:', {
+        featuredProducts: this.featuredProducts.length,
+        recentStories: this.recentStories.length,
+        trendingPosts: this.trendingPosts.length
+      });
+
       // Load additional data
+      console.log('📱 Mobile Home: Loading additional data...');
       await this.loadTrendingProducts();
       await this.loadFeaturedBrands();
       await this.loadNewArrivals();
@@ -115,10 +125,12 @@ export class HomePage implements OnInit {
       await this.loadTopInfluencers();
       this.loadCategories();
 
+      console.log('📱 Mobile Home: All data loaded successfully!');
     } catch (error) {
-      console.error('Error loading home data:', error);
+      console.error('❌ Mobile Home: Error loading home data:', error);
     } finally {
       this.isLoading = false;
+      console.log('📱 Mobile Home: Loading complete, isLoading set to false');
     }
   }
 

@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { GestureController, Platform } from '@ionic/angular';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-stories',
@@ -54,7 +55,7 @@ export class StoriesPage implements OnInit, OnDestroy {
 
   loadStories() {
     // Load stories from API with Instagram-like data structure
-    fetch('http://localhost:5000/api/stories')
+    fetch(`${environment.apiUrl}/stories`)
       .then(response => response.json())
       .then(data => {
         if (data.success) {

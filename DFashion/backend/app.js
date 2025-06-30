@@ -8,6 +8,14 @@ const http = require('http');
 const socketService = require('./services/socketService');
 require('dotenv').config();
 
+// Verify JWT_SECRET is loaded
+console.log('🔐 JWT_SECRET loaded:', !!process.env.JWT_SECRET);
+if (!process.env.JWT_SECRET) {
+    console.error('❌ CRITICAL: JWT_SECRET not found in environment variables!');
+    console.error('❌ Please check your .env file');
+    process.exit(1);
+}
+
 console.log('✅ All modules loaded successfully');
 
 const app = express();
@@ -435,11 +443,12 @@ const startServer = async () => {
         // Start server
         const PORT = process.env.PORT || 5000;
 
-        server.listen(PORT, () => {
+        server.listen(PORT, '0.0.0.0', () => {
             console.log('========================================');
             console.log('🚀 DFashion Backend Server Running!');
             console.log('========================================');
             console.log(`📡 Server: http://localhost:${PORT}`);
+            console.log(`📱 Mobile Access: http://10.0.2.2:${PORT}`);
             console.log(`🔌 Socket.IO: Real-time notifications enabled`);
             console.log(`🛡️ Admin Dashboard: http://localhost:4200/admin`);
             console.log(`🌐 Health Check: http://localhost:${PORT}/api/health`);

@@ -307,15 +307,17 @@ router.post('/login', async (req, res) => {
     res.json({
       success: true,
       message: 'Login successful',
-      token,
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        fullName: user.fullName,
-        role: user.role,
-        avatar: user.avatar,
-        isVerified: user.isVerified
+      data: {
+        token,
+        user: {
+          id: user._id,
+          username: user.username,
+          email: user.email,
+          fullName: user.fullName,
+          role: user.role,
+          avatar: user.avatar,
+          isVerified: user.isVerified
+        }
       }
     });
   } catch (error) {

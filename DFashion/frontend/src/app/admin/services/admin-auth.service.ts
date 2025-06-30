@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 export interface AdminUser {
   id: string;
@@ -33,7 +34,7 @@ export interface LoginResponse {
   providedIn: 'root'
 })
 export class AdminAuthService {
-  private apiUrl = 'http://localhost:5000/api';
+  private apiUrl = environment.apiUrl;
   private currentUserSubject = new BehaviorSubject<AdminUser | null>(null);
   private tokenSubject = new BehaviorSubject<string | null>(null);
 

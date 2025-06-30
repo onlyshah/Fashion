@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { AdminAuthService } from './admin-auth.service';
+import { environment } from '../../../environments/environment';
 
 export interface ApiResponse<T = any> {
   success: boolean;
@@ -66,7 +67,7 @@ export interface DashboardStats {
   providedIn: 'root'
 })
 export class AdminApiService {
-  private apiUrl = 'http://localhost:5000/api';
+  private apiUrl = environment.apiUrl;
 
   constructor(
     private http: HttpClient,

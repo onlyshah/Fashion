@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject, of, timer } from 'rxjs';
 import { map, catchError, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
+import { environment } from '../../../environments/environment';
 
 export interface RecommendationProduct {
   _id: string;
@@ -63,7 +64,7 @@ export interface UserAnalytics {
   providedIn: 'root'
 })
 export class RecommendationService {
-  private apiUrl = 'http://localhost:5000/api';
+  private apiUrl = environment.apiUrl;
   private userAnalytics$ = new BehaviorSubject<UserAnalytics | null>(null);
   private realTimeRecommendations$ = new BehaviorSubject<RecommendationProduct[]>([]);
   private userBehavior$ = new BehaviorSubject<any>(null);

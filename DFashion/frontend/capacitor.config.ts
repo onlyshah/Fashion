@@ -5,9 +5,13 @@ const config: CapacitorConfig = {
   appName: 'DFashion',
   webDir: 'dist/dfashion-frontend',
   server: {
-    androidScheme: 'https'
+    androidScheme: 'http',
+    cleartext: true
   },
   plugins: {
+    CapacitorHttp: {
+      enabled: true
+    },
     SplashScreen: {
       launchShowDuration: 2000,
       launchAutoHide: true,

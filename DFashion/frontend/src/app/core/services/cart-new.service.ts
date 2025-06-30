@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
+import { environment } from '../../../environments/environment';
 
 export interface CartItem {
   _id: string;
@@ -64,7 +65,7 @@ export interface CartSummary {
   providedIn: 'root'
 })
 export class CartNewService {
-  private apiUrl = 'http://localhost:5000/api/cart-new';
+  private apiUrl = `${environment.apiUrl}/cart-new`;
   private cartSubject = new BehaviorSubject<Cart | null>(null);
   private cartSummarySubject = new BehaviorSubject<CartSummary>({
     totalItems: 0,

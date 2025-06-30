@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 
 export interface Story {
   _id: string;
@@ -58,7 +59,7 @@ export interface StoryGroup {
   providedIn: 'root'
 })
 export class StoriesService {
-  private apiUrl = 'http://localhost:5000/api';
+  private apiUrl = environment.apiUrl;
   private storiesSubject = new BehaviorSubject<Story[]>([]);
   private currentStorySubject = new BehaviorSubject<Story | null>(null);
 

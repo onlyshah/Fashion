@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap, map } from 'rxjs/operators';
 import { AuthService } from './auth.service';
+import { environment } from '../../../environments/environment';
 
 export interface WishlistItem {
   _id: string;
@@ -95,7 +96,7 @@ export interface WishlistSummary {
   providedIn: 'root'
 })
 export class WishlistNewService {
-  private apiUrl = 'http://localhost:5000/api/wishlist-new';
+  private apiUrl = `${environment.apiUrl}/wishlist-new`;
   private wishlistSubject = new BehaviorSubject<Wishlist | null>(null);
   private wishlistSummarySubject = new BehaviorSubject<WishlistSummary>({
     totalItems: 0,

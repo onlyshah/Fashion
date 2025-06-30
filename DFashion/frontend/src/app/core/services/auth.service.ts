@@ -1,6 +1,6 @@
 import { Injectable, Inject, forwardRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap, catchError, throwError, of } from 'rxjs';
+import { BehaviorSubject, Observable, tap, catchError, throwError, of, map } from 'rxjs';
 import { Router } from '@angular/router';
 
 import { User, LoginRequest, RegisterRequest, AuthResponse } from '../models/user.model';
@@ -38,19 +38,27 @@ export class AuthService {
     }
   }
 
-  login(credentials: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.API_URL}/auth/login`, credentials)
+  login(credentials: LoginRequest): Observable<any> {
+    console.log('🔐 AuthService.login() called with:', credentials);
+    console.log('🌐 API_URL:', this.API_URL);
+    console.log('📱 Making HTTP POST request to:', `${this.API_URL}/auth/login`);
+
+    return this.http.post<any>(`${this.API_URL}/auth/login`, credentials)
       .pipe(
         tap(response => {
-          this.setToken(response.token);
-          this.currentUserSubject.next(response.user);
+          console.log('✅ Login response received:', response);
+          // Handle backend response format: { success: true, data: { token, user } }
+          const authData = response.data || response;
+          this.setToken(authData.token);
+          this.currentUserSubject.next(authData.user);
           this.isAuthenticatedSubject.next(true);
 
           // Trigger cart and wishlist refresh after successful login
           this.refreshUserDataOnLogin();
         }),
         catchError(error => {
-          console.error('Login error:', error);
+          console.error('❌ Login error:', error);
+          console.error('❌ Error details:', JSON.stringify(error, null, 2));
           return throwError(() => error);
         })
       );
@@ -60,12 +68,14 @@ export class AuthService {
 
 
 
-  register(userData: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.API_URL}/auth/register`, userData)
+  register(userData: RegisterRequest): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/auth/register`, userData)
       .pipe(
         tap(response => {
-          this.setToken(response.token);
-          this.currentUserSubject.next(response.user);
+          // Handle backend response format: { success: true, data: { token, user } }
+          const authData = response.data || response;
+          this.setToken(authData.token);
+          this.currentUserSubject.next(authData.user);
           this.isAuthenticatedSubject.next(true);
         })
       );
@@ -129,7 +139,12 @@ export class AuthService {
   }
 
   getCurrentUser(): Observable<{ user: User }> {
-    return this.http.get<{ user: User }>(`${this.API_URL}/auth/me`);
+    return this.http.get<any>(`${this.API_URL}/auth/me`).pipe(
+      map(response => {
+        // Handle backend response format: { success: true, data: { user } }
+        return response.data || response;
+      })
+    );
   }
 
   getToken(): string | null {
