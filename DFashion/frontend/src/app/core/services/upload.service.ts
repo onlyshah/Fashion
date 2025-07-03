@@ -43,7 +43,7 @@ export interface UploadResponse {
   providedIn: 'root'
 })
 export class UploadService {
-  private baseUrl = `${environment.apiUrl}/upload`;
+  private baseUrl = 'http://10.0.2.2:5000/api/upload'; // Direct IP for testing
   private uploadProgress$ = new BehaviorSubject<UploadProgress | null>(null);
 
   // Allowed file types and sizes

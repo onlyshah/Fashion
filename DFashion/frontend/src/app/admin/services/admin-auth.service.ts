@@ -34,7 +34,7 @@ export interface LoginResponse {
   providedIn: 'root'
 })
 export class AdminAuthService {
-  private apiUrl = environment.apiUrl;
+  private apiUrl = 'http://10.0.2.2:5000/api'; // Direct IP for testing
   private currentUserSubject = new BehaviorSubject<AdminUser | null>(null);
   private tokenSubject = new BehaviorSubject<string | null>(null);
 

@@ -117,7 +117,7 @@ export interface VendorOrdersResponse {
   providedIn: 'root'
 })
 export class VendorService {
-  private apiUrl = `${environment.apiUrl}/vendor`;
+  private apiUrl = 'http://10.0.2.2:5000/api/vendor'; // Direct IP for testing
   private statsSubject = new BehaviorSubject<VendorStats | null>(null);
   public stats$ = this.statsSubject.asObservable();
 

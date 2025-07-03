@@ -1,11 +1,19 @@
 const mongoose = require('mongoose');
 
 const storySchema = new mongoose.Schema({
+  // Basic Information
+  title: {
+    type: String,
+    trim: true,
+    maxlength: 100
+  },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
+
+  // Media Information
   media: {
     type: {
       type: String,
@@ -17,12 +25,24 @@ const storySchema = new mongoose.Schema({
       required: true
     },
     thumbnail: String, // For videos
-    duration: Number // For videos in seconds
+    duration: {
+      type: Number, // For videos in seconds
+      max: 15 // Instagram stories max duration
+    },
+    size: Number, // file size in bytes
+    resolution: {
+      width: Number,
+      height: Number
+    }
   },
+
+  // Content
   caption: {
     type: String,
     maxlength: 500
   },
+
+  // Product Integration (E-commerce)
   products: [{
     product: {
       type: mongoose.Schema.Types.ObjectId,
@@ -33,8 +53,81 @@ const storySchema = new mongoose.Schema({
       y: Number  // Y coordinate percentage
     },
     size: String, // Selected size
-    color: String // Selected color
+    color: String, // Selected color
+    displayDuration: {
+      type: Number,
+      default: 3 // seconds to show product tag
+    }
   }],
+
+  // Instagram-style Features
+  hashtags: [{
+    type: String,
+    trim: true
+  }],
+  mentions: [{
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    username: String,
+    position: {
+      x: Number,
+      y: Number
+    }
+  }],
+  location: {
+    name: String,
+    coordinates: {
+      latitude: Number,
+      longitude: Number
+    }
+  },
+
+  // Story-specific Features
+  backgroundColor: {
+    type: String,
+    default: '#000000'
+  },
+  textOverlay: {
+    text: String,
+    position: {
+      x: Number,
+      y: Number
+    },
+    style: {
+      fontSize: Number,
+      color: String,
+      fontFamily: String
+    }
+  },
+  stickers: [{
+    type: {
+      type: String,
+      enum: ['emoji', 'gif', 'poll', 'question', 'music', 'location']
+    },
+    content: String,
+    position: {
+      x: Number,
+      y: Number
+    },
+    size: Number
+  }],
+
+  // Privacy & Visibility
+  visibility: {
+    type: String,
+    enum: ['public', 'followers', 'close_friends', 'private'],
+    default: 'followers'
+  },
+  allowReplies: {
+    type: Boolean,
+    default: true
+  },
+  allowSharing: {
+    type: Boolean,
+    default: true
+  },
   viewers: [{
     user: {
       type: mongoose.Schema.Types.ObjectId,

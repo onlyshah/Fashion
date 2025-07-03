@@ -1,0 +1,177 @@
+<ion-header [translucent]="true" class="reels-header">
+  <ion-toolbar color="dark">
+    <ion-title>
+      <div class="reels-title">
+        <h1>Reels</h1>
+      </div>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="onCameraClick()">
+        <ion-icon name="camera-outline" size="large"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="reels-content">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading reels...</p>
+  </div>
+
+  <!-- Reels Feed -->
+  <div *ngIf="!isLoading" class="reels-feed">
+    <!-- Vertical Swiper for Reels (Instagram-style) -->
+    <swiper 
+      [config]="reelsSlideOpts" 
+      class="reels-swiper"
+      (swiperSlideChange)="onSlideChange($event)">
+      
+      <ng-template swiperSlide *ngFor="let reel of reels; let i = index">
+        <div class="reel-container" [attr.data-index]="i">
+          
+          <!-- Video Player -->
+          <div class="reel-video-container">
+            <video 
+              #videoPlayer
+              [src]="reel.media.url" 
+              [poster]="reel.media.thumbnail"
+              [muted]="true"
+              [loop]="true"
+              [playsinline]="true"
+              class="reel-video"
+              (click)="togglePlayPause(videoPlayer)"
+              (loadedmetadata)="onVideoLoaded(videoPlayer, i)"
+              (timeupdate)="onTimeUpdate(videoPlayer, reel)">
+            </video>
+            
+            <!-- Play/Pause Overlay -->
+            <div class="play-pause-overlay" *ngIf="!isPlaying[i]" (click)="togglePlayPause(videoPlayer)">
+              <ion-icon name="play" size="large"></ion-icon>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="progress-container">
+              <div class="progress-bar" [style.width.%]="getProgress(i)"></div>
+            </div>
+          </div>
+
+          <!-- Product Tags -->
+          <div class="product-tags" *ngIf="reel.products && reel.products.length > 0">
+            <div 
+              *ngFor="let productTag of reel.products" 
+              class="product-tag"
+              [style.left.%]="productTag.position.x"
+              [style.top.%]="productTag.position.y"
+              (click)="onProductClick(productTag.product)">
+              <div class="product-tag-dot"></div>
+              <div class="product-tag-info">
+                <img [src]="productTag.product.image" [alt]="productTag.product.name">
+                <div class="product-details">
+                  <span class="product-name">{{ productTag.product.name }}</span>
+                  <span class="product-price">₹{{ productTag.product.price }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Side Actions -->
+          <div class="reel-actions">
+            <!-- User Avatar -->
+            <div class="user-avatar" (click)="onUserClick(reel.user)">
+              <img [src]="reel.user.avatar" [alt]="reel.user.fullName">
+              <div class="verified-badge" *ngIf="reel.user.isVerified">
+                <ion-icon name="checkmark-circle"></ion-icon>
+              </div>
+            </div>
+
+            <!-- Like Button -->
+            <div class="action-button" (click)="onLikeReel(reel, i)">
+              <ion-icon 
+                [name]="reel.isLiked ? 'heart' : 'heart-outline'" 
+                [color]="reel.isLiked ? 'danger' : 'light'"
+                size="large">
+              </ion-icon>
+              <span class="action-count">{{ formatCount(reel.analytics.likes) }}</span>
+            </div>
+
+            <!-- Comment Button -->
+            <div class="action-button" (click)="onCommentReel(reel)">
+              <ion-icon name="chatbubble-outline" color="light" size="large"></ion-icon>
+              <span class="action-count">{{ formatCount(reel.analytics.comments) }}</span>
+            </div>
+
+            <!-- Share Button -->
+            <div class="action-button" (click)="onShareReel(reel)">
+              <ion-icon name="paper-plane-outline" color="light" size="large"></ion-icon>
+              <span class="action-count">{{ formatCount(reel.analytics.shares) }}</span>
+            </div>
+
+            <!-- Save Button -->
+            <div class="action-button" (click)="onSaveReel(reel, i)">
+              <ion-icon 
+                [name]="reel.isSaved ? 'bookmark' : 'bookmark-outline'" 
+                color="light" 
+                size="large">
+              </ion-icon>
+              <span class="action-count">{{ formatCount(reel.analytics.saves) }}</span>
+            </div>
+
+            <!-- More Options -->
+            <div class="action-button" (click)="onMoreOptions(reel)">
+              <ion-icon name="ellipsis-vertical" color="light" size="large"></ion-icon>
+            </div>
+          </div>
+
+          <!-- Bottom Info -->
+          <div class="reel-info">
+            <!-- User Info -->
+            <div class="user-info" (click)="onUserClick(reel.user)">
+              <span class="username">@{{ reel.user.username }}</span>
+              <ion-button 
+                *ngIf="!reel.user.isFollowing" 
+                fill="outline" 
+                size="small" 
+                color="light"
+                (click)="onFollowUser(reel.user, $event)">
+                Follow
+              </ion-button>
+            </div>
+
+            <!-- Caption -->
+            <div class="caption" *ngIf="reel.description">
+              <p [innerHTML]="formatCaption(reel.description)"></p>
+            </div>
+
+            <!-- Hashtags -->
+            <div class="hashtags" *ngIf="reel.hashtags && reel.hashtags.length > 0">
+              <span 
+                *ngFor="let hashtag of reel.hashtags" 
+                class="hashtag"
+                (click)="onHashtagClick(hashtag)">
+                #{{ hashtag }}
+              </span>
+            </div>
+
+            <!-- View Count -->
+            <div class="view-count">
+              <ion-icon name="eye-outline"></ion-icon>
+              <span>{{ formatCount(reel.analytics.views) }} views</span>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </swiper>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && reels.length === 0" class="empty-state">
+    <ion-icon name="videocam-outline" size="large"></ion-icon>
+    <h3>No Reels Yet</h3>
+    <p>Be the first to create a reel!</p>
+    <ion-button fill="solid" color="primary" (click)="onCreateReel()">
+      Create Reel
+    </ion-button>
+  </div>
+</ion-content>

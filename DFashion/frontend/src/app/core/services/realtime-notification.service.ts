@@ -84,7 +84,7 @@ export class RealtimeNotificationService {
       return;
     }
 
-    this.socket = io('http://localhost:5000', {
+    this.socket = io('http://10.0.2.2:5000', { // Direct IP for testing
       auth: {
         token: token
       },

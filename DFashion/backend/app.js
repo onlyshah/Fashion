@@ -54,7 +54,7 @@ app.use(cors({
         }
 
         // For development, allow localhost with any port
-        if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+        if (origin.includes('localhost') || origin.includes('127.0.0.1') || origin.includes('10.0.2.2')) {
             return callback(null, true);
         }
 
@@ -210,6 +210,15 @@ try {
     console.log('✅ Stories routes loaded');
 } catch (error) {
     console.error('❌ Error loading stories routes:', error.message);
+}
+
+// Reels Routes
+try {
+    app.use('/api/reels', require('./routes/reels'));
+    app.use('/api/v1/reels', require('./routes/reels')); // Add v1 prefix
+    console.log('✅ Reels routes loaded');
+} catch (error) {
+    console.error('❌ Error loading reels routes:', error.message);
 }
 
 try {

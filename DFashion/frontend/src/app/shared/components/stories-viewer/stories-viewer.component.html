@@ -1,0 +1,140 @@
+<div class="stories-viewer-overlay" [class.active]="isVisible" (click)="onOverlayClick($event)">
+  <div class="stories-container" *ngIf="currentStory">
+    <!-- Stories Progress Bar -->
+    <div class="stories-progress">
+      <div 
+        *ngFor="let story of stories; let i = index" 
+        class="progress-segment"
+        [class.active]="i === currentIndex"
+        [class.completed]="i < currentIndex">
+        <div class="progress-bar" [style.width.%]="getProgressWidth(i)"></div>
+      </div>
+    </div>
+
+    <!-- Story Header -->
+    <div class="story-header">
+      <div class="user-info">
+        <div class="user-avatar">
+          <img [src]="currentStory.user?.avatar || '/assets/images/default-avatar.svg'" 
+               [alt]="currentStory.user?.fullName">
+        </div>
+        <div class="user-details">
+          <span class="username">{{ currentStory.user?.username || 'User' }}</span>
+          <span class="timestamp">{{ getTimeAgo(currentStory.createdAt) }}</span>
+        </div>
+      </div>
+      <div class="story-actions">
+        <ion-button fill="clear" size="small" (click)="onPausePlay()">
+          <ion-icon [name]="isPaused ? 'play' : 'pause'" color="light"></ion-icon>
+        </ion-button>
+        <ion-button fill="clear" size="small" (click)="onMoreOptions()">
+          <ion-icon name="ellipsis-horizontal" color="light"></ion-icon>
+        </ion-button>
+        <ion-button fill="clear" size="small" (click)="onClose()">
+          <ion-icon name="close" color="light"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Story Content -->
+    <div class="story-content" 
+         (click)="onStoryTap($event)"
+         (touchstart)="onTouchStart($event)"
+         (touchend)="onTouchEnd($event)">
+      
+      <!-- Image Story -->
+      <div *ngIf="currentStory.media?.type === 'image'" class="story-media">
+        <img [src]="currentStory.media.url" 
+             [alt]="currentStory.title"
+             class="story-image"
+             (load)="onMediaLoaded()">
+      </div>
+
+      <!-- Video Story -->
+      <div *ngIf="currentStory.media?.type === 'video'" class="story-media">
+        <video #storyVideo
+               [src]="currentStory.media.url"
+               [poster]="currentStory.media.thumbnail"
+               class="story-video"
+               [muted]="true"
+               [loop]="false"
+               [playsinline]="true"
+               (loadedmetadata)="onMediaLoaded()"
+               (ended)="onVideoEnded()">
+        </video>
+      </div>
+
+      <!-- Product Tags -->
+      <div class="product-tags" *ngIf="currentStory.products && currentStory.products.length > 0">
+        <div 
+          *ngFor="let productTag of currentStory.products" 
+          class="product-tag"
+          [style.left.%]="productTag.position.x"
+          [style.top.%]="productTag.position.y"
+          (click)="onProductClick(productTag.product, $event)">
+          <div class="product-tag-pulse"></div>
+          <div class="product-tag-info">
+            <img [src]="productTag.product.image || '/assets/images/default-product.svg'" 
+                 [alt]="productTag.product.name">
+            <div class="product-details">
+              <span class="product-name">{{ productTag.product.name }}</span>
+              <span class="product-price">₹{{ productTag.product.price }}</span>
+              <ion-button size="small" fill="solid" color="light">
+                <ion-icon name="bag-add" slot="start"></ion-icon>
+                Add to Cart
+              </ion-button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Text Overlay -->
+      <div class="text-overlay" *ngIf="currentStory.textOverlay">
+        <div class="text-content" 
+             [style.left.%]="currentStory.textOverlay.position?.x || 50"
+             [style.top.%]="currentStory.textOverlay.position?.y || 50"
+             [style.color]="currentStory.textOverlay.style?.color || '#ffffff'"
+             [style.font-size.px]="currentStory.textOverlay.style?.fontSize || 24">
+          {{ currentStory.textOverlay.text }}
+        </div>
+      </div>
+
+      <!-- Navigation Areas -->
+      <div class="nav-area nav-previous" (click)="onPreviousStory($event)"></div>
+      <div class="nav-area nav-next" (click)="onNextStory($event)"></div>
+    </div>
+
+    <!-- Story Footer -->
+    <div class="story-footer" *ngIf="currentStory.caption || currentStory.hashtags?.length > 0">
+      <div class="story-caption" *ngIf="currentStory.caption">
+        <p>{{ currentStory.caption }}</p>
+      </div>
+      <div class="story-hashtags" *ngIf="currentStory.hashtags?.length > 0">
+        <span *ngFor="let hashtag of currentStory.hashtags" 
+              class="hashtag" 
+              (click)="onHashtagClick(hashtag, $event)">
+          #{{ hashtag }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Story Reply Input (Mobile) -->
+    <div class="story-reply" *ngIf="isMobile">
+      <div class="reply-input">
+        <ion-input 
+          placeholder="Send message..." 
+          [(ngModel)]="replyMessage"
+          (keyup.enter)="onSendReply()">
+        </ion-input>
+        <ion-button fill="clear" (click)="onSendReply()" [disabled]="!replyMessage?.trim()">
+          <ion-icon name="paper-plane" color="light"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <ion-spinner name="crescent" color="light"></ion-spinner>
+  </div>
+</div>

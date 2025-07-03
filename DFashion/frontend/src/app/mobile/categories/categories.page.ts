@@ -21,6 +21,13 @@ export class CategoriesPage implements OnInit {
   priceRange = { lower: 0, upper: 10000 };
   selectedBrands: string[] = [];
   availableBrands: string[] = [];
+  searchFocused = false;
+
+  // Quick search tags
+  quickSearchTags = [
+    'Trending', 'New Arrivals', 'Sale', 'Dresses', 'Shoes',
+    'Accessories', 'Men\'s Fashion', 'Women\'s Fashion'
+  ];
 
   // Filter options
   sortOptions = [
@@ -30,6 +37,10 @@ export class CategoriesPage implements OnInit {
     { value: 'rating', label: 'Rating' },
     { value: 'newest', label: 'Newest First' }
   ];
+
+  get hasActiveFilters(): boolean {
+    return !!(this.selectedCategory || this.searchQuery || this.selectedBrands.length > 0);
+  }
 
   constructor(
     private router: Router,
@@ -219,5 +230,27 @@ export class CategoriesPage implements OnInit {
     this.loadProducts().then(() => {
       event.target.complete();
     });
+  }
+
+  // Enhanced search methods
+  onSearchFocus() {
+    console.log('📱 Search focused');
+    this.searchFocused = true;
+  }
+
+  onSearchBlur() {
+    console.log('📱 Search blurred');
+    this.searchFocused = false;
+  }
+
+  onQuickSearch(tag: string) {
+    console.log('📱 Quick search:', tag);
+    this.searchQuery = tag;
+    this.onSearchChange();
+  }
+
+  onFilterClick() {
+    console.log('📱 Filter clicked');
+    // Open filter modal or sheet
   }
 }

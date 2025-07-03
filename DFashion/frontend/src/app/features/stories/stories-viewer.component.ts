@@ -210,7 +210,7 @@ export class StoriesViewerComponent implements OnInit, OnDestroy {
 
   loadStories() {
     // Load stories from real API
-    fetch(`${environment.apiUrl}/stories`)
+    fetch('http://10.0.2.2:5000/api/stories') // Direct IP for testing
       .then(response => response.json())
       .then(data => {
         if (data.success) {

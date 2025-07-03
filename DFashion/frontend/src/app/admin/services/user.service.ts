@@ -101,7 +101,7 @@ export interface UserStats {
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = `${environment.apiUrl}/users`;
+  private apiUrl = 'http://10.0.2.2:5000/api/users'; // Direct IP for testing
   private usersSubject = new BehaviorSubject<User[]>([]);
   public users$ = this.usersSubject.asObservable();
 

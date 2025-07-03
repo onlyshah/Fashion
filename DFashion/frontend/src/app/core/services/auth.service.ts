@@ -4,13 +4,13 @@ import { BehaviorSubject, Observable, tap, catchError, throwError, of, map } fro
 import { Router } from '@angular/router';
 
 import { User, LoginRequest, RegisterRequest, AuthResponse } from '../models/user.model';
-import { environment } from '../../../environments/environment';
+// Removed environment import - using direct IP for mobile compatibility
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL = environment.apiUrl;
+  private readonly API_URL = 'http://10.0.2.2:5000/api'; // Direct IP for testing
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
 
@@ -41,9 +41,15 @@ export class AuthService {
   login(credentials: LoginRequest): Observable<any> {
     console.log('🔐 AuthService.login() called with:', credentials);
     console.log('🌐 API_URL:', this.API_URL);
+    console.log('🌐 Using direct IP for mobile compatibility');
+    console.log('🌐 API URL:', this.API_URL);
     console.log('📱 Making HTTP POST request to:', `${this.API_URL}/auth/login`);
 
-    return this.http.post<any>(`${this.API_URL}/auth/login`, credentials)
+    return this.loginWithRetry(credentials, this.API_URL);
+  }
+
+  private loginWithRetry(credentials: LoginRequest, apiUrl: string): Observable<any> {
+    return this.http.post<any>(`${apiUrl}/auth/login`, credentials)
       .pipe(
         tap(response => {
           console.log('✅ Login response received:', response);
@@ -59,9 +65,50 @@ export class AuthService {
         catchError(error => {
           console.error('❌ Login error:', error);
           console.error('❌ Error details:', JSON.stringify(error, null, 2));
+
+          // For mobile apps, try alternative URLs if available
+          if (this.isMobileApp()) {
+            console.log('📱 Mobile app detected, using direct IP');
+            // Already using direct IP, no fallback needed
+          }
+
           return throwError(() => error);
         })
       );
+  }
+
+  private tryFallbackUrls(credentials: LoginRequest, fallbackUrls: string[]): Observable<any> {
+    if (fallbackUrls.length === 0) {
+      return throwError(() => new Error('All API URLs failed'));
+    }
+
+    const [firstUrl, ...remainingUrls] = fallbackUrls;
+    console.log('🔄 Trying fallback URL:', firstUrl);
+
+    return this.http.post<any>(`${firstUrl}/auth/login`, credentials)
+      .pipe(
+        tap(response => {
+          console.log('✅ Login successful with fallback URL:', firstUrl);
+          const authData = response.data || response;
+          this.setToken(authData.token);
+          this.currentUserSubject.next(authData.user);
+          this.isAuthenticatedSubject.next(true);
+          this.refreshUserDataOnLogin();
+        }),
+        catchError(error => {
+          console.error('❌ Fallback URL failed:', firstUrl, error);
+          if (remainingUrls.length > 0) {
+            return this.tryFallbackUrls(credentials, remainingUrls);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  private isMobileApp(): boolean {
+    return window.location.protocol === 'capacitor:' ||
+           window.location.protocol === 'ionic:' ||
+           (window as any).Capacitor !== undefined;
   }
 
 

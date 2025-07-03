@@ -1,9 +1,16 @@
-<ion-header [translucent]="true">
-  <ion-toolbar color="primary">
-    <ion-title>Categories</ion-title>
+<ion-header [translucent]="true" class="search-header">
+  <ion-toolbar color="light">
+    <ion-title>
+      <div class="search-title">
+        <h1>Discover</h1>
+      </div>
+    </ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="clearFilters()" *ngIf="selectedCategory || searchQuery || selectedBrands.length > 0">
-        <ion-icon name="refresh"></ion-icon>
+      <ion-button fill="clear" (click)="onFilterClick()">
+        <ion-icon name="options-outline" size="large"></ion-icon>
+      </ion-button>
+      <ion-button fill="clear" (click)="clearFilters()" *ngIf="hasActiveFilters">
+        <ion-icon name="refresh-outline" size="large"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -14,14 +21,31 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <!-- Search Bar -->
-  <div class="search-section">
-    <ion-searchbar
-      [(ngModel)]="searchQuery"
-      (ionInput)="onSearchChange()"
-      placeholder="Search products..."
-      debounce="300">
-    </ion-searchbar>
+  <!-- Enhanced Search Bar -->
+  <div class="enhanced-search-section">
+    <div class="search-container">
+      <ion-searchbar
+        [(ngModel)]="searchQuery"
+        (ionInput)="onSearchChange()"
+        (ionFocus)="onSearchFocus()"
+        (ionBlur)="onSearchBlur()"
+        placeholder="Search fashion, brands, trends..."
+        debounce="300"
+        class="custom-searchbar">
+      </ion-searchbar>
+    </div>
+
+    <!-- Quick Search Tags -->
+    <div class="quick-search-tags" *ngIf="!searchQuery">
+      <div class="tags-container">
+        <ion-chip
+          *ngFor="let tag of quickSearchTags"
+          (click)="onQuickSearch(tag)"
+          class="search-tag">
+          <ion-label>{{ tag }}</ion-label>
+        </ion-chip>
+      </div>
+    </div>
   </div>
 
   <!-- Categories Grid -->

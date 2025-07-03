@@ -5,7 +5,7 @@ import { IonicModule } from '@ionic/angular';
 import { RouterModule, Routes } from '@angular/router';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
-import { HomePage } from './home.page';
+import { ReelsPage } from './reels.page';
 
 // Import Swiper modules
 import { register } from 'swiper/element/bundle';
@@ -13,7 +13,7 @@ import { register } from 'swiper/element/bundle';
 const routes: Routes = [
   {
     path: '',
-    component: HomePage
+    component: ReelsPage
   }
 ];
 
@@ -24,10 +24,10 @@ const routes: Routes = [
     IonicModule,
     RouterModule.forChild(routes)
   ],
-  declarations: [HomePage],
+  declarations: [ReelsPage],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class HomePageModule {
+export class ReelsPageModule {
   constructor() {
     // Register Swiper custom elements
     register();

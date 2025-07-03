@@ -143,149 +143,25 @@ export class ViewAddStoriesComponent implements OnInit, OnDestroy {
 
     // Try to load from API first
     this.subscriptions.push(
-      this.http.get<any>(`${environment.apiUrl}/v1/stories/active`).subscribe({
+      this.http.get<any>('http://10.0.2.2:5000/api/v1/stories/active').subscribe({ // Direct IP for testing
         next: (response) => {
           if (response.success && response.data && response.data.length > 0) {
             this.stories = response.data;
           } else {
-            this.loadFallbackStories();
+            this.stories = []; // No fallback stories - only use database data
           }
           this.isLoadingStories = false;
         },
         error: (error) => {
           console.error('Error loading stories:', error);
-          this.loadFallbackStories();
+          this.stories = []; // No fallback stories - only use database data
           this.isLoadingStories = false;
         }
       })
     );
   }
 
-  loadFallbackStories() {
-    // Fallback stories with realistic data
-    this.stories = [
-      {
-        _id: 'story-1',
-        user: {
-          _id: 'user-1',
-          username: 'ai_fashionista_maya',
-          fullName: 'Maya Chen',
-          avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150'
-        },
-        mediaUrl: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400',
-        mediaType: 'image',
-        caption: 'Sustainable fashion is the future! 🌱✨',
-        createdAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(), // 5 minutes ago
-        expiresAt: new Date(Date.now() + 19 * 60 * 60 * 1000).toISOString(), // 19 hours from now
-        views: 1247,
-        isActive: true,
-        products: [
-          {
-            _id: 'prod-1',
-            name: 'Eco-Friendly Summer Dress',
-            price: 2499,
-            image: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=200'
-          }
-        ]
-      },
-      {
-        _id: 'story-2',
-        user: {
-          _id: 'user-2',
-          username: 'style_guru_alex',
-          fullName: 'Alex Rodriguez',
-          avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150'
-        },
-        mediaUrl: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400',
-        mediaType: 'image',
-        caption: 'New collection drop! Limited edition pieces 🔥',
-        createdAt: new Date(Date.now() - 15 * 60 * 1000).toISOString(), // 15 minutes ago
-        expiresAt: new Date(Date.now() + 18.75 * 60 * 60 * 1000).toISOString(),
-        views: 892,
-        isActive: true,
-        products: [
-          {
-            _id: 'prod-2',
-            name: 'Designer Leather Jacket',
-            price: 8999,
-            image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=200'
-          }
-        ]
-      },
-      {
-        _id: 'story-3',
-        user: {
-          _id: 'user-3',
-          username: 'trendy_sarah',
-          fullName: 'Sarah Johnson',
-          avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150'
-        },
-        mediaUrl: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=400',
-        mediaType: 'image',
-        caption: 'Summer vibes with this amazing outfit! ☀️👗',
-        createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(), // 30 minutes ago
-        expiresAt: new Date(Date.now() + 18.5 * 60 * 60 * 1000).toISOString(),
-        views: 1534,
-        isActive: true,
-        products: [
-          {
-            _id: 'prod-3',
-            name: 'Floral Summer Dress',
-            price: 3499,
-            image: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=200'
-          }
-        ]
-      },
-      {
-        _id: 'story-4',
-        user: {
-          _id: 'user-4',
-          username: 'fashion_forward_mike',
-          fullName: 'Mike Thompson',
-          avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150'
-        },
-        mediaUrl: 'https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?w=400',
-        mediaType: 'image',
-        caption: 'Streetwear meets luxury fashion 🔥',
-        createdAt: new Date(Date.now() - 45 * 60 * 1000).toISOString(), // 45 minutes ago
-        expiresAt: new Date(Date.now() + 18.25 * 60 * 60 * 1000).toISOString(),
-        views: 2103,
-        isActive: true,
-        products: [
-          {
-            _id: 'prod-4',
-            name: 'Premium Sneakers',
-            price: 12999,
-            image: 'https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?w=200'
-          }
-        ]
-      },
-      {
-        _id: 'story-5',
-        user: {
-          _id: 'user-5',
-          username: 'chic_emma',
-          fullName: 'Emma Wilson',
-          avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150'
-        },
-        mediaUrl: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=400',
-        mediaType: 'image',
-        caption: 'Minimalist fashion for the modern woman 💫',
-        createdAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(), // 1 hour ago
-        expiresAt: new Date(Date.now() + 18 * 60 * 60 * 1000).toISOString(),
-        views: 756,
-        isActive: true,
-        products: [
-          {
-            _id: 'prod-5',
-            name: 'Minimalist Blazer',
-            price: 5999,
-            image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=200'
-          }
-        ]
-      }
-    ];
-  }
+  // Removed fallback stories - only use database data
 
   getCurrentStory(): Story {
     return this.stories[this.currentIndex] || this.stories[0];

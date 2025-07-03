@@ -86,7 +86,7 @@ export class StoryCreateComponent implements OnInit {
   searchProducts() {
     // Search products from API
     const query = this.productSearchQuery || '';
-    fetch(`http://localhost:5000/api/products/search?q=${encodeURIComponent(query)}&limit=20`)
+    fetch(`http://10.0.2.2:5000/api/products/search?q=${encodeURIComponent(query)}&limit=20`) // Direct IP for testing
       .then(response => response.json())
       .then(data => {
         if (data.success) {

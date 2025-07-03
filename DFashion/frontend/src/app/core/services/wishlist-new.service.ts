@@ -96,7 +96,7 @@ export interface WishlistSummary {
   providedIn: 'root'
 })
 export class WishlistNewService {
-  private apiUrl = `${environment.apiUrl}/wishlist-new`;
+  private apiUrl = 'http://10.0.2.2:5000/api/wishlist-new'; // Direct IP for testing
   private wishlistSubject = new BehaviorSubject<Wishlist | null>(null);
   private wishlistSummarySubject = new BehaviorSubject<WishlistSummary>({
     totalItems: 0,

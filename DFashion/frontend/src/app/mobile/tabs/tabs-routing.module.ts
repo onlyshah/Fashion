@@ -20,6 +20,10 @@ const routes: Routes = [
         loadChildren: () => import('../stories/stories.module').then(m => m.StoriesPageModule)
       },
       {
+        path: 'reels',
+        loadChildren: () => import('../reels/reels.module').then(m => m.ReelsPageModule)
+      },
+      {
         path: 'posts',
         loadChildren: () => import('../posts/posts.module').then(m => m.PostsPageModule)
       },

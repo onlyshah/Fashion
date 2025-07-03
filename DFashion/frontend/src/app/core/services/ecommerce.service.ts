@@ -86,7 +86,7 @@ export interface CartItem {
   providedIn: 'root'
 })
 export class EcommerceService {
-  private apiUrl = `${environment.apiUrl}/ecommerce`;
+  private apiUrl = 'http://10.0.2.2:5000/api/ecommerce'; // Direct IP for testing
   
   // Subjects for real-time updates
   private wishlistSubject = new BehaviorSubject<WishlistItem[]>([]);

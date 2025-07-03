@@ -26,6 +26,13 @@ import { MatListModule } from '@angular/material/list';
 // Pipes
 import { RolePipe } from './pipes/role.pipe';
 
+// Components
+import { StoriesViewerComponent } from './components/stories-viewer/stories-viewer.component';
+import { CreateContentModalComponent } from './components/create-content-modal/create-content-modal.component';
+
+// Ionic Module
+import { IonicModule } from '@ionic/angular';
+
 const MATERIAL_MODULES = [
   MatButtonModule,
   MatCardModule,
@@ -50,20 +57,26 @@ const MATERIAL_MODULES = [
 
 @NgModule({
   declarations: [
-    RolePipe
+    RolePipe,
+    StoriesViewerComponent,
+    CreateContentModalComponent
   ],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    IonicModule,
     ...MATERIAL_MODULES
   ],
   exports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    IonicModule,
     ...MATERIAL_MODULES,
-    RolePipe
+    RolePipe,
+    StoriesViewerComponent,
+    CreateContentModalComponent
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

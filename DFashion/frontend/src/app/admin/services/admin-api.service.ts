@@ -67,7 +67,7 @@ export interface DashboardStats {
   providedIn: 'root'
 })
 export class AdminApiService {
-  private apiUrl = environment.apiUrl;
+  private apiUrl = 'http://10.0.2.2:5000/api'; // Direct IP for testing
 
   constructor(
     private http: HttpClient,

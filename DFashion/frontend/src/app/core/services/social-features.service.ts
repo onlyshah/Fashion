@@ -35,7 +35,7 @@ export interface SocialInteraction {
   providedIn: 'root'
 })
 export class SocialFeaturesService {
-  private apiUrl = `${environment.apiUrl}/api/v1`;
+  private apiUrl = 'http://10.0.2.2:5000/api/api/v1'; // Direct IP for testing
   
   // Subjects for real-time updates
   private followingUpdatesSubject = new BehaviorSubject<any>(null);

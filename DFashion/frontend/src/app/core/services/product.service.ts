@@ -9,7 +9,7 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root'
 })
 export class ProductService {
-  private readonly API_URL = environment.apiUrl;
+  private readonly API_URL = 'http://10.0.2.2:5000/api'; // Direct IP for testing
 
   constructor(private http: HttpClient) {}
 

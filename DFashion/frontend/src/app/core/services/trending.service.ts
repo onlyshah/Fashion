@@ -59,7 +59,7 @@ export interface InfluencersResponse {
   providedIn: 'root'
 })
 export class TrendingService {
-  private readonly API_URL = environment.apiUrl;
+  private readonly API_URL = 'http://10.0.2.2:5000/api'; // Direct IP for testing
 
   // BehaviorSubjects for caching
   private trendingProductsSubject = new BehaviorSubject<Product[]>([]);

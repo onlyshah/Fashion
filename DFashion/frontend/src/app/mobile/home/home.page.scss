@@ -1,17 +1,44 @@
-// Header Styles
-.header-content {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  
-  .logo {
-    height: 28px;
-    width: auto;
+// Instagram-style Header
+.instagram-header {
+  ion-toolbar {
+    --background: #ffffff;
+    --border-color: #dbdbdb;
+    --border-width: 0 0 1px 0;
+    --min-height: 44px;
   }
   
-  .app-name {
-    font-weight: 600;
-    font-size: 18px;
+  .instagram-logo {
+    h1 {
+      font-family: 'Billabong', cursive, sans-serif;
+      font-size: 24px;
+      font-weight: normal;
+      margin: 0;
+      color: #262626;
+      letter-spacing: 1px;
+    }
+  }
+  
+  ion-button {
+    --color: #262626;
+    --padding-start: 8px;
+    --padding-end: 8px;
+    
+    ion-icon {
+      font-size: 24px;
+    }
+  }
+}
+
+// Instagram-style Main Content
+.instagram-feed {
+  background: #ffffff;
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+
+  ion-content {
+    --background: #fafafa;
+    --overflow: auto;
   }
 }
 
@@ -25,645 +52,777 @@
   gap: 16px;
   
   ion-spinner {
-    --color: var(--ion-color-primary);
+    --color: #262626;
   }
   
   p {
-    color: var(--ion-color-medium);
+    color: #8e8e8e;
     font-size: 14px;
   }
 }
 
-// Hero Section
-.hero-section {
-  margin-bottom: 20px;
+// Instagram-style Stories Section
+.stories-section {
+  background: #ffffff;
+  border-bottom: 1px solid #dbdbdb;
+  padding: 12px 0;
   
-  .hero-slides {
-    height: 200px;
+  .stories-slider {
+    padding: 0 16px;
     
-    .slide-content {
-      height: 100%;
+    .story-item {
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
-      text-align: center;
-      padding: 20px;
-      border-radius: 12px;
-      margin: 0 10px;
+      gap: 4px;
+      cursor: pointer;
       
-      h2 {
-        color: white;
-        font-size: 24px;
-        font-weight: 700;
-        margin-bottom: 8px;
+      .story-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        position: relative;
+        
+        &.has-story {
+          background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+          padding: 2px;
+        }
+        
+        img {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 2px solid #ffffff;
+        }
       }
       
-      p {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 16px;
-        margin-bottom: 16px;
-      }
-      
-      ion-button {
-        --border-width: 2px;
-        --border-color: white;
-        font-weight: 600;
-      }
-    }
-  }
-}
-
-// Section Styles
-.section {
-  margin-bottom: 24px;
-  padding: 0 16px;
-  
-  .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-    
-    h3 {
-      font-size: 20px;
-      font-weight: 600;
-      color: var(--ion-color-dark);
-      margin: 0;
-    }
-    
-    ion-button {
-      --color: var(--ion-color-primary);
-      font-size: 14px;
-    }
-  }
-}
-
-// Categories Grid
-.categories-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 8px;
-  
-  .category-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-    
-    &:active {
-      transform: scale(0.95);
-    }
-    
-    .category-icon {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 8px;
-      
-      ion-icon {
-        font-size: 28px;
-        color: white;
-      }
-    }
-    
-    span {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--ion-color-dark);
-    }
-  }
-}
-
-// Stories Slides
-.stories-slides {
-  margin: 0 -16px;
-  padding: 0 16px;
-  
-  .story-item {
-    cursor: pointer;
-    
-    .story-image {
-      position: relative;
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      overflow: hidden;
-      margin-bottom: 8px;
-      border: 3px solid var(--ion-color-primary);
-      
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-      
-      .story-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+      .add-story-circle {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: #fafafa;
+        border: 1px dashed #dbdbdb;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: rgba(0, 0, 0, 0.3);
         
         ion-icon {
-          color: white;
+          color: #262626;
           font-size: 24px;
         }
       }
-    }
-    
-    .story-title {
-      font-size: 12px;
-      text-align: center;
-      margin: 0;
-      color: var(--ion-color-dark);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-  }
-}
-
-// Products Slides
-.products-slides {
-  margin: 0 -16px;
-  padding: 0 16px;
-  
-  .product-card {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    transition: transform 0.2s ease;
-    
-    &:active {
-      transform: scale(0.98);
-    }
-    
-    .product-image {
-      position: relative;
-      height: 160px;
-      overflow: hidden;
       
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-      
-      .product-badge {
-        position: absolute;
-        top: 8px;
-        left: 8px;
-        background: var(--ion-color-danger);
-        color: white;
-        padding: 4px 8px;
-        border-radius: 12px;
-        font-size: 10px;
-        font-weight: 600;
-      }
-    }
-    
-    .product-info {
-      padding: 12px;
-      
-      h4 {
-        font-size: 14px;
-        font-weight: 600;
-        margin: 0 0 8px 0;
-        color: var(--ion-color-dark);
+      .story-username {
+        font-size: 12px;
+        color: #262626;
+        text-align: center;
+        max-width: 64px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
       }
-      
-      .product-price {
-        margin-bottom: 8px;
-        
-        .current-price {
-          font-size: 16px;
-          font-weight: 700;
-          color: var(--ion-color-primary);
-        }
-        
-        .original-price {
-          font-size: 12px;
-          color: var(--ion-color-medium);
-          text-decoration: line-through;
-          margin-left: 8px;
-        }
-      }
-      
-      .product-rating {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        
-        ion-icon {
-          font-size: 12px;
-          color: var(--ion-color-medium);
-          
-          &.filled {
-            color: #ffc409;
-          }
-        }
-        
-        span {
-          font-size: 12px;
-          color: var(--ion-color-medium);
-        }
-      }
     }
   }
 }
 
-// Posts Grid
-.posts-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  
+// Enhanced Responsive Posts Feed
+.posts-feed {
+  background: #ffffff;
+  width: 100%;
+  min-height: 100vh;
+  padding-bottom: 80px; // Space for bottom tabs
+
   .post-item {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    transition: transform 0.2s ease;
-    
-    &:active {
-      transform: scale(0.98);
-    }
-    
-    .post-image {
-      position: relative;
-      height: 120px;
-      overflow: hidden;
-      
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-      
-      .post-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(0, 0, 0, 0.3);
-        opacity: 0;
-        transition: opacity 0.2s ease;
-        
-        ion-icon {
-          color: white;
-          font-size: 32px;
-        }
-      }
-      
-      &:hover .post-overlay {
-        opacity: 1;
-      }
-    }
-    
-    .post-content {
-      padding: 12px;
-      
-      h4 {
-        font-size: 14px;
-        font-weight: 600;
-        margin: 0 0 8px 0;
-        color: var(--ion-color-dark);
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      
-      p {
-        font-size: 12px;
-        color: var(--ion-color-medium);
-        margin: 0 0 8px 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-      }
-      
-      .post-stats {
-        display: flex;
-        gap: 12px;
-        
-        span {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          font-size: 12px;
-          color: var(--ion-color-medium);
-          
-          ion-icon {
-            font-size: 14px;
-          }
-        }
-      }
-    }
-  }
-}
+    margin-bottom: 16px;
+    border-bottom: 1px solid #efefef;
+    width: 100%;
 
-// Bottom Spacing
-.bottom-spacing {
-  height: 80px;
-}
-
-// Trending Products Styles
-.products-slides {
-  .product-card {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    margin: 8px;
-
-    .product-image {
-      position: relative;
-      width: 100%;
-      height: 160px;
-      overflow: hidden;
-
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-
-      .trending-badge {
-        position: absolute;
-        top: 8px;
-        left: 8px;
-        background: linear-gradient(45deg, #ff6b6b, #ee5a24);
-        color: white;
-        padding: 4px 8px;
-        border-radius: 12px;
-        font-size: 10px;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 2px;
-
-        ion-icon {
-          font-size: 10px;
-        }
-      }
-
-      .new-badge {
-        position: absolute;
-        top: 8px;
-        left: 8px;
-        background: linear-gradient(45deg, #00d2ff, #3a7bd5);
-        color: white;
-        padding: 4px 8px;
-        border-radius: 12px;
-        font-size: 10px;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 2px;
-
-        ion-icon {
-          font-size: 10px;
-        }
-      }
-
-      .product-badge {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        background: var(--ion-color-danger);
-        color: white;
-        padding: 4px 8px;
-        border-radius: 12px;
-        font-size: 10px;
-        font-weight: 600;
-      }
-    }
-
-    .product-info {
-      padding: 12px;
-
-      h4 {
-        margin: 0 0 4px 0;
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--ion-color-dark);
-        line-height: 1.3;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-
-      .brand {
-        margin: 0 0 8px 0;
-        font-size: 12px;
-        color: var(--ion-color-medium);
-      }
-
-      .product-price {
-        margin-bottom: 8px;
-
-        .current-price {
-          font-size: 16px;
-          font-weight: 600;
-          color: var(--ion-color-primary);
-        }
-
-        .original-price {
-          font-size: 12px;
-          color: var(--ion-color-medium);
-          text-decoration: line-through;
-          margin-left: 8px;
-        }
-      }
-
-      .product-rating {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-
-        ion-icon {
-          font-size: 12px;
-          color: var(--ion-color-light);
-
-          &.filled {
-            color: var(--ion-color-warning);
-          }
-        }
-
-        span {
-          font-size: 10px;
-          color: var(--ion-color-medium);
-        }
-      }
-    }
-  }
-}
-
-// Brand Slides Styles
-.brands-slides {
-  .brand-card {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    margin: 8px;
-    text-align: center;
-
-    .brand-image {
-      width: 100%;
-      height: 80px;
+    .post-header {
       display: flex;
       align-items: center;
-      justify-content: center;
-      background: var(--ion-color-light);
+      justify-content: space-between;
+      padding: 12px 16px;
+      min-height: 56px;
 
-      img {
-        max-width: 60px;
-        max-height: 40px;
-        object-fit: contain;
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
+
+        .user-avatar {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          object-fit: cover;
+          flex-shrink: 0;
+        }
+
+        .user-details {
+          display: flex;
+          flex-direction: column;
+          flex: 1;
+          min-width: 0; // Prevent overflow
+
+          .username {
+            font-size: 14px;
+            font-weight: 600;
+            color: #262626;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+
+          .location {
+            font-size: 12px;
+            color: #8e8e8e;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+        }
+      }
+
+      ion-button {
+        --color: #262626;
+        --padding-start: 4px;
+        --padding-end: 4px;
+        flex-shrink: 0;
       }
     }
 
-    .brand-info {
-      padding: 12px 8px;
+    .post-media {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1; // Square aspect ratio like Instagram
+      overflow: hidden;
 
-      h4 {
-        margin: 0 0 4px 0;
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--ion-color-dark);
+      .post-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
       }
 
-      p {
-        margin: 0;
-        font-size: 12px;
-        color: var(--ion-color-medium);
+      .media-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+
+        ion-icon {
+          color: rgba(255, 255, 255, 0.8);
+          font-size: 48px;
+        }
+      }
+    }
+    
+    .post-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px 0;
+      min-height: 48px;
+
+      .action-buttons {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+
+        ion-button {
+          --padding-start: 0;
+          --padding-end: 0;
+          --min-height: 44px;
+          --min-width: 44px;
+
+          ion-icon {
+            font-size: 24px;
+          }
+        }
+      }
+
+      ion-button {
+        --min-height: 44px;
+        --min-width: 44px;
+      }
+    }
+
+    .post-info {
+      padding: 0 16px 16px;
+
+      .likes-count {
+        font-size: 14px;
+        color: #262626;
+        margin-bottom: 6px;
+        font-weight: 600;
+      }
+
+      .post-caption {
+        font-size: 14px;
+        color: #262626;
+        margin-bottom: 6px;
+        line-height: 1.4;
+
+        .username {
+          font-weight: 600;
+          margin-right: 4px;
+        }
+
+        .caption-text {
+          color: #262626;
+          word-wrap: break-word;
+        }
+      }
+
+      .view-comments {
+        font-size: 14px;
+        color: #8e8e8e;
+        margin-bottom: 6px;
+        cursor: pointer;
+
+        &:active {
+          opacity: 0.7;
+        }
+      }
+
+      .post-time {
+        font-size: 10px;
+        color: #8e8e8e;
+        text-transform: uppercase;
+        letter-spacing: 0.2px;
       }
     }
   }
 }
 
-// User Slides Styles
-.users-slides, .influencers-slides {
-  .user-card, .influencer-card {
-    background: white;
-    border-radius: 16px;
-    padding: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    margin: 8px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    .user-avatar, .influencer-avatar {
-      position: relative;
-      margin-bottom: 12px;
-
-      img {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 2px solid var(--ion-color-light);
-      }
-
-      .influencer-badge {
-        position: absolute;
-        top: -2px;
-        right: -2px;
-        background: var(--ion-color-warning);
-        color: white;
-        border-radius: 50%;
-        width: 20px;
-        height: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        ion-icon {
-          font-size: 12px;
-        }
-      }
-
-      .verified-badge {
-        position: absolute;
-        top: -2px;
-        right: -2px;
-        background: var(--ion-color-primary);
-        color: white;
-        border-radius: 50%;
-        width: 20px;
-        height: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        ion-icon {
-          font-size: 12px;
-        }
-      }
-    }
-
-    .user-info, .influencer-info {
-      flex: 1;
-      margin-bottom: 12px;
-
-      h4 {
-        margin: 0 0 4px 0;
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--ion-color-dark);
-        line-height: 1.2;
-      }
-
-      p {
-        margin: 0 0 4px 0;
-        font-size: 12px;
-        color: var(--ion-color-medium);
-        line-height: 1.2;
-
-        &.category {
-          color: var(--ion-color-primary);
-          font-weight: 500;
-        }
-
-        &.follower-count {
-          font-weight: 600;
-          color: var(--ion-color-dark);
-        }
-      }
-    }
-
-    ion-button {
-      --height: 32px;
-      --border-radius: 16px;
-      font-size: 12px;
+// Instagram-style Suggested Section
+.suggested-section {
+  background: #ffffff;
+  border-bottom: 1px solid #dbdbdb;
+  padding: 16px;
+  
+  .section-title {
+    margin-bottom: 12px;
+    
+    h3 {
+      font-size: 16px;
       font-weight: 600;
+      color: #262626;
+      margin: 0;
+    }
+  }
+  
+  .suggested-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    
+    .suggested-item {
+      position: relative;
+      aspect-ratio: 1;
+      cursor: pointer;
+      
+      .suggested-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      
+      .suggested-overlay {
+        position: absolute;
+        bottom: 8px;
+        left: 8px;
+        
+        .product-price {
+          background: rgba(0, 0, 0, 0.7);
+          color: white;
+          padding: 4px 8px;
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
+
+// Load More Section
+.load-more-section {
+  padding: 16px;
+  text-align: center;
+  
+  ion-button {
+    --color: #8e8e8e;
+    font-size: 14px;
+    
+    ion-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+// Instagram Bottom Spacing
+.instagram-bottom-spacing {
+  height: 80px;
+  background: #fafafa;
+}
+
+// Enhanced Mobile Responsiveness
+@media (max-width: 414px) {
+  .instagram-header {
+    .instagram-logo h1 {
+      font-size: 20px;
+    }
+
+    ion-button ion-icon {
+      font-size: 22px;
+    }
+  }
+
+  .stories-section {
+    padding: 10px 0;
+
+    .stories-slider {
+      padding: 0 12px;
+
+      .story-item {
+        .story-avatar {
+          width: 52px;
+          height: 52px;
+        }
+
+        .add-story-circle {
+          width: 48px;
+          height: 48px;
+        }
+
+        .story-username {
+          font-size: 11px;
+          max-width: 56px;
+        }
+      }
+    }
+  }
+
+  .posts-feed {
+    padding-bottom: 90px; // More space for larger screens
+
+    .post-item {
+      margin-bottom: 20px;
+
+      .post-header {
+        padding: 12px 14px;
+      }
+
+      .post-actions {
+        padding: 8px 14px 0;
+
+        .action-buttons {
+          gap: 16px;
+
+          ion-button ion-icon {
+            font-size: 26px;
+          }
+        }
+      }
+
+      .post-info {
+        padding: 0 14px 16px;
+
+        .likes-count,
+        .post-caption {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+
+  .suggested-section {
+    padding: 16px 14px;
+
+    .suggested-grid {
+      gap: 2px;
+    }
+  }
+}
+
+@media (max-width: 375px) {
+  .posts-feed {
+    padding-bottom: 85px;
+
+    .post-item {
+      margin-bottom: 18px;
+
+      .post-header {
+        padding: 10px 12px;
+
+        .user-info {
+          gap: 10px;
+
+          .user-avatar {
+            width: 30px;
+            height: 30px;
+          }
+
+          .user-details {
+            .username {
+              font-size: 13px;
+            }
+
+            .location {
+              font-size: 11px;
+            }
+          }
+        }
+      }
+
+      .post-actions {
+        padding: 6px 12px 0;
+
+        .action-buttons {
+          gap: 14px;
+
+          ion-button ion-icon {
+            font-size: 24px;
+          }
+        }
+      }
+
+      .post-info {
+        padding: 0 12px 14px;
+
+        .likes-count,
+        .post-caption {
+          font-size: 13px;
+        }
+
+        .view-comments {
+          font-size: 13px;
+        }
+      }
+    }
+  }
+
+  .suggested-section {
+    padding: 12px;
+
+    .suggested-grid {
+      gap: 1px;
+    }
+  }
+}
+
+@media (max-width: 360px) {
+  .posts-feed {
+    padding-bottom: 80px;
+
+    .post-item {
+      margin-bottom: 16px;
+
+      .post-header {
+        padding: 8px 10px;
+        min-height: 52px;
+
+        .user-info {
+          gap: 8px;
+
+          .user-avatar {
+            width: 28px;
+            height: 28px;
+          }
+
+          .user-details {
+            .username {
+              font-size: 12px;
+            }
+
+            .location {
+              font-size: 10px;
+            }
+          }
+        }
+      }
+
+      .post-actions {
+        padding: 4px 10px 0;
+        min-height: 44px;
+
+        .action-buttons {
+          gap: 12px;
+
+          ion-button {
+            --min-height: 40px;
+            --min-width: 40px;
+
+            ion-icon {
+              font-size: 22px;
+            }
+          }
+        }
+      }
+
+      .post-info {
+        padding: 0 10px 12px;
+
+        .likes-count {
+          font-size: 12px;
+          margin-bottom: 4px;
+        }
+
+        .post-caption {
+          font-size: 12px;
+          margin-bottom: 4px;
+        }
+
+        .view-comments {
+          font-size: 12px;
+          margin-bottom: 4px;
+        }
+
+        .post-time {
+          font-size: 9px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 320px) {
+  .instagram-header {
+    .instagram-logo h1 {
+      font-size: 18px;
+    }
+
+    ion-button ion-icon {
+      font-size: 20px;
+    }
+  }
+
+  .stories-section {
+    padding: 8px 0;
+
+    .stories-slider {
+      padding: 0 8px;
+
+      .story-item {
+        .story-avatar {
+          width: 44px;
+          height: 44px;
+        }
+
+        .add-story-circle {
+          width: 40px;
+          height: 40px;
+
+          ion-icon {
+            font-size: 20px;
+          }
+        }
+
+        .story-username {
+          font-size: 9px;
+          max-width: 48px;
+        }
+      }
+    }
+  }
+
+  .posts-feed {
+    padding-bottom: 75px;
+
+    .post-item {
+      margin-bottom: 14px;
+
+      .post-header {
+        padding: 6px 8px;
+        min-height: 48px;
+
+        .user-info {
+          gap: 6px;
+
+          .user-avatar {
+            width: 26px;
+            height: 26px;
+          }
+
+          .user-details {
+            .username {
+              font-size: 11px;
+            }
+
+            .location {
+              font-size: 9px;
+            }
+          }
+        }
+
+        ion-button {
+          --min-height: 36px;
+          --min-width: 36px;
+
+          ion-icon {
+            font-size: 18px;
+          }
+        }
+      }
+
+      .post-actions {
+        padding: 2px 8px 0;
+        min-height: 40px;
+
+        .action-buttons {
+          gap: 10px;
+
+          ion-button {
+            --min-height: 36px;
+            --min-width: 36px;
+
+            ion-icon {
+              font-size: 20px;
+            }
+          }
+        }
+      }
+
+      .post-info {
+        padding: 0 8px 10px;
+
+        .likes-count {
+          font-size: 11px;
+          margin-bottom: 3px;
+        }
+
+        .post-caption {
+          font-size: 11px;
+          margin-bottom: 3px;
+          line-height: 1.3;
+        }
+
+        .view-comments {
+          font-size: 11px;
+          margin-bottom: 3px;
+        }
+
+        .post-time {
+          font-size: 8px;
+        }
+      }
+    }
+  }
+
+  .suggested-section {
+    padding: 8px;
+
+    .section-title h3 {
+      font-size: 14px;
+    }
+
+    .suggested-grid {
+      gap: 1px;
+    }
+  }
+}
+
+// Enhanced Touch and Mobile Optimizations
+.stories-section .story-item,
+.posts-feed .post-item .post-actions ion-button,
+.suggested-section .suggested-item {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  &:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+}
+
+// Enhanced Smooth Scrolling
+.stories-slider,
+.posts-feed {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+// Performance Optimizations
+.post-image,
+.story-avatar img,
+.user-avatar,
+.suggested-image {
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+// Mobile-specific improvements
+ion-content {
+  --overflow: auto;
+  --scroll-behavior: smooth;
+}
+
+// Prevent zoom on input focus (mobile)
+ion-input,
+ion-searchbar {
+  font-size: 16px !important;
+}
+
+// Better button touch targets
+ion-button {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+// Prevent text selection on UI elements
+.post-header,
+.post-actions,
+.story-item,
+.tab-button {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .instagram-header ion-toolbar {
+    --background: #000000;
+    --border-color: #262626;
+  }
+
+  .instagram-feed {
+    background: #000000;
+
+    ion-content {
+      --background: #000000;
+    }
+  }
+
+  .stories-section {
+    background: #000000;
+    border-bottom-color: #262626;
+  }
+
+  .posts-feed {
+    background: #000000;
+
+    .post-item {
+      border-bottom-color: #262626;
+    }
+  }
+
+  .suggested-section {
+    background: #000000;
+    border-bottom-color: #262626;
+
+    .section-title h3 {
+      color: #ffffff;
     }
   }
 }

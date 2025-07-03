@@ -102,7 +102,7 @@ export interface SocialStory {
   providedIn: 'root'
 })
 export class SocialMediaService {
-  private apiUrl = environment.apiUrl;
+  private apiUrl = 'http://10.0.2.2:5000/api'; // Direct IP for testing
   private postsSubject = new BehaviorSubject<SocialPost[]>([]);
   private storiesSubject = new BehaviorSubject<SocialStory[]>([]);
 

@@ -39,9 +39,10 @@ export class HomePage implements OnInit {
   storySlideOpts = {
     initialSlide: 0,
     speed: 400,
-    spaceBetween: 10,
-    slidesPerView: 4.5,
-    freeMode: true
+    spaceBetween: 8,
+    slidesPerView: 5.5,
+    freeMode: true,
+    grabCursor: true
   };
 
   productSlideOpts = {
@@ -86,9 +87,13 @@ export class HomePage implements OnInit {
   ) {}
 
   ngOnInit() {
+    console.log('📱 Mobile Home Page: ngOnInit called!');
     this.loadHomeData();
     this.authService.isAuthenticated$.subscribe(
-      isAuth => this.isAuthenticated = isAuth
+      isAuth => {
+        console.log('📱 Mobile Home: Auth state changed:', isAuth);
+        this.isAuthenticated = isAuth;
+      }
     );
   }
 
@@ -138,9 +143,18 @@ export class HomePage implements OnInit {
     this.router.navigate(['/product', product.id]);
   }
 
-  onStoryClick(story: any) {
-    // Navigate to stories viewer with the specific story
-    this.router.navigate(['/tabs/stories']);
+  onStoryClick(story: any, index: number = 0) {
+    console.log('📱 Story clicked:', story, 'at index:', index);
+
+    // Find the parent tabs component and open stories viewer
+    const tabsPage = document.querySelector('app-tabs');
+    if (tabsPage) {
+      // Emit event to parent tabs component
+      const event = new CustomEvent('openStories', {
+        detail: { stories: this.recentStories, index }
+      });
+      tabsPage.dispatchEvent(event);
+    }
   }
 
   onCategoryClick(category: any) {
@@ -344,5 +358,98 @@ export class HomePage implements OnInit {
       return (count / 1000).toFixed(1) + 'K';
     }
     return count.toString();
+  }
+
+  // Instagram-style methods
+  onMessagesClick() {
+    console.log('📱 Messages clicked');
+    // Navigate to messages/chat
+  }
+
+  onAddStoryClick() {
+    console.log('📱 Add story clicked');
+
+    // Find the parent tabs component and open create modal
+    const tabsPage = document.querySelector('app-tabs');
+    if (tabsPage) {
+      // Emit event to parent tabs component
+      const event = new CustomEvent('openCreateModal', {
+        detail: { type: 'story' }
+      });
+      tabsPage.dispatchEvent(event);
+    }
+  }
+
+  onLikePost(post: any) {
+    console.log('📱 Like post:', post.id);
+    post.isLiked = !post.isLiked;
+    if (post.isLiked) {
+      post.analytics = post.analytics || {};
+      post.analytics.likes = (post.analytics.likes || 0) + 1;
+    } else {
+      post.analytics.likes = Math.max(0, (post.analytics.likes || 1) - 1);
+    }
+  }
+
+  onCommentPost(post: any) {
+    console.log('📱 Comment on post:', post.id);
+    // Navigate to post detail with comments
+  }
+
+  onSharePost(post: any) {
+    console.log('📱 Share post:', post.id);
+    // Open share dialog
+  }
+
+  onSavePost(post: any) {
+    console.log('📱 Save post:', post.id);
+    post.isSaved = !post.isSaved;
+  }
+
+  onViewComments(post: any) {
+    console.log('📱 View comments for post:', post.id);
+    // Navigate to post detail
+  }
+
+  formatCount(count: number): string {
+    if (count >= 1000000) {
+      return (count / 1000000).toFixed(1) + 'M';
+    } else if (count >= 1000) {
+      return (count / 1000).toFixed(1) + 'K';
+    }
+    return count.toString();
+  }
+
+  getTimeAgo(date: string): string {
+    const now = new Date();
+    const postDate = new Date(date);
+    const diffInSeconds = Math.floor((now.getTime() - postDate.getTime()) / 1000);
+
+    if (diffInSeconds < 60) {
+      return 'now';
+    } else if (diffInSeconds < 3600) {
+      const minutes = Math.floor(diffInSeconds / 60);
+      return `${minutes}m`;
+    } else if (diffInSeconds < 86400) {
+      const hours = Math.floor(diffInSeconds / 3600);
+      return `${hours}h`;
+    } else {
+      const days = Math.floor(diffInSeconds / 86400);
+      return `${days}d`;
+    }
+  }
+
+  loadMorePosts() {
+    console.log('📱 Loading more posts...');
+    // Load more posts from API
+  }
+
+  // Performance optimization
+  trackByPostId(index: number, post: any): any {
+    return post.id || index;
+  }
+
+  trackByStoryId(index: number, story: any): any {
+    return story.id || index;
   }
 }

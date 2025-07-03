@@ -1,53 +1,163 @@
-<ion-tabs>
-  <!-- Home Tab -->
-  <ion-tab-bar slot="bottom" color="primary">
-    <ion-tab-button tab="home">
-      <ion-icon name="home"></ion-icon>
-      <ion-label>Home</ion-label>
+<ion-tabs class="mobile-tabs">
+  <!-- Main Content Area -->
+  <div class="mobile-content-wrapper">
+    <!-- Sidebar Toggle Button -->
+    <ion-fab vertical="top" horizontal="start" slot="fixed" class="sidebar-toggle" *ngIf="!sidebarOpen">
+      <ion-fab-button size="small" color="dark" (click)="toggleSidebar()">
+        <ion-icon name="menu"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+
+    <!-- Responsive Sidebar Overlay -->
+    <div class="sidebar-overlay" [class.open]="sidebarOpen" (click)="closeSidebar()"></div>
+
+    <!-- Mobile Sidebar -->
+    <div class="mobile-sidebar" [class.open]="sidebarOpen">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <h2>DFashion</h2>
+        </div>
+        <ion-button fill="clear" size="small" (click)="closeSidebar()">
+          <ion-icon name="close" size="large"></ion-icon>
+        </ion-button>
+      </div>
+
+      <div class="sidebar-content">
+        <!-- User Profile Section -->
+        <div class="sidebar-profile" *ngIf="isAuthenticated">
+          <div class="profile-avatar">
+            <img [src]="userAvatar || '/assets/images/default-avatar.svg'" [alt]="userName">
+          </div>
+          <div class="profile-info">
+            <h3>{{ userName || 'User' }}</h3>
+            <p>{{ userEmail }}</p>
+          </div>
+        </div>
+
+        <!-- Sidebar Navigation -->
+        <div class="sidebar-nav">
+          <h4>Discover</h4>
+          <ion-list lines="none">
+            <ion-item button (click)="navigateAndClose('/tabs/home')">
+              <ion-icon name="trending-up" slot="start"></ion-icon>
+              <ion-label>Trending Now</ion-label>
+            </ion-item>
+            <ion-item button (click)="navigateAndClose('/tabs/categories')">
+              <ion-icon name="diamond" slot="start"></ion-icon>
+              <ion-label>Featured Brands</ion-label>
+            </ion-item>
+            <ion-item button (click)="navigateAndClose('/new-arrivals')">
+              <ion-icon name="sparkles" slot="start"></ion-icon>
+              <ion-label>New Arrivals</ion-label>
+            </ion-item>
+          </ion-list>
+
+          <h4>Social</h4>
+          <ion-list lines="none">
+            <ion-item button (click)="navigateAndClose('/suggested-users')">
+              <ion-icon name="people" slot="start"></ion-icon>
+              <ion-label>Suggested for You</ion-label>
+            </ion-item>
+            <ion-item button (click)="navigateAndClose('/influencers')">
+              <ion-icon name="star" slot="start"></ion-icon>
+              <ion-label>Top Influencers</ion-label>
+            </ion-item>
+          </ion-list>
+
+          <h4>Categories</h4>
+          <ion-list lines="none">
+            <ion-item button (click)="navigateAndClose('/category/men')">
+              <ion-icon name="shirt" slot="start"></ion-icon>
+              <ion-label>Men's Fashion</ion-label>
+            </ion-item>
+            <ion-item button (click)="navigateAndClose('/category/women')">
+              <ion-icon name="woman" slot="start"></ion-icon>
+              <ion-label>Women's Fashion</ion-label>
+            </ion-item>
+            <ion-item button (click)="navigateAndClose('/category/accessories')">
+              <ion-icon name="watch" slot="start"></ion-icon>
+              <ion-label>Accessories</ion-label>
+            </ion-item>
+          </ion-list>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enhanced Bottom Tab Bar -->
+  <ion-tab-bar slot="bottom" class="enhanced-tab-bar">
+    <!-- Home Tab -->
+    <ion-tab-button tab="home" class="tab-button">
+      <div class="tab-content">
+        <ion-icon name="home"></ion-icon>
+        <ion-label>Home</ion-label>
+      </div>
     </ion-tab-button>
 
-    <!-- Categories Tab -->
-    <ion-tab-button tab="categories">
-      <ion-icon name="grid"></ion-icon>
-      <ion-label>Categories</ion-label>
+    <!-- Search Tab -->
+    <ion-tab-button tab="categories" class="tab-button">
+      <div class="tab-content">
+        <ion-icon name="search"></ion-icon>
+        <ion-label>Search</ion-label>
+      </div>
     </ion-tab-button>
 
-    <!-- Stories Tab -->
-    <ion-tab-button tab="stories">
-      <ion-icon name="camera"></ion-icon>
-      <ion-label>Stories</ion-label>
+    <!-- Create Tab (Center) -->
+    <ion-tab-button class="tab-button create-tab" (click)="onCreateClick()">
+      <div class="tab-content">
+        <div class="create-icon">
+          <ion-icon name="add"></ion-icon>
+        </div>
+        <ion-label>Create</ion-label>
+      </div>
     </ion-tab-button>
 
-    <!-- Posts Tab -->
-    <ion-tab-button tab="posts">
-      <ion-icon name="images"></ion-icon>
-      <ion-label>Posts</ion-label>
+    <!-- Reels Tab -->
+    <ion-tab-button tab="reels" class="tab-button reels-tab">
+      <div class="tab-content">
+        <ion-icon name="videocam"></ion-icon>
+        <ion-label>Reels</ion-label>
+      </div>
     </ion-tab-button>
 
-    <!-- Wishlist Tab -->
-    <ion-tab-button tab="wishlist" *ngIf="isAuthenticated">
-      <ion-icon name="heart"></ion-icon>
-      <ion-label>Wishlist</ion-label>
-      <ion-badge color="danger" *ngIf="wishlistItemCount > 0">{{ wishlistItemCount }}</ion-badge>
-    </ion-tab-button>
-
-    <!-- Cart Tab -->
-    <ion-tab-button tab="cart" *ngIf="isAuthenticated">
-      <ion-icon name="bag"></ion-icon>
-      <ion-label>Cart</ion-label>
-      <ion-badge color="danger" *ngIf="cartItemCount > 0">{{ cartItemCount }}</ion-badge>
+    <!-- Shopping Tab -->
+    <ion-tab-button tab="wishlist" class="tab-button" *ngIf="isAuthenticated">
+      <div class="tab-content">
+        <ion-icon name="bag"></ion-icon>
+        <ion-label>Shop</ion-label>
+        <ion-badge color="danger" *ngIf="cartItemCount > 0">{{ cartItemCount }}</ion-badge>
+      </div>
     </ion-tab-button>
 
     <!-- Profile Tab -->
-    <ion-tab-button tab="profile">
-      <ion-icon name="person"></ion-icon>
-      <ion-label>Profile</ion-label>
-    </ion-tab-button>
-
-    <!-- Vendor Tab (only for vendors) -->
-    <ion-tab-button tab="vendor" *ngIf="isVendor">
-      <ion-icon name="storefront"></ion-icon>
-      <ion-label>Vendor</ion-label>
+    <ion-tab-button tab="profile" class="tab-button">
+      <div class="tab-content">
+        <div class="profile-tab-avatar">
+          <img [src]="userAvatar || '/assets/images/default-avatar.svg'" [alt]="userName">
+        </div>
+        <ion-label>Profile</ion-label>
+      </div>
     </ion-tab-button>
   </ion-tab-bar>
 </ion-tabs>
+
+<!-- Create Content Modal -->
+<app-create-content-modal
+  [isOpen]="showCreateModal"
+  (close)="onCreateModalClose()"
+  (createPost)="onCreatePost($event)"
+  (addStory)="onAddStory($event)"
+  (createReel)="onCreateReel($event)"
+  (goLive)="onGoLive()"
+  (moreOptions)="onMoreOptions()">
+</app-create-content-modal>
+
+<!-- Stories Viewer -->
+<app-stories-viewer
+  [stories]="currentStories"
+  [initialIndex]="currentStoryIndex"
+  [isVisible]="showStoriesViewer"
+  (close)="onStoriesViewerClose()"
+  (storyChange)="onStoryChange($event)"
+  (productClick)="onStoryProductClick($event)">
+</app-stories-viewer>

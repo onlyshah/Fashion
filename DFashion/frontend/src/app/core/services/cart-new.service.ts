@@ -65,7 +65,7 @@ export interface CartSummary {
   providedIn: 'root'
 })
 export class CartNewService {
-  private apiUrl = `${environment.apiUrl}/cart-new`;
+  private apiUrl = 'http://10.0.2.2:5000/api/cart-new'; // Direct IP for testing
   private cartSubject = new BehaviorSubject<Cart | null>(null);
   private cartSummarySubject = new BehaviorSubject<CartSummary>({
     totalItems: 0,

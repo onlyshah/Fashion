@@ -79,7 +79,7 @@ export interface PaymentHistory {
   providedIn: 'root'
 })
 export class PaymentService {
-  private apiUrl = `${environment.apiUrl}/payments`;
+  private apiUrl = 'http://10.0.2.2:5000/api/payments'; // Direct IP for testing
   private paymentMethodsSubject = new BehaviorSubject<PaymentMethod[]>([]);
   public paymentMethods$ = this.paymentMethodsSubject.asObservable();
 

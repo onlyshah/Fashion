@@ -1,0 +1,169 @@
+<ion-modal [isOpen]="isOpen" (didDismiss)="onDismiss()" class="create-content-modal">
+  <div class="modal-content">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <h2>Create</h2>
+      <ion-button fill="clear" (click)="onClose()">
+        <ion-icon name="close" size="large"></ion-icon>
+      </ion-button>
+    </div>
+
+    <!-- Create Options -->
+    <div class="create-options">
+      <!-- Create Post -->
+      <div class="create-option" (click)="onCreatePost()">
+        <div class="option-icon post-icon">
+          <ion-icon name="images"></ion-icon>
+        </div>
+        <div class="option-content">
+          <h3>Create Post</h3>
+          <p>Share photos and videos with your followers</p>
+        </div>
+        <div class="option-arrow">
+          <ion-icon name="chevron-forward"></ion-icon>
+        </div>
+      </div>
+
+      <!-- Add Story -->
+      <div class="create-option" (click)="onAddStory()">
+        <div class="option-icon story-icon">
+          <ion-icon name="camera"></ion-icon>
+        </div>
+        <div class="option-content">
+          <h3>Add Story</h3>
+          <p>Share a moment that disappears after 24 hours</p>
+        </div>
+        <div class="option-arrow">
+          <ion-icon name="chevron-forward"></ion-icon>
+        </div>
+      </div>
+
+      <!-- Create Reel -->
+      <div class="create-option" (click)="onCreateReel()">
+        <div class="option-icon reel-icon">
+          <ion-icon name="videocam"></ion-icon>
+        </div>
+        <div class="option-content">
+          <h3>Create Reel</h3>
+          <p>Make short, entertaining videos</p>
+        </div>
+        <div class="option-arrow">
+          <ion-icon name="chevron-forward"></ion-icon>
+        </div>
+      </div>
+
+      <!-- Go Live -->
+      <div class="create-option" (click)="onGoLive()">
+        <div class="option-icon live-icon">
+          <ion-icon name="radio"></ion-icon>
+        </div>
+        <div class="option-content">
+          <h3>Go Live</h3>
+          <p>Start a live video to connect with your audience</p>
+        </div>
+        <div class="option-arrow">
+          <ion-icon name="chevron-forward"></ion-icon>
+        </div>
+      </div>
+
+      <!-- More Options -->
+      <div class="create-option" (click)="onMoreOptions()">
+        <div class="option-icon more-icon">
+          <ion-icon name="grid"></ion-icon>
+        </div>
+        <div class="option-content">
+          <h3>More Options</h3>
+          <p>Explore trending, brands, and categories</p>
+        </div>
+        <div class="option-arrow">
+          <ion-icon name="chevron-forward"></ion-icon>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions (Mobile) -->
+    <div class="quick-actions" *ngIf="isMobile">
+      <h4>Quick Actions</h4>
+      <div class="quick-buttons">
+        <ion-button fill="outline" (click)="onTakePhoto()">
+          <ion-icon name="camera" slot="start"></ion-icon>
+          Camera
+        </ion-button>
+        <ion-button fill="outline" (click)="onSelectFromGallery()">
+          <ion-icon name="images" slot="start"></ion-icon>
+          Gallery
+        </ion-button>
+        <ion-button fill="outline" (click)="onRecordVideo()">
+          <ion-icon name="videocam" slot="start"></ion-icon>
+          Video
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Recent Drafts -->
+    <div class="recent-drafts" *ngIf="drafts && drafts.length > 0">
+      <h4>Recent Drafts</h4>
+      <div class="drafts-list">
+        <div *ngFor="let draft of drafts" class="draft-item" (click)="onOpenDraft(draft)">
+          <div class="draft-thumbnail">
+            <img [src]="draft.thumbnail" [alt]="draft.title">
+            <div class="draft-type">
+              <ion-icon [name]="getDraftIcon(draft.type)"></ion-icon>
+            </div>
+          </div>
+          <div class="draft-info">
+            <h5>{{ draft.title || 'Untitled' }}</h5>
+            <p>{{ getDraftTime(draft.updatedAt) }}</p>
+          </div>
+          <div class="draft-actions">
+            <ion-button fill="clear" size="small" (click)="onDeleteDraft(draft, $event)">
+              <ion-icon name="trash" color="danger"></ion-icon>
+            </ion-button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-modal>
+
+<!-- File Input (Hidden) -->
+<input #fileInput 
+       type="file" 
+       accept="image/*,video/*" 
+       multiple 
+       style="display: none" 
+       (change)="onFileSelected($event)">
+
+<!-- Camera Modal -->
+<ion-modal [isOpen]="showCamera" (didDismiss)="onCameraDismiss()" class="camera-modal">
+  <div class="camera-container">
+    <div class="camera-header">
+      <ion-button fill="clear" (click)="onCloseCamera()">
+        <ion-icon name="close" color="light"></ion-icon>
+      </ion-button>
+      <h3>Camera</h3>
+      <ion-button fill="clear" (click)="onSwitchCamera()">
+        <ion-icon name="camera-reverse" color="light"></ion-icon>
+      </ion-button>
+    </div>
+    
+    <div class="camera-preview">
+      <video #cameraVideo autoplay playsinline></video>
+      <canvas #cameraCanvas style="display: none;"></canvas>
+    </div>
+    
+    <div class="camera-controls">
+      <ion-button fill="clear" (click)="onSelectFromGallery()">
+        <ion-icon name="images" color="light"></ion-icon>
+      </ion-button>
+      
+      <div class="capture-button" (click)="onCapture()">
+        <div class="capture-inner"></div>
+      </div>
+      
+      <ion-button fill="clear" (click)="onToggleFlash()">
+        <ion-icon [name]="flashEnabled ? 'flash' : 'flash-off'" color="light"></ion-icon>
+      </ion-button>
+    </div>
+  </div>
+</ion-modal>

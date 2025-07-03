@@ -59,7 +59,7 @@ export interface StoryGroup {
   providedIn: 'root'
 })
 export class StoriesService {
-  private apiUrl = environment.apiUrl;
+  private apiUrl = 'http://10.0.2.2:5000/api'; // Direct IP for testing
   private storiesSubject = new BehaviorSubject<Story[]>([]);
   private currentStorySubject = new BehaviorSubject<Story | null>(null);
 

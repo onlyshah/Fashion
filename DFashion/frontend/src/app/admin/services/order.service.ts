@@ -111,7 +111,7 @@ export interface OrderStats {
   providedIn: 'root'
 })
 export class OrderService {
-  private apiUrl = `${environment.apiUrl}/admin`;
+  private apiUrl = 'http://10.0.2.2:5000/api/admin'; // Direct IP for testing
   private ordersSubject = new BehaviorSubject<Order[]>([]);
   public orders$ = this.ordersSubject.asObservable();
 
